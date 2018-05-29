@@ -34,7 +34,7 @@ def get_available_feature_extractors():
                 "whales.modules.feature_extraction.{}".format(n)).PipelineMethod)
             m_names.append(n)
         except AttributeError:
-            logger.debug("Module {} doesn't have a valid method".format(n))
+            logger.debug(f"Module {n} doesn't have a valid method")
 
     res = {}
     for b, c in zip(m_names, m_classes):
