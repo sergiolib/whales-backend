@@ -41,3 +41,37 @@ def get_available_feature_extractors():
         res[b] = c
 
     return res
+
+
+def get_available_performance_indicators():
+    """Return the available performance indicators classes.
+    :return: dict whose keys are performance indicators method names and whose values are the
+    method classes"""
+    this_dir = abspath(dirname(__file__))
+    r = join(this_dir, "..", "performance_indicators", "*.py")
+    file_list = glob(r)
+    file_list = [basename(f) for f in file_list]
+
+    pi_name = [f.split(".")[0]
+               for f in file_list if not f.startswith("__")]
+
+    d = join(this_dir, "..", "..", "..")
+    d = abspath(d)
+    sys.path.append(d)
+
+    # Store those that contain a PipelineMethod object
+    pi_names = []
+    pi_classes = []
+    for n in pi_name:
+        try:
+            pi_classes.append(importlib.import_module(
+                "whales.modules.performance_indicators.{}".format(n)).PipelineMethod)
+            pi_names.append(n)
+        except AttributeError:
+            logger.debug(f"Module {n} doesn't have a valid method'")
+
+    res = dict()
+    for a, b in zip(pi_names, pi_classes):
+        res[a] = b
+
+    return res
