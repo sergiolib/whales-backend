@@ -1,5 +1,6 @@
 from whales.modules.pipelines.pipeline import get_available_features_extractors
 from whales.modules.pipelines.pipeline import get_available_pipeline_types
+from whales.modules.pipelines.pipeline import Pipeline
 from whales.modules.pipelines.pipeline import get_available_formatters
 from whales.modules.pipelines.pipeline import get_available_datafiles
 from whales.modules.pipelines.pipeline import get_available_performance_indicators
@@ -41,3 +42,41 @@ def test_get_available_pipeline_types():
     cl = get_available_pipeline_types()
     assert "whale_detector" in cl
 
+
+def test_load_parameters():
+    """Test that loading set of parameters works the way it is expected"""
+    p = Pipeline()
+
+    demo_parameters = """
+{
+    "id": "demo_pipeline",
+    "pipeline_type": "whale_detector",
+    "input_data": [
+        {
+            "filename": "demo_data.h5",
+            "datafile": "time_series",
+            "formatter": "hdf5"
+        }
+    ],
+    "features_extractors": [
+        {
+            "method": "identity",
+            "parameters": {}
+        }
+    ],
+    "machine_learning": {
+        "type": "clustering",
+        "method": "kmeans"
+    },
+    "performance_indicators": [
+        {
+            "method": "accuracy",
+            "parameters": {}
+        }
+    ]
+}
+    """
+
+    p.load_parameters(demo_parameters)
+    assert type(p.parameters["machine_learning"]) is dict
+    assert p.parameters["performance_indicators"][0]["method"] == "accuracy"
