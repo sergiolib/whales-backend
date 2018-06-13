@@ -2,6 +2,7 @@ import numpy as np
 
 from whales.modules.features_extractors.mfcc import PipelineMethod as MFCC
 from whales.modules.features_extractors.identity import PipelineMethod as Identity
+from whales.modules.features_extractors.zero_crossing_rate import PipelineMethod as ZeroCrossingRate
 
 
 def generate_data(n, d):
@@ -21,4 +22,11 @@ def test_identity():
     f = Identity()
     t = f.transform(data=data)
     np.testing.assert_allclose(data, t)
+    assert f.description != ""
+
+
+def test_zero_crossing_rate():
+    data = generate_data(10000, 2500) - 0.5
+    f = ZeroCrossingRate()
+    t = f.transform(data=data)
     assert f.description != ""
