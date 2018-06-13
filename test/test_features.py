@@ -6,6 +6,7 @@ from whales.modules.features_extractors.zero_crossing_rate import PipelineMethod
 from whales.modules.features_extractors.min import PipelineMethod as Min
 from whales.modules.features_extractors.range import PipelineMethod as Range
 from whales.modules.features_extractors.skewness import PipelineMethod as Skewness
+from whales.modules.features_extractors.energy import PipelineMethod as Energy
 
 
 def generate_data(n, d):
@@ -63,6 +64,16 @@ def test_range():
 def test_skewness():
     data = generate_data(10000, 2500) - 0.5
     f = Skewness()
+    t = f.transform(data=data)
+    assert t.shape[0] == data.shape[0]
+    assert t.shape[1] == 1
+    assert f.description != ""
+    assert t.ndim == 2
+
+
+def test_energy():
+    data = generate_data(10000, 2500) - 0.5
+    f = Energy()
     t = f.transform(data=data)
     assert t.shape[0] == data.shape[0]
     assert t.shape[1] == 1
