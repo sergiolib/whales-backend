@@ -16,6 +16,7 @@ def test_mfcc():
     t = f.transform(data=data)
     assert t.shape[0] == data.shape[0]
     assert f.description != ""
+    assert t.ndim == 2
 
 
 def test_identity():
@@ -24,6 +25,7 @@ def test_identity():
     t = f.transform(data=data)
     np.testing.assert_allclose(data, t)
     assert f.description != ""
+    assert t.ndim == 2
 
 
 def test_zero_crossing_rate():
@@ -31,6 +33,7 @@ def test_zero_crossing_rate():
     f = ZeroCrossingRate()
     t = f.transform(data=data)
     assert f.description != ""
+    assert t.ndim == 2
 
 
 def test_min():
@@ -38,3 +41,4 @@ def test_min():
     f = Min()
     t = f.transform(data=data)
     assert f.description != ""
+    assert t.ndim == 2
