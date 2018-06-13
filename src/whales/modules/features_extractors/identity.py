@@ -1,8 +1,13 @@
 from whales.modules.features_extractors.feature_extraction import FeatureExtraction
 
 
-class IdentityFeature(FeatureExtraction):
-    pass
+class Identity(FeatureExtraction):
+    def __init__(self, logger=None):
+        super(Identity, self).__init__(logger)
+        self.needs_fitting = False
+
+    def method_transform(self, data):
+        return data
 
 
-PipelineMethod = IdentityFeature
+PipelineMethod = Identity
