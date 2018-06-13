@@ -4,9 +4,9 @@ from whales.modules.features_extractors.feature_extraction import FeatureExtract
 
 
 class MFCC(FeatureExtraction):
-    "Mel Frequency Cepstral Coefficients"
     def __init__(self, logger=None):
         super(MFCC, self).__init__(logger)
+        self.description = """Mel Frequency Cepstral Coefficients"""
         self.needs_fitting = False
         self.parameters = {
             # TODO: add relevant parameters
