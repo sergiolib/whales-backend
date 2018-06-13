@@ -9,16 +9,17 @@ class MFCC(FeatureExtraction):
         super(MFCC, self).__init__(logger)
         self.needs_fitting = False
         self.parameters = {
-
+            # TODO: add relevant parameters
         }
 
     def method_transform(self, data):
         out = []
         for d in data:
             d = d.reshape(-1, 1)
-            f = mfcc(d)
+            f = mfcc(d, **self.parameters)
             out.append(f.ravel())
         res = np.vstack(out)
         return res
+
 
 PipelineMethod = MFCC
