@@ -8,6 +8,8 @@ class Module:
         if logger is None:
             self.logger = logging.getLogger(str(self))
 
+        self.description = ""
+
         self._parameters = {}
 
     @property
