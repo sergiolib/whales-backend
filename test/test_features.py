@@ -13,6 +13,7 @@ def test_mfcc():
     f = MFCC()
     t = f.transform(data=data)
     assert t.shape[0] == data.shape[0]
+    assert f.description != ""
 
 
 def test_identity():
@@ -20,3 +21,4 @@ def test_identity():
     f = Identity()
     t = f.transform(data=data)
     np.testing.assert_allclose(data, t)
+    assert f.description != ""
