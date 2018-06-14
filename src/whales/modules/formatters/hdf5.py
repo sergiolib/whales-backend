@@ -1,15 +1,19 @@
 from whales.modules.formatters.formatters import Formatter
+from whales.modules.formatters.json import JSONFormatterMixin
 
 
-class HDF5Formatter(Formatter):
-    def read(self, filename):
+class HDF5Formatter(JSONFormatterMixin,
+                    Formatter):
+    @staticmethod
+    def read(filename):
+        # TODO
         pass
 
-    def write(self, filename):
+    @staticmethod
+    def write(filename, data):
+        # TODO
         pass
 
-    def read_metadata(self, metadata_filename):
-        pass
 
 
 PipelineFormatter = HDF5Formatter

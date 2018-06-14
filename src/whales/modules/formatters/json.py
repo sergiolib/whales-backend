@@ -1,10 +1,12 @@
 import json
-from whales.modules.formatters.formatters import Formatter
 
 
-class JSONFormatter(Formatter):
-    def read(self, filename):
-        return json.load(open(filename, mode="r"))
+class JSONFormatterMixin():
+    """Mixin for using where format doesn't have built in metadata storage"""
+    @staticmethod
+    def read_metadata(metadata_filename):
+        return json.load(open(metadata_filename, mode="r"))
 
-    def write(self, filename, data):
-        json.dump(data, open(filename, mode="w"))
+    @staticmethod
+    def write_metadata(metadata_filename, metadata):
+        json.dump(metadata, open(metadata_filename, mode="w"))

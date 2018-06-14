@@ -36,24 +36,3 @@ class TestAIFFormatter:
         formatter = AIFFormatter()
         metadata = formatter.read_metadata(filename)
         assert type(metadata) is dict
-
-
-class TestJSONFormatter:
-    def test_read(self):
-        with open("sample_json.json", "w") as f:
-            f.write('{"kind_of_file": "json_file", "list": ["Yes, this is a list", "of many elements"]}')
-        filename = "sample_json.json"
-        formatter = JSONFormatter()
-        metadata = formatter.read(filename)
-        assert len(metadata) == 2
-        assert type(metadata["list"]) is list
-
-    def test_write(self):
-        filename = "sample_json.json"
-        formatter = JSONFormatter()
-        formatter.write(filename, {"Parameters": [1, 2, 3]})
-        assert isfile(filename)
-        with open(filename, "r") as f:
-            content = f.read()
-        content = content.replace("\n", "").replace(" ", "")
-        assert content == '{"Parameters":[1,2,3]}'
