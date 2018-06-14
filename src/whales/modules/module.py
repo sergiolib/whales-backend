@@ -3,9 +3,10 @@ import logging
 
 class Module:
     """Generic module with inheritable methods"""
+    description = ""
+
     def __init__(self, logger=None):
         self.logger = logger or logging.getLogger(str(self))
-        self.description = ""
 
         self._parameters = {}
 
