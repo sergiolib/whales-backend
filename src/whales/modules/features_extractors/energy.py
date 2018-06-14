@@ -11,7 +11,7 @@ class Energy(FeatureExtraction):
         }
 
     def method_transform(self, data):
-        return (data * data).sum(axis=1)
+        return (data * data).sum(axis=1).reshape(-1, 1)
 
 
 PipelineMethod = Energy

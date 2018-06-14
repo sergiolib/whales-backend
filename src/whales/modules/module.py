@@ -4,10 +4,7 @@ import logging
 class Module:
     """Generic module with inheritable methods"""
     def __init__(self, logger=None):
-        self.logger = logger
-        if logger is None:
-            self.logger = logging.getLogger(str(self))
-
+        self.logger = logger or logging.getLogger(str(self))
         self.description = ""
 
         self._parameters = {}
