@@ -37,7 +37,7 @@ class AIFFormatter(Formatter):
             rng = pd.date_range(start=f'{year}/{month}/{day} {hours}:{minutes}:{seconds}',
                                 periods=n_frames,
                                 freq=f'{1e9//rate}ns')
-        except:
+        except Exception:
             rng = None
         return pd.Series(ndarray, index=rng)  # Return a Series object
 
