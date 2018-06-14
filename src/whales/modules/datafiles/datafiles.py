@@ -19,6 +19,7 @@ class Datafile(Module):
             self.metadata = formatter.read_metadata(file_name)
         else:
             self.metadata = JSONFormatter.read(metadata_json_file)
+        return self
 
     def save_data(self, file_name: str, formatter: Formatter, metadata_json_file=None):
         """Save the data in self.data into specified file_name with specified formatter and also write the metadata.
