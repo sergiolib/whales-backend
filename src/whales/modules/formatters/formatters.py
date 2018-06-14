@@ -1,9 +1,16 @@
 class Formatter:
-    def read(self, filename):
+    @staticmethod
+    def read(filename, **kwargs):
         raise NotImplementedError
 
-    def write(self, filename):
+    @staticmethod
+    def write(filename, data, **kwargs):
         raise NotImplementedError
 
-    def read_metadata(self, metadata_filename):
+    @staticmethod
+    def read_metadata(metadata_filename, **kwargs):
+        raise NotImplementedError
+
+    @staticmethod
+    def write_metadata(metadata_filename, metadata, **kwargs):
         raise NotImplementedError
