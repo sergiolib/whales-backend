@@ -5,6 +5,7 @@ from whales.modules.pipelines.pipeline import get_available_formatters
 from whales.modules.pipelines.pipeline import get_available_datafiles
 from whales.modules.pipelines.pipeline import get_available_performance_indicators
 from whales.modules.pipelines.pipeline import get_available_clustering_methods
+from whales.modules.pipelines.pipeline import get_available_datasets
 
 
 def test_get_available_feature_extractors():
@@ -41,6 +42,12 @@ def test_get_available_pipeline_types():
     """Test that get_available_pipeline_types function works correctly"""
     cl = get_available_pipeline_types()
     assert "whale_detector" in cl
+
+
+def test_get_available_datasets():
+    """Test that get_available_datasets function works correctly"""
+    ds = get_available_datasets()
+    assert "audio" in ds
 
 
 def test_load_parameters():
