@@ -3,13 +3,12 @@ from whales.modules.features_extractors.feature_extraction import FeatureExtract
 
 
 class ZeroCrossingRate(FeatureExtraction):
+    description = "Zero crossing rate"
+    parameters = {}
+
     def __init__(self, logger=None):
         super(ZeroCrossingRate, self).__init__(logger)
         self.needs_fitting = False
-        self.description = "Zero crossing rate"
-        self.parameters = {
-
-        }
 
     def method_transform(self, data):
         signs = np.sign(data)

@@ -4,13 +4,12 @@ from whales.modules.features_extractors.feature_extraction import FeatureExtract
 
 
 class Skewness(FeatureExtraction):
+    description = "Skewness"
+    parameters = {}
+
     def __init__(self, logger=None):
         super(Skewness, self).__init__(logger)
         self.needs_fitting = False
-        self.description = "Skewness"
-        self.parameters = {
-
-        }
 
     def method_transform(self, data):
         return scipy.stats.skew(data, axis=1).reshape(-1, 1)
