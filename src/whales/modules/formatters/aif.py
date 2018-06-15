@@ -54,8 +54,8 @@ class AIFFormatter(Formatter):
             metadata["num_frames"] = aiff.getnframes()
             metadata["frame_rate"] = aiff.getframerate()
             metadata["num_channels"] = aiff.getnchannels()
-            metadata["compression_name"] = aiff.getcompname()
-            metadata["compression_type"] = aiff.getcomptype()
+            metadata["compression_name"] = aiff.getcompname().decode("utf-8")
+            metadata["compression_type"] = aiff.getcomptype().decode("utf-8")
             metadata["markers"] = aiff.getmarkers()
             metadata["sample_width"] = aiff.getsampwidth()
         return metadata
@@ -63,3 +63,6 @@ class AIFFormatter(Formatter):
     @staticmethod
     def write_metadata(metadata_filename, metadata):
         raise NotImplementedError
+
+
+PipelineFormatter = AIFFormatter

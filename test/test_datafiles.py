@@ -2,6 +2,7 @@ from urllib.request import urlretrieve
 
 from whales.modules.datafiles.audio import AudioDatafile
 from whales.modules.formatters.aif import AIFFormatter
+from whales.modules.formatters.hdf5 import HDF5Formatter
 
 
 class TestAudioDatafiles:
@@ -17,3 +18,11 @@ class TestAudioDatafiles:
         filename = self.get_filename()
         df = AudioDatafile()
         df.load_data(filename, AIFFormatter)
+        assert df.duration > 0
+
+    def test_save(self):
+        filename = self.get_filename()
+        df = AudioDatafile()
+        df.load_data(filename, AIFFormatter)
+        df.save_data("tmp.h5", HDF5Formatter)
+        df2 = AudioDatafile().load_data("tmp.h5", HDF5Formatter)
