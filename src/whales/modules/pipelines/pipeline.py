@@ -216,6 +216,40 @@ def get_available_pipeline_types():
     return res
 
 
+def get_available_datasets():
+    """Return the available data sets types classes.
+    :return: dict whose keys are data sets and whose values are the
+    methods classes"""
+    this_dir = abspath(dirname(__file__))
+    r = join(this_dir, "..", "datasets", "*.py")
+    file_list = glob(r)
+    file_list = [basename(f) for f in file_list]
+
+    fmt_name = [f.split(".")[0]
+                for f in file_list if not f.startswith("__")]
+
+    d = join(this_dir, "..", "..", "..")
+    d = abspath(d)
+    sys.path.append(d)
+
+    # Store those that contain a PipelineType object
+    fmt_names = []
+    fmt_classes = []
+    for n in fmt_name:
+        try:
+            fmt_classes.append(importlib.import_module(
+                "whales.modules.datasets.{}".format(n)).PipelineDataSet)
+            fmt_names.append(n)
+        except AttributeError:
+            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+
+    res = dict()
+    for a, b in zip(fmt_names, fmt_classes):
+        res[a] = b
+
+    return res
+
+
 class Pipeline(Module):
     """Module that parses JSON formatted parameter set, sets up the pipelines and allows launching it.
     Actual pipelines initialization or instructions are implemented in children classes."""
