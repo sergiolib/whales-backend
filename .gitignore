@@ -1,0 +1,8 @@
+/test/data
+.idea/
+.pytest_cache/
+*__pychache__
+/venv
+*.h5
+*.json
+*.aif

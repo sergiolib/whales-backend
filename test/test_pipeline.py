@@ -1,3 +1,8 @@
+import sys, os
+
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + '/../')
+
 from whales.modules.pipelines.pipeline import get_available_features_extractors
 from whales.modules.pipelines.pipeline import get_available_pipeline_types
 from whales.modules.pipelines.pipeline import Pipeline
