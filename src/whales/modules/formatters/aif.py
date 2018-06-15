@@ -1,9 +1,9 @@
-from os.path import splitext, basename
-
-from .formatters import Formatter
 import numpy as np
 import pandas as pd
 import aifc
+
+from os.path import splitext, basename
+from .formatters import Formatter
 
 
 class AIFFormatter(Formatter):

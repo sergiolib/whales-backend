@@ -1,8 +1,8 @@
 from whales.modules.formatters.formatters import Formatter
-from whales.modules.formatters.json import JSONFormatterMixin
+from whales.modules.formatters.json import JSONMetadataMixin
 
 
-class HDF5Formatter(JSONFormatterMixin,
+class HDF5Formatter(JSONMetadataMixin,
                     Formatter):
     @staticmethod
     def read(filename):
@@ -16,4 +16,4 @@ class HDF5Formatter(JSONFormatterMixin,
 
 
 
-PipelineFormatter = HDF5Formatter
+PipelineFormatter = HDF5Metadata

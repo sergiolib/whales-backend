@@ -1,7 +1,7 @@
 import json
 
 
-class JSONFormatterMixin():
+class JSONMetadataMixin:
     """Mixin for using where format doesn't have built in metadata storage"""
     @staticmethod
     def read_metadata(metadata_filename):
