@@ -1,10 +1,8 @@
 import pandas as pd
 
 from os import rename
-from os.path import isfile
 from urllib.request import urlretrieve
 from whales.modules.formatters.aif import AIFFormatter
-from whales.modules.formatters.json import JSONFormatter
 
 
 class TestAIFFormatter:
@@ -12,7 +10,7 @@ class TestAIFFormatter:
     def get_filename(desired_path=None):
         """Download and place a working AIFF sample file to perform the tests"""
         desired_path = desired_path or "ballena_bw_ruido_002_PU145_20120330_121500.aif"
-        url = "https://uc05bb4af8cba350208717dbc3c8.dl.dropboxusercontent.com/cd/0/get/AI3QzjmFBZeKNLSJKze7H6PoZQEC3LNSGYTJq1Fp6eePZCIqPGsJBBXT6krrSeP5wOjKnkHKT8gCIKpmtmADg2cJt1Ewaw4ORgI1FmftHO4YODLTIYctu8oaqD4wmoQ2W_W-UQWyU543tgVxTWjhy5TIUVSPPsxMk54M2PfAis0D0tGSmMyfpmRoEXzEa4__0AA/file?dl=1"
+        url = "https://www.cec.uchile.cl/~sliberman/ballena_bw_ruido_002_PU145_20120330_121500.aif"
         urlretrieve(url, desired_path)
         return desired_path
 
