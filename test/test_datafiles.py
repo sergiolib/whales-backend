@@ -15,6 +15,7 @@ class TestAudioDatafiles:
         df = AudioDatafile()
         df.load_data(filename, AIFFormatter)
         assert df.duration > 0
+        return df
 
     def test_save(self):
         filename = get_filename()
