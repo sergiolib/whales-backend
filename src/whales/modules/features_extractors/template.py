@@ -5,8 +5,8 @@ class Demo(FeatureExtraction):
     def __init__(self, logger=None):  # There should be no parameters here
         super(Demo, self).__init__(logger)
 
-        # State if method needs fitting
         self.needs_fitting = True  # If True, the method can't be used without fitting it
+        # Also, if set, Demo().fit() will be callable. Else, it won't.
 
         self.description = "This is a demo"
 

@@ -3,11 +3,6 @@ from whales.modules.module import Module
 
 
 class FeatureExtraction(Module):
-    def __init__(self, logger=None):
-        super(FeatureExtraction, self).__init__(logger)
-        self.needs_fitting = False  # Default
-        self.is_fitted = False  # Default
-
     def fit(self, **kwargs):
         if self.needs_fitting is False:
             return
