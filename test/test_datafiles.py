@@ -1,5 +1,7 @@
 import sys, os
 
+from whales.modules.datafiles.datafiles import Datafile
+
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
@@ -14,7 +16,7 @@ class TestAudioDatafiles:
         filename = get_filename()
         df = AudioDatafile()
         df.load_data(filename, AIFFormatter)
-        assert df.duration > 0
+        assert df.duration.seconds > 0
         return df
 
     def test_save(self):
@@ -23,3 +25,12 @@ class TestAudioDatafiles:
         df.load_data(filename, AIFFormatter)
         df.save_data("tmp.h5", HDF5Formatter)
         df2 = AudioDatafile().load_data("tmp.h5", HDF5Formatter)
+        assert df2.duration.seconds > 0
+
+    def test_mutate(self):
+        filename = get_filename()
+        df = Datafile()
+        df.load_data(filename, AIFFormatter)
+        assert not hasattr(df, "duration")  # Duration exists only in audio datafile
+        audio_df = AudioDatafile(df)
+        assert audio_df.duration.seconds > 0
