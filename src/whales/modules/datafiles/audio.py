@@ -40,8 +40,8 @@ class AudioDatafile(TimeSeriesDatafile):
         data = self.data
         first = data.index[0]
         cols = list(labels.columns)
-        begin_time_col = [i for i in cols if "Begin" in i][0]
-        end_time_col = [i for i in cols if "End" in i][0]
+        begin_time_col = [i for i in cols if "Begin" in i][0]  # If contains Begin, then assume begin_time
+        end_time_col = [i for i in cols if "End" in i][0]  # If contains End, then assume end_time
         for _, row in labels.iterrows():
             start_time = row[begin_time_col]
             end_time = row[end_time_col]
@@ -51,7 +51,6 @@ class AudioDatafile(TimeSeriesDatafile):
             b = first + from_first + delta
             data[a:b].labels = self.name_label[label]
         self.data = data
-
 
 
 PipelineDatafile = AudioDatafile
