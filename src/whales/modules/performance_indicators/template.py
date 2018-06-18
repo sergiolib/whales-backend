@@ -12,15 +12,17 @@ class Demo(PerformanceIndicator):
         # self._model = SKLearn.Recall()
 
         self.parameters = {
-            # Add parameters here
+            # Add parameters here. "Inputs" have to be placed here too
         }
 
-    def method_fit(self, **kwargs):
+    def method_fit(self):
         # Here goes the training, if needed. Performance indicators usually don't get trained
         pass
 
-    def method_evaluate(self, **kwargs):
-        # Here goes the training. Same parameters as in fit
+    def method_evaluate(self):
+        # Here goes the training. Inputs are stated inside the parameters
+        # This is like that because performance indicators, and specially visualizations sometimes use complex inputs
+        # that are hard to generalize.
         return None
 
 
