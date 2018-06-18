@@ -23,11 +23,15 @@ class AudioDatafile(TimeSeriesDatafile):
     @property
     def data(self):
         data = super(AudioDatafile, self).data
-        if "labels" in data:
+        if "labels" in data.columns:
             return data
         else:
             data["labels"] = self.name_label["unlabeled"]  # Set everything as unlabeled if hasn't been labeled
         return data
+
+    @data.setter
+    def data(self, data):
+        self._data = data
 
     def load_labels(self, file_name, labels_formatter, label="whale"):
         if label not in self.name_label:
@@ -43,6 +47,7 @@ class AudioDatafile(TimeSeriesDatafile):
             a = first + from_first
             b = first + from_first + delta
             data[a:b].labels = self.name_label[label]
+        self.data = data
 
 
 
