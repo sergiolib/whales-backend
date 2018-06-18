@@ -10,6 +10,7 @@ from whales.modules.pipelines.pipeline import get_available_formatters
 from whales.modules.pipelines.pipeline import get_available_datafiles
 from whales.modules.pipelines.pipeline import get_available_performance_indicators
 from whales.modules.pipelines.pipeline import get_available_unsupervised_methods
+from whales.modules.pipelines.pipeline import get_available_supervised_methods
 from whales.modules.pipelines.pipeline import get_available_datasets
 
 
@@ -29,6 +30,12 @@ def test_get_available_unsupervised_methods():
     """Test that get_available_unsupervised_methods function works correctly"""
     cl = get_available_unsupervised_methods()
     #assert "kmeans" in cl
+
+
+def test_get_available_supervised_methods():
+    """Test that get_available_supervised_methods function works correctly"""
+    cl = get_available_supervised_methods()
+    #assert "logistic_regression" in cl
 
 
 def test_get_available_formatters():
