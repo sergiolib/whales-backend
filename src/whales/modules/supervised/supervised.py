@@ -2,10 +2,10 @@ from whales.modules.module import Module
 
 
 class Supervised(Module):
-    def fit(self, data):
-        self.method_fit(data)
+    def fit(self, data, target):
+        self.method_fit(data, target)
 
-    def method_fit(self, data, targets):
+    def method_fit(self, data, target):
         raise NotImplementedError
 
     def method_predict(self, data):
