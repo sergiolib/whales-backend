@@ -3,10 +3,9 @@ from whales.modules.features_extractors.feature_extraction import FeatureExtract
 
 
 class ZeroCrossingRate(FeatureExtraction):
-    description = "Zero crossing rate"
-
     def __init__(self, logger=None):
         super(ZeroCrossingRate, self).__init__(logger)
+        self.description = "Zero crossing rate"
         self.needs_fitting = False
         self.parameters = {}
 

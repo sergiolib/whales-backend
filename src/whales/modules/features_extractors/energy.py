@@ -2,10 +2,9 @@ from whales.modules.features_extractors.feature_extraction import FeatureExtract
 
 
 class Energy(FeatureExtraction):
-    description = "Energy"
-
     def __init__(self, logger=None):
         super(Energy, self).__init__(logger)
+        self.description = "Energy"
         self.needs_fitting = False
         self.parameters = {}
 

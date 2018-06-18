@@ -4,10 +4,9 @@ from whales.modules.features_extractors.feature_extraction import FeatureExtract
 
 
 class Skewness(FeatureExtraction):
-    description = "Skewness"
-
     def __init__(self, logger=None):
         super(Skewness, self).__init__(logger)
+        self.description = "Skewness"
         self.needs_fitting = False
         self.parameters = {}
 

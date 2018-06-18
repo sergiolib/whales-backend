@@ -3,10 +3,9 @@ from whales.modules.features_extractors.feature_extraction import FeatureExtract
 
 
 class Range(FeatureExtraction):
-    description = "Range"
-
     def __init__(self, logger=None):
         super(Range, self).__init__(logger)
+        self.description = "Range"
         self.needs_fitting = False
         self.parameters = {}
 
