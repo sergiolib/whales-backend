@@ -39,9 +39,12 @@ class AudioDatafile(TimeSeriesDatafile):
         labels = labels_formatter.read(file_name)
         data = self.data
         first = data.index[0]
+        cols = list(labels.columns)
+        begin_time_col = [i for i in cols if "Begin" in i][0]
+        end_time_col = [i for i in cols if "End" in i][0]
         for _, row in labels.iterrows():
-            start_time = row["Begin_time"]
-            end_time = row["End_time"]
+            start_time = row[begin_time_col]
+            end_time = row[end_time_col]
             from_first = pd.Timedelta(seconds=start_time)
             delta = pd.Timedelta(seconds=end_time-start_time)
             a = first + from_first
