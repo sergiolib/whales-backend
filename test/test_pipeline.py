@@ -40,7 +40,7 @@ def test_get_available_formatters():
 def test_get_available_datafiles():
     """Test that get_available_datafiles function works correctly"""
     cl = get_available_datafiles()
-    assert "time_series" in cl
+    assert "audio" in cl
 
 
 def test_get_available_pipeline_types():
@@ -52,7 +52,7 @@ def test_get_available_pipeline_types():
 def test_get_available_datasets():
     """Test that get_available_datasets function works correctly"""
     ds = get_available_datasets()
-    assert "audio" in ds
+    assert "files_fold" in ds
 
 
 def test_load_parameters():
