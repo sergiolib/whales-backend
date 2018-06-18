@@ -39,7 +39,7 @@ class AIFFormatter(Formatter):
                                 freq=f'{1e9//rate}ns')
         except Exception:
             rng = None
-        return pd.Series(ndarray, index=rng)  # Return a Series object
+        return pd.Series(ndarray, index=rng, name=basename(filename))  # Return a Series object
 
     @staticmethod
     def write(filename, data):
