@@ -1,4 +1,4 @@
-from whales.modules.formatters.formatters import Formatter
+import pandas as pd
 from whales.modules.module import Module
 
 
@@ -23,9 +23,27 @@ class Datafile(Module):
         formatter.write(file_name, self.data)
         formatter.write_metadata(file_name, self.metadata)
 
+    @staticmethod
+    def concatenate(datafiles_list):
+        """Add datafiles from datafiles_list to new datafile and return it"""
+        data = []
+        new_df = __class__()
+        metadata = {}
+        for df in datafiles_list:
+            metadata[df.file_name] = df.metadata
+            data.append(df.data)
+
+        new_df.data = pd.concat(data, axis=1)
+        new_df.metadata = metadata
+        return new_df
+
     @property
     def data(self):
-        return self._data or self.formatter.read(self.file_name)
+        if self._data is None:
+            res = self.formatter.read(self.file_name)
+        else:
+            res = self._data
+        return res
 
     @data.setter
     def data(self, data):
