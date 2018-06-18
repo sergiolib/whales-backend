@@ -6,7 +6,7 @@ from whales.modules.formatters.aif import AIFFormatter
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from src.whales.modules.preprocessing.scale import Scale
+from src.whales.modules.pre_processing.scale import Scale
 from utilities import get_filename
 import numpy as np
 
