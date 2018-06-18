@@ -29,3 +29,14 @@ def get_5_filenames(desired_dir=None):
         urlretrieve(url, desired_path)
         res.append(desired_path)
     return res
+
+
+def get_labeled(desired_path_data=None, desired_path_labels=None):
+    """Download and place a working AIFF sample file to perform the tests"""
+    desired_path_data = desired_path_data or "ballenas-bw_016_PU145_20120504_150000.aif"
+    desired_path_labels = desired_path_labels or "ballenas-bw_016_PU145_20120504_150000-Labels.csv"
+    url_data = "https://www.cec.uchile.cl/~sliberman/ballenas-bw_016_PU145_20120504_150000.aif"
+    url_labels = "https://www.cec.uchile.cl/~sliberman/ballenas-bw_016_PU145_20120504_150000-Labels.csv"
+    urlretrieve(url_data, desired_path_data)
+    urlretrieve(url_labels, desired_path_labels)
+    return desired_path_data, desired_path_labels
