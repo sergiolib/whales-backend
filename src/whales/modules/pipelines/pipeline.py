@@ -80,12 +80,12 @@ def get_available_performance_indicators():
     return res
 
 
-def get_available_clustering_methods():
-    """Return the available clustering methods classes.
-    :return: dict whose keys are clustering methods names and whose values are the
+def get_available_unsupervised_methods():
+    """Return the available unsupervised methods classes.
+    :return: dict whose keys are unsupervised methods names and whose values are the
     methods classes"""
     this_dir = abspath(dirname(__file__))
-    r = join(this_dir, "..", "clustering", "*.py")
+    r = join(this_dir, "..", "unsupervised", "*.py")
     file_list = glob(r)
     file_list = [basename(f) for f in file_list]
 
@@ -102,7 +102,7 @@ def get_available_clustering_methods():
     for n in cl_name:
         try:
             cl_classes.append(importlib.import_module(
-                "whales.modules.clustering.{}".format(n)).PipelineMethod)
+                "whales.modules.unsupervised.{}".format(n)).PipelineMethod)
             cl_names.append(n)
         except AttributeError:
             functions_logger.debug(f"Module {n} doesn't have a valid method'")

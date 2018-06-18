@@ -1,9 +1,8 @@
 from whales.modules.module import Module
 
 
-class Clustering(Module):
+class Unsupervised(Module):
     def fit(self, data):
-        # Do not re implement this method, instead implement method_
         self.method_fit(data)
 
     def method_fit(self, data):
