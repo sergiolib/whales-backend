@@ -148,6 +148,40 @@ def get_available_supervised_methods():
     return res
 
 
+def get_available_semi_supervised_methods():
+    """Return the available semi_supervised methods classes.
+    :return: dict whose keys are semi_supervised methods names and whose values are the
+    methods classes"""
+    this_dir = abspath(dirname(__file__))
+    r = join(this_dir, "..", "semi_supervised", "*.py")
+    file_list = glob(r)
+    file_list = [basename(f) for f in file_list]
+
+    cl_name = [f.split(".")[0]
+               for f in file_list if not f.startswith("__")]
+
+    d = join(this_dir, "..", "..", "..")
+    d = abspath(d)
+    sys.path.append(d)
+
+    # Store those that contain a PipelineMethod object
+    cl_names = []
+    cl_classes = []
+    for n in cl_name:
+        try:
+            cl_classes.append(importlib.import_module(
+                "whales.modules.semi_supervised.{}".format(n)).PipelineMethod)
+            cl_names.append(n)
+        except AttributeError:
+            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+
+    res = dict()
+    for a, b in zip(cl_names, cl_classes):
+        res[a] = b
+
+    return res
+
+
 def get_available_formatters():
     """Return the available formatter classes.
     :return: dict whose keys are formatters names and whose values are the
