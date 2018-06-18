@@ -6,3 +6,5 @@ class CSVLabelsFormatter(LabelsFormatter):
     def read(filename):
         read_file = pd.read_csv(filename, index_col=None, header=0)
         return read_file
+
+PipelineFormatter = CSVLabelsFormatter

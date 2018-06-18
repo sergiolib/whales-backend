@@ -250,6 +250,40 @@ def get_available_formatters():
     return res
 
 
+def get_available_labels_formatters():
+    """Return the available formatter classes.
+    :return: dict whose keys are labels_formatters names and whose values are the
+    methods classes"""
+    this_dir = abspath(dirname(__file__))
+    r = join(this_dir, "..", "labels_formatters", "*.py")
+    file_list = glob(r)
+    file_list = [basename(f) for f in file_list]
+
+    fmt_name = [f.split(".")[0]
+                for f in file_list if not f.startswith("__")]
+
+    d = join(this_dir, "..", "..", "..")
+    d = abspath(d)
+    sys.path.append(d)
+
+    # Store those that contain a PipelineMethod object
+    fmt_names = []
+    fmt_classes = []
+    for n in fmt_name:
+        try:
+            fmt_classes.append(importlib.import_module(
+                "whales.modules.labels_formatters.{}".format(n)).PipelineFormatter)
+            fmt_names.append(n)
+        except AttributeError:
+            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+
+    res = dict()
+    for a, b in zip(fmt_names, fmt_classes):
+        res[a] = b
+
+    return res
+
+
 def get_available_datafiles():
     """Return the available datafile classes.
     :return: dict whose keys are datafile names and whose values are the

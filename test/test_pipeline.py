@@ -8,6 +8,7 @@ from whales.modules.pipelines.pipeline import get_available_pre_processing
 from whales.modules.pipelines.pipeline import get_available_pipeline_types
 from whales.modules.pipelines.pipeline import Pipeline
 from whales.modules.pipelines.pipeline import get_available_formatters
+from whales.modules.pipelines.pipeline import get_available_labels_formatters
 from whales.modules.pipelines.pipeline import get_available_datafiles
 from whales.modules.pipelines.pipeline import get_available_performance_indicators
 from whales.modules.pipelines.pipeline import get_available_unsupervised_methods
@@ -56,6 +57,12 @@ def test_get_available_formatters():
     """Test that get_available_formatters function works correctly"""
     pi = get_available_formatters()
     assert "hdf5" in pi
+
+
+def test_get_available_labels_formatters():
+    """Test that get_available_labels_formatters function works correctly"""
+    lf = get_available_labels_formatters()
+    assert "csv" in lf
 
 
 def test_get_available_datafiles():
