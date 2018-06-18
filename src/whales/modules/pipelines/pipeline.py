@@ -46,6 +46,40 @@ def get_available_features_extractors():
     return res
 
 
+def get_available_pre_processing():
+    """Return the available pre processing classes.
+    :return: dict whose keys are pre processing method names and whose values are the
+    method classes"""
+    this_dir = abspath(dirname(__file__))
+    r = join(this_dir, "..", "pre_processing", "*.py")
+    file_list = glob(r)
+
+    file_list = [basename(f) for f in file_list]
+    method_name = [f.split(".")[0]
+                   for f in file_list if not f.startswith("__")]
+
+    d = join(this_dir, "..", "..",  "..")
+    d = abspath(d)
+    sys.path.append(d)
+
+    # Store those that contain a PipelineMethod named object (design requirement)
+    m_names = []
+    m_classes = []
+    for n in method_name:
+        try:
+            m_classes.append(importlib.import_module(
+                "whales.modules.pre_processing.{}".format(n)).PipelineMethod)
+            m_names.append(n)
+        except AttributeError:
+            functions_logger.debug(f"Module {n} doesn't have a valid method")
+
+    res = {}
+    for b, c in zip(m_names, m_classes):
+        res[b] = c
+
+    return res
+
+
 def get_available_performance_indicators():
     """Return the available performance indicators classes.
     :return: dict whose keys are performance indicators method names and whose values are the

@@ -4,6 +4,7 @@ myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
 from whales.modules.pipelines.pipeline import get_available_features_extractors
+from whales.modules.pipelines.pipeline import get_available_pre_processing
 from whales.modules.pipelines.pipeline import get_available_pipeline_types
 from whales.modules.pipelines.pipeline import Pipeline
 from whales.modules.pipelines.pipeline import get_available_formatters
@@ -19,6 +20,12 @@ def test_get_available_feature_extractors():
     """Test that get_available_feature_extractors function works correctly"""
     fe = get_available_features_extractors()
     assert "identity" in fe
+
+
+def test_get_available_pre_processing():
+    """Test that get_available_feature_extractors function works correctly"""
+    fe = get_available_pre_processing()
+    assert "scale" in fe
 
 
 def test_get_available_performance_indicators():
