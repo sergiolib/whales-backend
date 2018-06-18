@@ -348,3 +348,15 @@ class Pipeline(Module):
         for method in self.instructions_series:
             self.logger.debug(f"Running method {method.__name__}")
             method()
+
+    def add_instruction(self, instruction):
+        """Adds instruction to the last execution place"""
+        self.instructions_series.append(instruction)
+
+    def pop_instruction(self):
+        """Returns the last instruction"""
+        instruction = self.instructions_series.pop()
+        return instruction
+
+
+
