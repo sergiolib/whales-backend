@@ -408,10 +408,6 @@ class Pipeline(Module):
         self.parameters = json.loads(parameters)
         self.logger.debug("Parameters set")
 
-    def initialize(self):
-        """Use the attribute parameters and set the pipelines instructions set"""
-        raise NotImplementedError
-
     def instructions(self):
         for method in self.instructions_series:
             self.logger.debug(f"Running method {method.__name__}")

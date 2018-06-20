@@ -15,11 +15,3 @@ class DataSet(Module):
         """Remove data file from data set"""
         self.datafiles.remove(datafile)
 
-    def get_training(self):
-        raise NotImplementedError
-
-    def get_testing(self):
-        raise NotImplementedError
-
-    def get_validation(self):
-        raise NotImplementedError

@@ -9,18 +9,15 @@ class SpectralFrames(FeatureExtraction):
         self.description = """Overlapped frames in frequency domain"""
         self.needs_fitting = False
         self.parameters = {
-            "win": 2048,
-            "step": 1024,
-            "to_db": True
+            "win": 2048,  # {int} Sliding windows size. By default is 2024 samples
+            "step": 1024,  # {int] Number of points in the sliding windows. By default is 1024 samples
+            "to_db": True  # {boolean} Set to True if you want return stft in decibel scale
         }
 
     def method_transform(self, data):
         """
         Transform the audio signal in short fourier fast form for any overlapped frame
         :param data: {numpy array} with audio signal (waveform)
-        :param win: {int} Sliding windows size. By default is 2024 samples
-        :param step: {int] Number of points in the sliding windows. By default is 1024 samples
-        :param to_db: {boolean} Set to True if you want return stft in decibel scale
         :return: {numpy array} Contains the short-time fourier transform in [0] axis and frame index in [1] axis
         """
         print(self.parameters)

@@ -55,9 +55,3 @@ class Module:
         if self.needs_fitting:
             self.method_load(location)
             self.is_fitted = True
-
-    def method_load(self, location):
-        raise NotImplementedError
-
-    def method_save(self, location):
-        raise NotImplementedError

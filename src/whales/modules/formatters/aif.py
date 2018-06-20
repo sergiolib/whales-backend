@@ -47,9 +47,6 @@ class AIFFormatter(Formatter):
             rng = None
         return pd.Series(ndarray, index=rng, name=basename(filename)).to_frame()  # Return a DataFrame object
 
-    def write(self, filename, data):
-        raise NotImplementedError
-
     def read_metadata(self, metadata_filename):
         """Read the metadata filename (might be the same data file) and return a dictionary of metadata."""
         # Open the file
@@ -63,9 +60,6 @@ class AIFFormatter(Formatter):
             metadata["markers"] = aiff.getmarkers()
             metadata["sample_width"] = aiff.getsampwidth()
         return metadata
-
-    def write_metadata(self, metadata_filename, metadata):
-        raise NotImplementedError
 
 
 PipelineFormatter = AIFFormatter
