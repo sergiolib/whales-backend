@@ -89,13 +89,18 @@ def test_load_parameters():
 
     demo_parameters = """
 {
-    "id": "demo_pipeline",
     "pipeline_type": "whale_detector",
     "input_data": [
         {
             "filename": "demo_data.h5",
             "datafile": "time_series",
             "formatter": "hdf5"
+        }
+    ],
+    "pre_processing": [
+        {
+            "method": "scale",
+            "parameters": {}
         }
     ],
     "features_extractors": [
@@ -106,14 +111,16 @@ def test_load_parameters():
     ],
     "machine_learning": {
         "type": "unsupervised",
-        "method": "kmeans"
+        "method": "kmeans",
+        "parameters": {}
     },
     "performance_indicators": [
         {
             "method": "accuracy",
             "parameters": {}
         }
-    ]
+    ],
+    "output_directory": "./demo"
 }
     """
 

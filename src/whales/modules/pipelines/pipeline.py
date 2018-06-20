@@ -4,6 +4,7 @@ import sys
 import logging
 import importlib
 import json
+from collections import OrderedDict
 from os.path import abspath, basename, dirname, join
 from glob import glob
 from multiprocessing import Process
@@ -405,7 +406,7 @@ class Pipeline(Module):
         self.process.start()
 
     def load_parameters(self, parameters: str):
-        self.parameters = json.loads(parameters)
+        self.parameters = self.parse_parameters(json.loads(parameters))
         self.logger.debug("Parameters set")
 
     def instructions(self):
@@ -413,14 +414,54 @@ class Pipeline(Module):
             self.logger.debug(f"Running method {method.__name__}")
             method()
 
-    def add_instruction(self, instruction):
+    def add_instruction(self, instruction_type, instruction):
         """Adds instruction to the last execution place"""
-        self.instructions_series.append(instruction)
+        self.instructions_series.append((instruction_type, instruction))
 
     def pop_instruction(self):
         """Returns the last instruction"""
         instruction = self.instructions_series.pop()
         return instruction
 
+    def parse_parameters(self, parameters_dict):
+        root_necessary_parameters = {
+            "output_directory": str,
+            "pipeline_type": str,
+            "input_data": list,
+        }
 
+        root_optional_parameters = {
+            "active": bool,
+            "verbose": bool,
+            "seed": int,
+            "pre_processing": list,
+            "features_extractors": list,
+            "performance_indicators": list,
+            "machine_learning": dict,
+        }
 
+        self.logger.debug("Parsing pipeline parameters")
+
+        # Parse for necessary parameters
+        for key in root_necessary_parameters:
+            if key not in parameters_dict:
+                self.logger.error(f"Parameters dict does not include necessary parameter: {key}")
+                raise ValueError(f"Parameters dict does not include necessary parameter: {key}")
+
+        expected_parameters = {**root_necessary_parameters, **root_optional_parameters}
+        for key in parameters_dict:
+            if key in expected_parameters:
+                actual_type = type(parameters_dict[key])
+                expected_type = expected_parameters[key]
+                if actual_type is not expected_type:
+                    self.logger.error(
+                        f"Expected type is {expected_type} and obtained type is {actual_type} for parameter {key}"
+                    )
+                    raise ValueError(
+                        f"Expected type is {expected_type} and obtained type is {actual_type} for parameter {key}"
+                    )
+            else:
+                self.logger.error(f"Parameters dict included unexpected key {key}")
+                raise ValueError(f"Parameters dict included unexpected key {key}")
+
+        return parameters_dict
