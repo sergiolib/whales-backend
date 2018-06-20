@@ -289,7 +289,7 @@ def get_available_datafiles():
     :return: dict whose keys are datafile names and whose values are the
     methods classes"""
     this_dir = abspath(dirname(__file__))
-    r = join(this_dir, "..", "datafiles", "*.py")
+    r = join(this_dir, "..", "data_files", "*.py")
     file_list = glob(r)
     file_list = [basename(f) for f in file_list]
 
@@ -306,7 +306,7 @@ def get_available_datafiles():
     for n in fmt_name:
         try:
             fmt_classes.append(importlib.import_module(
-                "whales.modules.datafiles.{}".format(n)).PipelineDatafile)
+                "whales.modules.data_files.{}".format(n)).PipelineDatafile)
             fmt_names.append(n)
         except AttributeError:
             functions_logger.debug(f"Module {n} doesn't have a valid method'")
@@ -357,7 +357,7 @@ def get_available_datasets():
     :return: dict whose keys are data sets and whose values are the
     methods classes"""
     this_dir = abspath(dirname(__file__))
-    r = join(this_dir, "..", "datasets", "*.py")
+    r = join(this_dir, "..", "data_sets", "*.py")
     file_list = glob(r)
     file_list = [basename(f) for f in file_list]
 
@@ -374,7 +374,7 @@ def get_available_datasets():
     for n in fmt_name:
         try:
             fmt_classes.append(importlib.import_module(
-                "whales.modules.datasets.{}".format(n)).PipelineDataSet)
+                "whales.modules.data_sets.{}".format(n)).PipelineDataSet)
             fmt_names.append(n)
         except AttributeError:
             functions_logger.debug(f"Module {n} doesn't have a valid method'")

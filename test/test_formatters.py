@@ -1,6 +1,6 @@
 import sys, os
 
-from utilities import get_filename
+from utilities import get_file_name
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
@@ -13,7 +13,7 @@ from whales.modules.formatters.aif import AIFFormatter
 
 class TestAIFFormatter:
     def test_read(self):
-        filename = get_filename()
+        filename = get_file_name()
         formatter = AIFFormatter()
         df = formatter.read(filename)
         assert type(df) is pd.DataFrame
@@ -28,7 +28,7 @@ class TestAIFFormatter:
         assert type(df.index) is pd.RangeIndex
 
     def test_read_metadata(self):
-        filename = get_filename()
+        filename = get_file_name()
         formatter = AIFFormatter()
         metadata = formatter.read_metadata(filename)
         assert type(metadata) is dict

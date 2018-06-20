@@ -1,4 +1,3 @@
-import numpy as np
 from whales.modules.features_extractors.feature_extraction import FeatureExtraction
 from whales.modules.features_extractors.spectral_frames import SpectralFrames
 import librosa

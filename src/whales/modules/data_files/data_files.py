@@ -1,14 +1,12 @@
-from os.path import basename
-
 import pandas as pd
-from copy import deepcopy
 
+from os.path import basename
 from whales.modules.module import Module
 
 
-class Datafile(Module):
+class DataFile(Module):
     def __init__(self, logger=None):
-        super(Datafile, self).__init__(logger)
+        super(DataFile, self).__init__(logger)
         self.metadata = {}
         self._data = None
         self.file_name = None
@@ -29,7 +27,7 @@ class Datafile(Module):
 
     @staticmethod
     def concatenate(datafiles_list):
-        """Add datafiles from datafiles_list to new datafile and return it"""
+        """Add data_files from datafiles_list to new datafile and return it"""
         data = []
         new_df = __class__()
         metadata = {}

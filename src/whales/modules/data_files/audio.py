@@ -1,12 +1,12 @@
 import pandas as pd
-from whales.modules.datafiles.time_series import TimeSeriesDatafile
+from whales.modules.data_files.time_series import TimeSeriesDataFile
 
 
-class AudioDatafile(TimeSeriesDatafile):
+class AudioDataFile(TimeSeriesDataFile):
     description = "Audio data files"
 
     def __init__(self, logger=None):
-        super(AudioDatafile, self).__init__(logger)
+        super(AudioDataFile, self).__init__(logger)
         self.label_name = {
             # Dictionary that maps actual label index to the label name
             0: "unlabeled"
@@ -28,7 +28,7 @@ class AudioDatafile(TimeSeriesDatafile):
 
     @property
     def data(self):
-        data = super(AudioDatafile, self).data
+        data = super(AudioDataFile, self).data
         if "labels" in data.columns:
             return data
         else:
@@ -59,4 +59,4 @@ class AudioDatafile(TimeSeriesDatafile):
         self.data = data
 
 
-PipelineDatafile = AudioDatafile
+PipelineDatafile = AudioDataFile
