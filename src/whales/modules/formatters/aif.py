@@ -7,8 +7,15 @@ from .formatters import Formatter
 
 
 class AIFFormatter(Formatter):
+    def __init__(self, logger=None):
+        super(AIFFormatter, self).__init__(logger)
+        self.parameters = {
+            "byteswapped": True,
+            "dtype": np.short,
+        }
+    
     @staticmethod
-    def read(filename: str, dtype=np.short, byteswapped=True):
+    def read(filename: str):
         """Read the AIF file for the data and return a pandas Series"""
         # Open the file
         with aifc.open(filename, mode="r") as aiff:
@@ -17,10 +24,11 @@ class AIFFormatter(Formatter):
             str_data = aiff.readframes(n_frames)  # Read the whole file
 
         # Transform from bytes to array
-        ndarray = np.fromstring(str_data, dtype).byteswap()
+        ndarray = np.fromstring(str_data, 
+                                self.parameters["dtype"]).byteswap()
 
         # Swap bytes (little endian -> bin endian conversion)
-        if byteswapped:
+        if self.parameters["byteswapped"]:
             ndarray = ndarray.byteswap()
 
         # Get the index if possible
