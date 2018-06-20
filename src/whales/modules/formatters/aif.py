@@ -24,10 +24,9 @@ class AIFFormatter(Formatter):
             str_data = aiff.readframes(n_frames)  # Read the whole file
 
         # Transform from bytes to array
-        ndarray = np.fromstring(str_data, 
-                                self.parameters["dtype"]).byteswap()
+        ndarray = np.fromstring(str_data, self.parameters["dtype"])
 
-        # Swap bytes (little endian -> bin endian conversion)
+        # Swap bytes (little endian -> big endian conversion)
         if self.parameters["byteswapped"]:
             ndarray = ndarray.byteswap()
 
