@@ -464,4 +464,28 @@ class Pipeline(Module):
                 self.logger.error(f"Parameters dict included unexpected key {key}")
                 raise ValueError(f"Parameters dict included unexpected key {key}")
 
+        self._parse_parameters_structure(parameters_dict)
+
         return parameters_dict
+
+    def _parse_parameters_structure(self, current_elem):
+        """
+        1. Make sure that sub_dict's lists have only dictionaries inside.
+        :param current_elem:
+        :return:
+        """
+        if type(current_elem) is list:
+            for next_elem in current_elem:
+                if type(next_elem) is dict:
+                    self._parse_parameters_structure(next_elem)
+                else:
+                    raise ValueError(
+                        (
+                            f"Lists should not have {type(next_elem)} elements in the parameters ",
+                            f"dictionary, only dicts"
+                        )
+                    )
+        elif type(current_elem) is dict:
+            for _, val in current_elem.items():
+                if type(val) is dict:
+                    self._parse_parameters_structure(val)

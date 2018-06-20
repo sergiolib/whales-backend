@@ -1,5 +1,7 @@
 import sys, os
 
+import pytest
+
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
@@ -127,3 +129,70 @@ def test_load_parameters():
     p.load_parameters(demo_parameters)
     assert type(p.parameters["machine_learning"]) is dict
     assert p.parameters["performance_indicators"][0]["method"] == "accuracy"
+
+
+def test_missing_necessary_parameters():
+    p = Pipeline()
+
+    missing_parameters = """
+{
+    "input_data": [
+        {
+            "filename": "demo_data.h5",
+            "datafile": "time_series",
+            "formatter": "hdf5"
+        }
+    ],
+    "output_directory": "./demo"
+}
+    """
+
+    with pytest.raises(ValueError):
+        p.load_parameters(missing_parameters)
+
+
+def test_extra_parameters():
+    p = Pipeline()
+
+    extra_parameters = """
+{
+    "pipeline_type": "whale_detector",
+    "input_data": [
+        {
+            "filename": "demo_data.h5",
+            "datafile": "time_series",
+            "formatter": "hdf5"
+        }
+    ],
+    "output_directory": "./demo",
+    "temperature": 100.0
+}
+    """
+
+    with pytest.raises(ValueError):
+        p.load_parameters(extra_parameters)
+
+
+def test_wrong_parameters():
+    p = Pipeline()
+
+    wrong_format_parameters = """
+{
+    "pipeline_type": "whale_detector",
+    "input_data": [
+        {
+            "filename": "demo_data.h5",
+            "datafile": "time_series",
+            "formatter": "hdf5"
+        }
+    ],
+    "output_directory": "./demo",
+    "input_data": [
+        "demo_data.hdf5",
+        "demo_data.aiff"
+    ],
+}
+    """
+
+    with pytest.raises(ValueError):
+        p.load_parameters(wrong_format_parameters)
