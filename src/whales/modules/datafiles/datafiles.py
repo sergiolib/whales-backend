@@ -16,7 +16,9 @@ class Datafile(Module):
 
         if datafile is not None:
             self.metadata = deepcopy(datafile.metadata)
-            self.formatter = deepcopy(datafile.formatter)
+            formatter_cls = datafile.formatter.__class__
+            self.formatter = formatter_cls()
+            self.formatter.parameters = datafile.formatter.parameters
             self.file_name = deepcopy(datafile.file_name)
             self._data = deepcopy(datafile._data)
 

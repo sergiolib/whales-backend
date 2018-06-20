@@ -17,8 +17,12 @@ class AudioDatafile(TimeSeriesDatafile):
 
     @property
     def duration(self):
-        # return self.metadata["num_frames"] / self.metadata["frame_rate"]
-        return self.data.index[-1] - self.data.index[0]
+        if self.data is not None:
+            duration = self.data.index[-1] - self.data.index[0]
+        else:
+            self.logger.error("No duration in unloaded data")
+            raise RuntimeError("No duration in unloaded data")
+        return duration
 
     @property
     def data(self):

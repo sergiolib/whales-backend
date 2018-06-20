@@ -1,8 +1,9 @@
-class LabelsFormatter:
-    @staticmethod
-    def read(filename, **kwargs):
+from whales.modules.module import Module
+
+
+class LabelsFormatter(Module):
+    def read(self, filename):
         raise NotImplementedError
 
-    @staticmethod
-    def write(filename, data, **kwargs):
+    def write(self, filename, data):
         raise NotImplementedError

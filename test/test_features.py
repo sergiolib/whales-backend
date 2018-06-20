@@ -27,7 +27,8 @@ def generate_data(n, d):
 
 def test_spectral_frames():
     file_name = get_filename()
-    df = AudioDatafile().load_data(file_name, AIFFormatter)
+    df = AudioDatafile().load_data(file_name,
+                                   formatter=AIFFormatter())
     data = df.data.values.ravel()
     data = data / abs(data).max()
     parameters = {
@@ -43,7 +44,8 @@ def test_spectral_frames():
 
 def test_mfcc():
     file_name = get_filename()
-    df = AudioDatafile().load_data(file_name, AIFFormatter)
+    df = AudioDatafile().load_data(file_name,
+                                   formatter=AIFFormatter())
     data = df.data.values.ravel()
     data = data / abs(data).max()
     parameters = {

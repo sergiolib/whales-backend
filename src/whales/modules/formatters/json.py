@@ -4,13 +4,11 @@ from os.path import splitext
 
 class JSONMetadataMixin:
     """Mixin for using where format doesn't have built in metadata storage"""
-    @staticmethod
-    def read_metadata(metadata_filename):
+    def read_metadata(self, metadata_filename):
         metadata_filename = correct_metadata_filename(metadata_filename)
         return json.load(open(metadata_filename, mode="r"))
 
-    @staticmethod
-    def write_metadata(metadata_filename, metadata):
+    def write_metadata(self, metadata_filename, metadata):
         metadata_filename = correct_metadata_filename(metadata_filename)
         json.dump(metadata, open(metadata_filename, mode="w"))
 

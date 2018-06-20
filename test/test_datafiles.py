@@ -18,7 +18,7 @@ class TestAudioDatafiles:
         filename = get_filename()
         df = AudioDatafile()
         df.load_data(filename,
-                     formatter=AIFFormatter)
+                     formatter=AIFFormatter())
         assert df.duration.seconds > 0
         return df
 
@@ -26,16 +26,16 @@ class TestAudioDatafiles:
         filename = get_filename()
         df = AudioDatafile()
         df.load_data(filename,
-                     formatter=AIFFormatter)
-        df.save_data("tmp.h5", HDF5Formatter)
-        df2 = AudioDatafile().load_data("tmp.h5", HDF5Formatter)
+                     formatter=AIFFormatter())
+        df.save_data("tmp.h5", formatter=HDF5Formatter())
+        df2 = AudioDatafile().load_data("tmp.h5", formatter=HDF5Formatter())
         assert df2.duration.seconds > 0
 
     def test_mutate(self):
         filename = get_filename()
         df = Datafile()
         df.load_data(filename,
-                     formatter=AIFFormatter)
+                     formatter=AIFFormatter())
         assert not hasattr(df, "duration")  # Duration exists only in audio datafile
         audio_df = AudioDatafile(df)
         assert audio_df.duration.seconds > 0
@@ -43,15 +43,19 @@ class TestAudioDatafiles:
     def test_load_labels(self):
         filename_data, filename_labels = get_labeled()
         df = AudioDatafile().load_data(filename_data,
-                                       formatter=AIFFormatter)
-        df.load_labels(filename_labels, CSVLabelsFormatter, label="whale")
+                                       formatter=AIFFormatter())
+        df.load_labels(filename_labels,
+                       labels_formatter=CSVLabelsFormatter(),
+                       label="whale")
         assert [0, 1] in df.data.labels.unique()
         assert "whale" in df.name_label
 
     def test_load_labels_from_txt(self):
         filename_data, filename_labels = get_labeled_txt()
         df = AudioDatafile().load_data(filename_data,
-                                       formatter=AIFFormatter)
-        df.load_labels(filename_labels, TXTLabelsFormatter, label="whale")
+                                       formatter=AIFFormatter())
+        df.load_labels(filename_labels,
+                       labels_formatter=TXTLabelsFormatter(),
+                       label="whale")
         assert [0, 1] in df.data.labels.unique()
         assert "whale" in df.name_label

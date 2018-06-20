@@ -14,8 +14,7 @@ class AIFFormatter(Formatter):
             "dtype": np.short,
         }
     
-    @staticmethod
-    def read(filename: str):
+    def read(self, filename: str):
         """Read the AIF file for the data and return a pandas Series"""
         # Open the file
         with aifc.open(filename, mode="r") as aiff:
@@ -48,12 +47,10 @@ class AIFFormatter(Formatter):
             rng = None
         return pd.Series(ndarray, index=rng, name=basename(filename)).to_frame()  # Return a DataFrame object
 
-    @staticmethod
-    def write(filename, data):
+    def write(self, filename, data):
         raise NotImplementedError
 
-    @staticmethod
-    def read_metadata(metadata_filename):
+    def read_metadata(self, metadata_filename):
         """Read the metadata filename (might be the same data file) and return a dictionary of metadata."""
         # Open the file
         metadata = {}
@@ -67,8 +64,7 @@ class AIFFormatter(Formatter):
             metadata["sample_width"] = aiff.getsampwidth()
         return metadata
 
-    @staticmethod
-    def write_metadata(metadata_filename, metadata):
+    def write_metadata(self, metadata_filename, metadata):
         raise NotImplementedError
 
 

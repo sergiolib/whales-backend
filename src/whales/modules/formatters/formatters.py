@@ -1,16 +1,15 @@
-class Formatter:
-    @staticmethod
-    def read(filename, **kwargs):
+from whales.modules.module import Module
+
+
+class Formatter(Module):
+    def read(self, filename):
         raise NotImplementedError
 
-    @staticmethod
-    def write(filename, data, **kwargs):
+    def write(self, filename, data):
         raise NotImplementedError
 
-    @staticmethod
-    def read_metadata(metadata_filename, **kwargs):
+    def read_metadata(self, metadata_filename):
         raise NotImplementedError
 
-    @staticmethod
-    def write_metadata(metadata_filename, metadata, **kwargs):
+    def write_metadata(self, metadata_filename, metadata):
         raise NotImplementedError

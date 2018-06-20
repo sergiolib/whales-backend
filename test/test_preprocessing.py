@@ -13,7 +13,8 @@ import numpy as np
 
 def test_scale():
     file_name = get_filename()
-    df = AudioDatafile().load_data(file_name, AIFFormatter)
+    df = AudioDatafile().load_data(file_name,
+                                   formatter=AIFFormatter())
     data = df.data.values.ravel()
     data = data / abs(data).max()
     p = Scale()
