@@ -8,7 +8,7 @@ class TXTLabelsFormatter(LabelsFormatter):
         self.description = """TXT label files parser and loader"""
 
     def read(self, filename):
-        read_file = pd.read_csv(filename, index_col=None, header=0, sep="\t+")
+        read_file = pd.read_csv(filename, index_col=None, header=0, sep="\t+", engine="python")
         return read_file
 
 
