@@ -5,9 +5,10 @@ from whales.modules.datafiles.time_series import TimeSeriesDatafile
 class AudioDatafile(TimeSeriesDatafile):
     description = "Audio data files"
 
-    def __init__(self, datafile=None, logger=None):
-        super(AudioDatafile, self).__init__(datafile, logger)
+    def __init__(self, logger=None):
+        super(AudioDatafile, self).__init__(logger)
         self.label_name = {
+            # Dictionary that maps actual label index to the label name
             0: "unlabeled"
         }
 
