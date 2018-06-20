@@ -7,20 +7,12 @@ from whales.modules.module import Module
 
 
 class Datafile(Module):
-    def __init__(self, datafile=None, logger=None):
+    def __init__(self, logger=None):
         super(Datafile, self).__init__(logger)
         self.metadata = {}
         self._data = None
         self.file_name = None
         self.formatter = None
-
-        if datafile is not None:
-            self.metadata = deepcopy(datafile.metadata)
-            formatter_cls = datafile.formatter.__class__
-            self.formatter = formatter_cls()
-            self.formatter.parameters = datafile.formatter.parameters
-            self.file_name = deepcopy(datafile.file_name)
-            self._data = deepcopy(datafile._data)
 
     def load_data(self, file_name: str, formatter):
         """Do not actually load the data. Instead, save the access information."""

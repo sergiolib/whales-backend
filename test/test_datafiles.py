@@ -31,15 +31,6 @@ class TestAudioDatafiles:
         df2 = AudioDatafile().load_data("tmp.h5", formatter=HDF5Formatter())
         assert df2.duration.seconds > 0
 
-    def test_mutate(self):
-        filename = get_filename()
-        df = Datafile()
-        df.load_data(filename,
-                     formatter=AIFFormatter())
-        assert not hasattr(df, "duration")  # Duration exists only in audio datafile
-        audio_df = AudioDatafile(df)
-        assert audio_df.duration.seconds > 0
-
     def test_load_labels(self):
         filename_data, filename_labels = get_labeled()
         df = AudioDatafile().load_data(filename_data,
