@@ -14,6 +14,7 @@ class AudioDatafile(TimeSeriesDatafile):
 
     @property
     def name_label(self):
+        """Inverse of self.label_name"""
         return {b: a for a, b in self.label_name.items()}
 
     @property
