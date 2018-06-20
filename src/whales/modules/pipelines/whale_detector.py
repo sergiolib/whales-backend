@@ -1,36 +1,49 @@
-from whales.modules.pipelines.pipeline import Pipeline
+from whales.modules.pipelines.pipeline import Pipeline, get_available_datasets
 
 
 class WhaleDetector(Pipeline):
-    def initialize(self):
-        mandatory_parameters = {
-            "feature_extractors": list,  # List of feature extractors
-            "performance_indicators": list,  # List of performance indicators
-            "input_data": str  # Path to data file
+    def __init__(self, logger=None):
+        super(WhaleDetector, self).__init__(logger)
+        self.parameters = {
+            "necessary_parameters": {
+                "output_directory": str,
+                "pipeline_type": str,
+                "input_data": list,
+            },
+            "optional_parameters": {
+                "pre_processing": list,
+                "features_extractors": list,
+                "performance_indicators": list,
+                "machine_learning": dict,
+                "data_set_type": dict,
+                "active": bool,
+                "verbose": bool,
+                "seed": int,
+            },
         }
-        self.check_parameters(mandatory_parameters)
 
+        # Labels needed because this is a supervised problem
+        self.parameters["expected_input_parameters"]["labels_file"] = str
+        self.parameters["expected_input_parameters"]["labels_formatter"] = str
+
+    def initialize(self):
         self.load_input_data()
+        self.load_labels()
         self.load_features_extractors()
         self.load_performance_indicators()
-
-    def check_parameters(self, mandatory_parameters: dict):
-        """Check if parameters loaded with method load_parameters are present and are of the expected type"""
-        for p, expected_type in mandatory_parameters.items():
-            actual_type = type(self.parameters[p])
-            if p not in self.parameters:
-                raise AttributeError(f"Mandatory parameter {p} was not found")
-            elif actual_type is not expected_type:
-                raise AttributeError(f"Mandatory parameter {p} is {actual_type} and it should be {expected_type}")
-
-    def load_input_data(self):
-        pass
 
     def load_features_extractors(self):
         pass
 
     def load_performance_indicators(self):
         pass
+
+    def instructions(self):
+        execute_instruction = get_commands()
+        while True:
+            ins, param = self.next_instruction()
+            execute_instruction[ins](params)
+
 
 
 PipelineType = WhaleDetector

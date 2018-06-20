@@ -4,7 +4,6 @@ import sys
 import logging
 import importlib
 import json
-from collections import OrderedDict
 from os.path import abspath, basename, dirname, join
 from glob import glob
 from multiprocessing import Process
@@ -393,11 +392,19 @@ class Pipeline(Module):
     def __init__(self, logger=logging.getLogger(__name__)):
         super(Pipeline, self).__init__(logger)
         self.process = None
-        self.id = "Generic Pipeline"
+        self.description = "Generic Pipeline"
         self.instructions_series = []
 
         # Default parameters
-        self.parameters = {}
+        self.parameters = {
+            "necessary_parameters": {},
+            "optional_parameters": {},
+            "expected_input_parameters": {
+                "file_name": str,
+                "data_file": str,
+                "formatter": str,
+            }
+        }
 
     def start(self):
         """Run the instructions series"""
@@ -405,50 +412,36 @@ class Pipeline(Module):
         self.process = Process(target=self.instructions)
         self.process.start()
 
-    def load_parameters(self, parameters: str):
-        self.parameters = self.parse_parameters(json.loads(parameters))
+    def load_parameters(self, parameters_file: str):
+        dictionary = json.loads(parameters_file)
+        self.parameters = self.parse_parameters(dictionary)
         self.logger.debug("Parameters set")
 
     def instructions(self):
-        for method in self.instructions_series:
-            self.logger.debug(f"Running method {method.__name__}")
-            method()
+        pass
 
-    def add_instruction(self, instruction_type, instruction):
+    def add_instruction(self, instruction_type, instruction_parameters):
         """Adds instruction to the last execution place"""
-        self.instructions_series.append((instruction_type, instruction))
+        self.instructions_series.append((instruction_type, instruction_parameters))
 
-    def pop_instruction(self):
-        """Returns the last instruction"""
-        instruction = self.instructions_series.pop()
+    def next_instruction(self):
+        """Returns the next instruction"""
+        if len(self.instructions_series) == 0:
+            instruction = None
+        else:
+            instruction = self.instructions_series.pop(0)
         return instruction
 
     def parse_parameters(self, parameters_dict):
-        root_necessary_parameters = {
-            "output_directory": str,
-            "pipeline_type": str,
-            "input_data": list,
-        }
-
-        root_optional_parameters = {
-            "active": bool,
-            "verbose": bool,
-            "seed": int,
-            "pre_processing": list,
-            "features_extractors": list,
-            "performance_indicators": list,
-            "machine_learning": dict,
-        }
-
         self.logger.debug("Parsing pipeline parameters")
 
         # Parse for necessary parameters
-        for key in root_necessary_parameters:
+        for key in self.parameters["necessary_parameters"]:
             if key not in parameters_dict:
                 self.logger.error(f"Parameters dict does not include necessary parameter: {key}")
                 raise ValueError(f"Parameters dict does not include necessary parameter: {key}")
 
-        expected_parameters = {**root_necessary_parameters, **root_optional_parameters}
+        expected_parameters = {**self.parameters["necessary_parameters"], **self.parameters["optional_parameters"]}
         for key in parameters_dict:
             if key in expected_parameters:
                 actual_type = type(parameters_dict[key])
@@ -465,6 +458,7 @@ class Pipeline(Module):
                 raise ValueError(f"Parameters dict included unexpected key {key}")
 
         self._parse_parameters_structure(parameters_dict)
+        self._parse_input_data(parameters_dict["input_data"])
 
         return parameters_dict
 
@@ -489,3 +483,67 @@ class Pipeline(Module):
             for _, val in current_elem.items():
                 if type(val) is dict:
                     self._parse_parameters_structure(val)
+
+    def _parse_input_data(self, input_data):
+        expected_parameters = self.parameters["expected_input_parameters"]
+        for elem in input_data:
+            if type(elem) is not dict:
+                raise ValueError("Data should be specified in a dict")
+            for p in expected_parameters:
+                if p not in elem:
+                    raise ValueError(f"Parameter {p} missing from input files specification")
+                elif type(elem[p]) is not expected_parameters[p]:
+                    raise ValueError((
+                        f"Incorrect type for {p} in input files specification. It should be a ",
+                        f"{expected_parameters[p]} and it is actually a {type(elem[p])}"
+                    ))
+
+    def load_input_data(self):
+        """Add instructions to load the input data. Also, use glob where stars are detected"""
+        real_input_data = []
+        for elem in self.parameters["input_data"]:
+            if "file_name" in elem:
+                if "*" in elem["file_name"]:
+                    # Glob detected
+                    file_names = glob(elem["file_name"])
+                    data_files = [elem["data_file"]] * len(file_names)
+                    formatters = [elem["formatter"]] * len(file_names)
+                    new_elems = [{
+                        "file_name": a,
+                        "data_files": b,
+                        "formatters": c,
+                    } for a, b, c in zip(file_names, data_files, formatters)]
+                    real_input_data += new_elems
+                else:
+                    real_input_data.append(elem)
+        self.add_instruction("build_dataset", real_input_data)
+
+    def load_labels(self):
+        """Add instructions to load the labels. Also, use glob where stars are detected"""
+        real_labels = []
+        for elem in self.parameters["input_data"]:
+            if "labels_file" in elem:
+                if "*" in elem["labels_file"]:
+                    labels_files = glob(elem["labels_file"])
+                    labels_formatters = [elem["labels_formatter"]] * len(labels_files)
+                    new_elems = [{
+                        "labels_file": a,
+                        "labels_formatter": b,
+                    } for a, b in zip(labels_files, labels_formatters)]
+                    real_labels += new_elems
+                else:
+                    real_labels.append({
+                        elem["labels_file"],
+                        elem["labels_formatter"]
+                    })
+        self.add_instruction("set_labels", real_labels)
+
+    def get_commands(self):
+        """Return a dict with the available instructions to execute"""
+        def build_dataset(params):
+            available_datasets = get_available_datasets()
+            ds = None
+
+        return dict(
+            build_dataset
+        )

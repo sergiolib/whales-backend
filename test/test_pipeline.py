@@ -2,13 +2,15 @@ import sys, os
 
 import pytest
 
+from utilities import get_5_file_names
+from whales.modules.pipelines.whale_detector import WhaleDetector
+
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
 from whales.modules.pipelines.pipeline import get_available_features_extractors
 from whales.modules.pipelines.pipeline import get_available_pre_processing
 from whales.modules.pipelines.pipeline import get_available_pipeline_types
-from whales.modules.pipelines.pipeline import Pipeline
 from whales.modules.pipelines.pipeline import get_available_formatters
 from whales.modules.pipelines.pipeline import get_available_labels_formatters
 from whales.modules.pipelines.pipeline import get_available_datafiles
@@ -87,15 +89,15 @@ def test_get_available_datasets():
 
 def test_load_parameters():
     """Test that loading set of parameters works the way it is expected"""
-    p = Pipeline()
+    p = WhaleDetector()
 
     demo_parameters = """
 {
     "pipeline_type": "whale_detector",
     "input_data": [
         {
-            "filename": "demo_data.h5",
-            "datafile": "time_series",
+            "file_name": "demo_data.h5",
+            "data_file": "time_series",
             "formatter": "hdf5"
         }
     ],
@@ -122,7 +124,10 @@ def test_load_parameters():
             "parameters": {}
         }
     ],
-    "output_directory": "./demo"
+    "output_directory": "./demo",
+    "data_set_type": {
+        "method": "files_fold"
+    }
 }
     """
 
@@ -132,14 +137,14 @@ def test_load_parameters():
 
 
 def test_missing_necessary_parameters():
-    p = Pipeline()
+    p = WhaleDetector()
 
     missing_parameters = """
 {
     "input_data": [
         {
-            "filename": "demo_data.h5",
-            "datafile": "time_series",
+            "file_name": "demo_data.h5",
+            "data_file": "time_series",
             "formatter": "hdf5"
         }
     ],
@@ -152,15 +157,15 @@ def test_missing_necessary_parameters():
 
 
 def test_extra_parameters():
-    p = Pipeline()
+    p = WhaleDetector()
 
     extra_parameters = """
 {
     "pipeline_type": "whale_detector",
     "input_data": [
         {
-            "filename": "demo_data.h5",
-            "datafile": "time_series",
+            "file_name": "demo_data.h5",
+            "data_file": "time_series",
             "formatter": "hdf5"
         }
     ],
@@ -174,18 +179,11 @@ def test_extra_parameters():
 
 
 def test_wrong_parameters():
-    p = Pipeline()
+    p = WhaleDetector()
 
     wrong_format_parameters = """
 {
     "pipeline_type": "whale_detector",
-    "input_data": [
-        {
-            "filename": "demo_data.h5",
-            "datafile": "time_series",
-            "formatter": "hdf5"
-        }
-    ],
     "output_directory": "./demo",
     "input_data": [
         "demo_data.hdf5",
@@ -196,3 +194,25 @@ def test_wrong_parameters():
 
     with pytest.raises(ValueError):
         p.load_parameters(wrong_format_parameters)
+
+
+def test_whales_pipeline():
+    _ = get_5_file_names()
+    p = WhaleDetector()
+    parameters = """
+    {
+        "pipeline_type": "whale_detector",
+        "input_data": [
+            {
+                "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/*.aif",
+                "data_file": "audio",
+                "formatter": "aiff",
+                "labels_file": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/txt/*.txt",
+                "labels_formatter": "txt"
+            }
+        ],
+        "output_directory": "./demo"
+    }
+        """
+    p.load_parameters(parameters)
+    p.initialize()
