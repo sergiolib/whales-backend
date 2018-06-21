@@ -9,6 +9,7 @@ class WhaleDetector(Pipeline):
                 "output_directory": str,
                 "pipeline_type": str,
                 "input_data": list,
+                "input_labels": list,
             },
             "optional_parameters": {
                 "pre_processing": list,
@@ -21,10 +22,6 @@ class WhaleDetector(Pipeline):
                 "seed": int,
             },
         }
-
-        # Labels needed because this is a supervised problem
-        self.parameters["expected_input_parameters"]["labels_file"] = str
-        self.parameters["expected_input_parameters"]["labels_formatter"] = str
 
     def initialize(self):
         self.load_input_data()
@@ -39,11 +36,14 @@ class WhaleDetector(Pipeline):
         pass
 
     def instructions(self):
-        execute_instruction = get_commands()
+        execute_instruction = self.get_commands()
         while True:
-            ins, param = self.next_instruction()
-            execute_instruction[ins](params)
-
+            ins = self.next_instruction()
+            if ins is None:
+                break
+            ins, param = ins
+            param = {**self.results, **param}
+            self.results = {**self.results, **(execute_instruction.get(ins, lambda x: {})(param))}
 
 
 PipelineType = WhaleDetector

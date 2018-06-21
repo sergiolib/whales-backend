@@ -394,6 +394,7 @@ class Pipeline(Module):
         self.process = None
         self.description = "Generic Pipeline"
         self.instructions_series = []
+        self.results = {}
 
         # Default parameters
         self.parameters = {
@@ -403,12 +404,16 @@ class Pipeline(Module):
                 "file_name": str,
                 "data_file": str,
                 "formatter": str,
+            },
+            "expected_labels_parameters": {
+                "labels_file": str,
+                "labels_formatter": str,
             }
         }
 
     def start(self):
         """Run the instructions series"""
-        self.logger.debug(f"Pipeline {self.id} started")
+        self.logger.debug(f"Pipeline started")
         self.process = Process(target=self.instructions)
         self.process.start()
 
@@ -459,6 +464,7 @@ class Pipeline(Module):
 
         self._parse_parameters_structure(parameters_dict)
         self._parse_input_data(parameters_dict["input_data"])
+        self._parse_input_labels(parameters_dict["input_labels"])
 
         return parameters_dict
 
@@ -498,6 +504,20 @@ class Pipeline(Module):
                         f"{expected_parameters[p]} and it is actually a {type(elem[p])}"
                     ))
 
+    def _parse_input_labels(self, input_labels):
+        expected_parameters = self.parameters["expected_labels_parameters"]
+        for elem in input_labels:
+            if type(elem) is not dict:
+                raise ValueError("Labels should be specified in a dict")
+            for p in expected_parameters:
+                if p not in elem:
+                    raise ValueError(f"Parameter {p} missing from input labels specification")
+                elif type(elem[p]) is not expected_parameters[p]:
+                    raise ValueError((
+                        f"Incorrect type for {p} in input labels specification. It should be a ",
+                        f"{expected_parameters[p]} and it is actually a {type(elem[p])}"
+                    ))
+
     def load_input_data(self):
         """Add instructions to load the input data. Also, use glob where stars are detected"""
         real_input_data = []
@@ -510,13 +530,18 @@ class Pipeline(Module):
                     formatters = [elem["formatter"]] * len(file_names)
                     new_elems = [{
                         "file_name": a,
-                        "data_files": b,
-                        "formatters": c,
+                        "data_file": b,
+                        "formatter": c,
                     } for a, b, c in zip(file_names, data_files, formatters)]
                     real_input_data += new_elems
                 else:
                     real_input_data.append(elem)
-        self.add_instruction("build_dataset", real_input_data)
+        data_set_type = self.parameters.get("data_set_type", "files_fold")
+        self.add_instruction("build_data_set",
+                             {
+                                 "input_data": real_input_data,
+                                 "data_set_type": data_set_type
+                             })
 
     def load_labels(self):
         """Add instructions to load the labels. Also, use glob where stars are detected"""
@@ -536,14 +561,31 @@ class Pipeline(Module):
                         elem["labels_file"],
                         elem["labels_formatter"]
                     })
-        self.add_instruction("set_labels", real_labels)
+        self.add_instruction("set_labels", {"input_labels": real_labels})
 
     def get_commands(self):
         """Return a dict with the available instructions to execute"""
-        def build_dataset(params):
-            available_datasets = get_available_datasets()
-            ds = None
+        def build_data_set(params):
+            available_data_sets = get_available_datasets()
+            available_data_files = get_available_datafiles()
+            available_formatters = get_available_formatters()
+            ds = available_data_sets[params["data_set_type"]]()
+            for elem in params["input_data"]:
+                file_name = elem["file_name"]
+                data_file_name = elem["data_file"]
+                formatter_name = elem["formatter"]
+                df = available_data_files[data_file_name]()
+                fmt = available_formatters[formatter_name]()
+                df.load_data(file_name=file_name, formatter=fmt)
+                ds.add_datafile(df)
+            return {"data_set": ds}
 
-        return dict(
-            build_dataset
-        )
+        def set_labels(params):
+            results = params.get("results", {})
+            data_set = results.get("data_set")
+            pass
+
+        return {
+            "build_data_set": build_data_set,
+            #"set_labels": set_labels
+        }

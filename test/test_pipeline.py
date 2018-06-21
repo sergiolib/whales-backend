@@ -101,6 +101,10 @@ def test_load_parameters():
             "formatter": "hdf5"
         }
     ],
+    "input_labels": [{
+        "labels_file": "demo_labels.txt",
+        "labels_formatter": "txt"
+    }],
     "pre_processing": [
         {
             "method": "scale",
@@ -199,20 +203,25 @@ def test_wrong_parameters():
 def test_whales_pipeline():
     _ = get_5_file_names()
     p = WhaleDetector()
-    parameters = """
-    {
+    parameters = """{
         "pipeline_type": "whale_detector",
         "input_data": [
             {
                 "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/*.aif",
                 "data_file": "audio",
-                "formatter": "aiff",
-                "labels_file": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/txt/*.txt",
-                "labels_formatter": "txt"
+                "formatter": "aif"
             }
         ],
+        "input_labels": [{
+            "labels_file": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/txt/*.txt",
+            "labels_formatter": "txt"
+        }],
         "output_directory": "./demo"
-    }
-        """
+    }"""
     p.load_parameters(parameters)
     p.initialize()
+    p.start()
+    ds = p.results["data_set"]
+    tr = ds.get_training()
+    for t in tr:
+        return
