@@ -414,8 +414,9 @@ class Pipeline(Module):
     def start(self):
         """Run the instructions series"""
         self.logger.debug(f"Pipeline started")
-        self.process = Process(target=self.instructions)
-        self.process.start()
+        # self.process = Process(target=self.instructions)
+        # self.process.start()
+        self.instructions()
 
     def load_parameters(self, parameters_file: str):
         dictionary = json.loads(parameters_file)
