@@ -1,6 +1,5 @@
 import pandas as pd
 
-from os.path import basename
 from whales.modules.module import Module
 
 
@@ -16,7 +15,7 @@ class DataFile(Module):
         """Do not actually load the data. Instead, save the access information."""
         self.file_name = file_name
         self.formatter = formatter
-        self.metadata = {basename(self.file_name): formatter.read_metadata(file_name)}
+        self.metadata = formatter.read_metadata(file_name)
         return self
 
     def save_data(self, file_name: str, formatter):
