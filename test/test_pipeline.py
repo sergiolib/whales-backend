@@ -1,8 +1,9 @@
 import sys, os
 
 import pytest
+from glob import glob
 
-from utilities import get_5_file_names
+from utilities import get_5_file_names, get_labeled
 from whales.modules.pipelines.whale_detector import WhaleDetector
 
 myPath = os.path.dirname(os.path.abspath(__file__))
@@ -203,18 +204,20 @@ def test_wrong_parameters():
 def test_whales_pipeline():
     _ = get_5_file_names()
     p = WhaleDetector()
+    [os.remove(file) for file in glob("*.aif")]
+    labeled_fns = get_labeled()
     parameters = """{
         "pipeline_type": "whale_detector",
         "input_data": [
             {
-                "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/*.aif",
+                "file_name": "*.aif",
                 "data_file": "audio",
                 "formatter": "aif"
             }
         ],
         "input_labels": [{
-            "labels_file": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/txt/*.txt",
-            "labels_formatter": "txt"
+            "labels_file": "*.csv",
+            "labels_formatter": "csv"
         }],
         "output_directory": "./demo"
     }"""

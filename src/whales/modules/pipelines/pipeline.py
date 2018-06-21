@@ -394,6 +394,7 @@ class Pipeline(Module):
         self.process = None
         self.description = "Generic Pipeline"
         self.instructions_series = []
+        self.instructions_set = {}  # No instructions by default
         self.results = {}
 
         # Default parameters
@@ -424,7 +425,19 @@ class Pipeline(Module):
         self.logger.debug("Parameters set")
 
     def instructions(self):
-        pass
+        while True:
+            ins = self.next_instruction()
+            if ins is None:
+                break  # Finished executing instructions. Results in the results attribute
+            ins, param = ins
+            param["results"] = self.results
+            fun = self.instruction_set.get(ins)
+            if fun is None:
+                raise RuntimeError(f"Instruction {ins} is not defined")
+            instruction_results = fun(param)
+            if type(instruction_results) is not dict:
+                raise RuntimeError(f"Instruction {ins} should return a dictionary")
+            self.results = {**self.results, **instruction_results}
 
     def add_instruction(self, instruction_type, instruction_parameters):
         """Adds instruction to the last execution place"""
@@ -541,13 +554,17 @@ class Pipeline(Module):
         self.add_instruction("build_data_set",
                              {
                                  "input_data": real_input_data,
-                                 "data_set_type": data_set_type
+                                 "data_set_type": data_set_type,
+                                 "sliding_windows": {
+                                     "overlap": 0.3,
+                                     "sliding_window_width": "60s",
+                                 }
                              })
 
     def load_labels(self):
         """Add instructions to load the labels. Also, use glob where stars are detected"""
         real_labels = []
-        for elem in self.parameters["input_data"]:
+        for elem in self.parameters["input_labels"]:
             if "labels_file" in elem:
                 if "*" in elem["labels_file"]:
                     labels_files = glob(elem["labels_file"])
@@ -563,30 +580,3 @@ class Pipeline(Module):
                         elem["labels_formatter"]
                     })
         self.add_instruction("set_labels", {"input_labels": real_labels})
-
-    def get_commands(self):
-        """Return a dict with the available instructions to execute"""
-        def build_data_set(params):
-            available_data_sets = get_available_datasets()
-            available_data_files = get_available_datafiles()
-            available_formatters = get_available_formatters()
-            ds = available_data_sets[params["data_set_type"]]()
-            for elem in params["input_data"]:
-                file_name = elem["file_name"]
-                data_file_name = elem["data_file"]
-                formatter_name = elem["formatter"]
-                df = available_data_files[data_file_name]()
-                fmt = available_formatters[formatter_name]()
-                df.load_data(file_name=file_name, formatter=fmt)
-                ds.add_datafile(df)
-            return {"data_set": ds}
-
-        def set_labels(params):
-            results = params.get("results", {})
-            data_set = results.get("data_set")
-            pass
-
-        return {
-            "build_data_set": build_data_set,
-            #"set_labels": set_labels
-        }
