@@ -8,6 +8,8 @@ class FilesFoldDataSet(DataSet):
         super(FilesFoldDataSet, self).__init__(logger)
         self.current_file = 0
 
+        self.description = """K Folding of three separate sets for every fold"""
+
         self.parameters = {
             "training": True,
             "testing": True,
