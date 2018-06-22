@@ -1,3 +1,5 @@
+"""Computing heavy instructions for generating step results throughout the pipeline"""
+
 import logging
 
 from whales.modules.pipelines.getters import get_available_datasets, get_available_datafiles, get_available_formatters, \
@@ -68,3 +70,12 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
     def set_machine_learning_method(self, params):
         return {"ml_method": params["ml_method"]}
+
+    def set_data_iterators(self, params):
+        ds = params["data_set"]
+        return {
+            "training_sets": ds.get_training(),
+            "testing_sets": ds.get_testing(),
+            "validation_sets": ds.get_validation(),
+        }
+

@@ -1,3 +1,6 @@
+"""Methods for generating an instructions pile. Keep them light for letting machine resources go to the instructions
+sets"""
+
 import logging
 from glob import glob
 
@@ -21,14 +24,14 @@ class SupervisedWhalesDetectorLoaders(Loader):
     def __init__(self, pipeline, instructions_set, logger=None):
         super().__init__(pipeline, instructions_set, logger)
 
-        self.loaders_execution_order = [
+        self.loaders_execution_order = [  # Order matters!
             self.load_input_data,
             self.load_labels,
             self.load_pre_processing,
             self.load_features_extractors,
             self.load_performance_indicators,
             self.load_method,
-            # self.load_running_instructions
+            self.load_running_instructions
         ]
 
     def load_input_data(self):
@@ -138,3 +141,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
         ml_fun.parameters = method_params
         self.pipeline.add_instruction(self.instructions_set.set_machine_learning_method,
                                       {"ml_method": ml_fun})
+
+    def load_running_instructions(self):
+        self.pipeline.add_instruction(self.instructions_set.set_data_iterators, {})
+        # TODO: complete this
