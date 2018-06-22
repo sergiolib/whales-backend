@@ -49,23 +49,39 @@ class WhalesPipelineParser(Parser):
                 try:
                     self.parse_field(parameters[key], expected_types[key])
                 except KeyError:
-                    raise ValueError(f"Parameter {key} was not expected in {parameters} specification")
+                    raise UnexpectedParameterError(key,
+                                                   f"Parameter {key} with value {parameters[key]} "
+                                                   f"was not expected in specification")
                 except UnexpectedTypeError as e:
-                    raise ValueError(f"Parameter {key} has unexpected type: obtained {e.obtained} ",
-                                     f"while expecting {e.expected}")
+                    raise UnexpectedTypeError(e.obtained, e.expected, (f"Parameter {key} has unexpected type: ",
+                                                                       f"obtained {e.obtained} ",
+                                                                       f"while expecting {e.expected}"))
             expected_types_not_in_parameters = set(expected_types.keys()) - set(parameters.keys())
             for key in expected_types_not_in_parameters:
                 if type(expected_types[key]) is tuple and expected_types[key][1] == "optional":
                     pass
                 else:
-                    raise ValueError(f"Expecting parameter {key} in object {parameters} but couldn't find it")
+                    raise NecessaryParameterAbsent(key, f"Expecting parameter {key} in "
+                                                        f"{parameters} but couldn't find it")
         if field_type is list:
             for elem, exp in zip(parameters, expected_types):
                 self.parse_field(elem, exp)
 
 
-class UnexpectedTypeError(BaseException):
-    def __init__(self, obtained, expected):
-        super(UnexpectedTypeError, self).__init__()
+class UnexpectedTypeError(Exception):
+    def __init__(self, obtained, expected, message):
+        super(UnexpectedTypeError, self).__init__(message)
         self.obtained = obtained
         self.expected = expected
+
+
+class NecessaryParameterAbsentError(Exception):
+    def __init__(self, expected, message):
+        super(NecessaryParameterAbsentError, self).__init__(message)
+        self.expected = expected
+
+
+class UnexpectedParameterError(Exception):
+    def __init__(self, parameter_name, message):
+        super(UnexpectedParameterError, self).__init__(message)
+        self.parameter_name = parameter_name
