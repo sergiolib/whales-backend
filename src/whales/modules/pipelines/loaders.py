@@ -59,20 +59,19 @@ class SupervisedWhalesDetectorLoaders(Loader):
         """Add instructions to load the labels. Also, use glob where stars are detected"""
         real_labels = []
         for elem in self.pipeline.parameters["input_labels"]:
-            if "labels_file" in elem:
-                if "*" in elem["labels_file"]:
-                    labels_files = glob(elem["labels_file"])
-                    labels_formatters = [elem["labels_formatter"]] * len(labels_files)
-                    new_elems = [{
-                        "labels_file": a,
-                        "labels_formatter": b,
-                    } for a, b in zip(labels_files, labels_formatters)]
-                    real_labels += new_elems
-                else:
-                    real_labels.append({
-                        elem["labels_file"],
-                        elem["labels_formatter"]
-                    })
+            if "*" in elem["labels_file"]:
+                labels_files = glob(elem["labels_file"])
+                labels_formatters = [elem["labels_formatter"]] * len(labels_files)
+                new_elems = [{
+                    "labels_file": a,
+                    "labels_formatter": b,
+                } for a, b in zip(labels_files, labels_formatters)]
+                real_labels += new_elems
+            else:
+                real_labels.append({
+                    elem["labels_file"],
+                    elem["labels_formatter"]
+                })
         self.pipeline.add_instruction(self.instructions_set.set_labels, {"input_labels": real_labels})
 
     def load_features_extractors(self):
