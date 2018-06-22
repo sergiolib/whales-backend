@@ -20,8 +20,7 @@ class Module:
 
     @parameters.setter
     def parameters(self, parameters: dict):
-        for p, v in parameters.items():
-            self._parameters[p] = v
+        self._parameters.update(parameters)
 
     @property
     def short_name(self):
