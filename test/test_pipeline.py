@@ -1,25 +1,23 @@
 import sys, os
-
 import pytest
-from glob import glob
-
-from utilities import get_5_file_names, get_labeled
-from whales.modules.pipelines.whale_detector import WhaleDetector
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from whales.modules.pipelines.pipeline import get_available_features_extractors
-from whales.modules.pipelines.pipeline import get_available_pre_processing
-from whales.modules.pipelines.pipeline import get_available_pipeline_types
-from whales.modules.pipelines.pipeline import get_available_formatters
-from whales.modules.pipelines.pipeline import get_available_labels_formatters
-from whales.modules.pipelines.pipeline import get_available_datafiles
-from whales.modules.pipelines.pipeline import get_available_performance_indicators
-from whales.modules.pipelines.pipeline import get_available_unsupervised_methods
-from whales.modules.pipelines.pipeline import get_available_supervised_methods
-from whales.modules.pipelines.pipeline import get_available_semi_supervised_methods
-from whales.modules.pipelines.pipeline import get_available_datasets
+from glob import glob
+from utilities import get_5_file_names, get_labeled
+from whales.modules.pipelines.whale_detector import WhaleDetector
+from whales.modules.pipelines.getters import get_available_features_extractors
+from whales.modules.pipelines.getters import get_available_pre_processing
+from whales.modules.pipelines.getters import get_available_pipeline_types
+from whales.modules.pipelines.getters import get_available_formatters
+from whales.modules.pipelines.getters import get_available_labels_formatters
+from whales.modules.pipelines.getters import get_available_datafiles
+from whales.modules.pipelines.getters import get_available_performance_indicators
+from whales.modules.pipelines.getters import get_available_unsupervised_methods
+from whales.modules.pipelines.getters import get_available_supervised_methods
+from whales.modules.pipelines.getters import get_available_semi_supervised_methods
+from whales.modules.pipelines.getters import get_available_datasets
 
 
 def test_get_available_feature_extractors():

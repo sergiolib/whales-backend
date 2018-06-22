@@ -1,5 +1,5 @@
-from whales.modules.pipelines.pipeline import Pipeline, get_available_datasets, get_available_formatters, \
-    get_available_datafiles
+from whales.modules.pipelines.pipeline import Pipeline
+from whales.modules.pipelines.getters import get_available_datasets, get_available_formatters, get_available_datafiles
 
 
 class WhaleDetector(Pipeline):
@@ -30,17 +30,12 @@ class WhaleDetector(Pipeline):
             },
         }
 
+    # Initialize function
     def initialize(self):
         self.load_input_data()
         self.load_labels()
         self.load_features_extractors()
         self.load_performance_indicators()
-
-    def load_features_extractors(self):
-        pass
-
-    def load_performance_indicators(self):
-        pass
 
     # Instructions
     def build_data_set(self, params):
@@ -71,7 +66,7 @@ class WhaleDetector(Pipeline):
     def set_labels(self, params):
         results = params.get("results", {})
         data_set = params.get("data_set")
-        pass
+        return {}
 
 
 PipelineType = WhaleDetector

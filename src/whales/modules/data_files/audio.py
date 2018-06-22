@@ -45,7 +45,7 @@ class AudioDataFile(TimeSeriesDataFile):
         self._data = data
 
     def load_labels(self, file_name, labels_formatter, label="whale"):
-        label_name = self.parameters["label_mame"]
+        label_name = self.parameters["label_name"]
         if label not in self.name_label:
             label_name[min(list(label_name.keys())) + 1] = label
         labels = labels_formatter.read(file_name)
