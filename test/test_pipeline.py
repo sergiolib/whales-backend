@@ -1,6 +1,9 @@
 import sys, os
 import pytest
 
+from whales.modules.pipelines.parsers import NecessaryParameterAbsentError, UnexpectedParameterError, \
+    UnexpectedTypeError
+
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
@@ -15,47 +18,47 @@ class TestWhalesDetectorPipeline:
         p = WhaleDetector()
 
         demo_parameters = """
-    {
-        "pipeline_type": "whale_detector",
-        "input_data": [
-            {
-                "file_name": "demo_data.h5",
-                "data_file": "time_series",
-                "formatter": "hdf5"
-            }
-        ],
-        "input_labels": [{
-            "labels_file": "demo_labels.txt",
-            "labels_formatter": "txt"
-        }],
-        "pre_processing": [
-            {
-                "method": "scale",
-                "parameters": {}
-            }
-        ],
-        "features_extractors": [
-            {
-                "method": "identity",
-                "parameters": {}
-            }
-        ],
-        "machine_learning": {
-            "type": "unsupervised",
-            "method": "kmeans",
-            "parameters": {}
-        },
-        "performance_indicators": [
-            {
-                "method": "accuracy",
-                "parameters": {}
-            }
-        ],
-        "output_directory": "./demo",
-        "data_set_type": {
-            "method": "files_fold"
+{
+    "pipeline_type": "whale_detector",
+    "input_data": [
+        {
+            "file_name": "demo_data.h5",
+            "data_file": "time_series",
+            "formatter": "hdf5"
         }
+    ],
+    "input_labels": [{
+        "labels_file": "demo_labels.txt",
+        "labels_formatter": "txt"
+    }],
+    "pre_processing": [
+        {
+            "method": "scale",
+            "parameters": {}
+        }
+    ],
+    "features_extractors": [
+        {
+            "method": "identity",
+            "parameters": {}
+        }
+    ],
+    "machine_learning": {
+        "type": "unsupervised",
+        "method": "kmeans",
+        "parameters": {}
+    },
+    "performance_indicators": [
+        {
+            "method": "accuracy",
+            "parameters": {}
+        }
+    ],
+    "output_directory": "./demo",
+    "data_set_type": {
+        "method": "files_fold"
     }
+}
         """
 
         p.load_parameters(demo_parameters)
@@ -78,7 +81,7 @@ class TestWhalesDetectorPipeline:
     }
         """
 
-        with pytest.raises(ValueError):
+        with pytest.raises(NecessaryParameterAbsentError):
             p.load_parameters(missing_parameters)
 
     def test_extra_parameters(self):
@@ -99,7 +102,7 @@ class TestWhalesDetectorPipeline:
     }
         """
 
-        with pytest.raises(ValueError):
+        with pytest.raises(UnexpectedParameterError):
             p.load_parameters(extra_parameters)
 
     def test_wrong_parameters(self):
@@ -112,11 +115,11 @@ class TestWhalesDetectorPipeline:
         "input_data": [
             "demo_data.hdf5",
             "demo_data.aiff"
-        ],
+        ]
     }
         """
 
-        with pytest.raises(ValueError):
+        with pytest.raises(UnexpectedTypeError):
             p.load_parameters(wrong_format_parameters)
 
     def test_whales_pipeline(self):
@@ -142,7 +145,16 @@ class TestWhalesDetectorPipeline:
                     "method": "skewness"
                 }
             ],
-            "output_directory": "./demo"
+            "output_directory": "./demo",
+            "data_set_type": {
+                "method": "files_fold"
+            },
+            "pre_processing": [],
+            "performance_indicators": [],
+            "machine_learning": {
+                "method": "svm",
+                "type": "supervised"
+            }
         }"""
         p.load_parameters(parameters)
         p.initialize()

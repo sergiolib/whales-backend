@@ -16,7 +16,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         available_data_files = get_available_datafiles()
         available_formatters = get_available_formatters()
 
-        ds = available_data_sets[params["data_set_type"]]()
+        ds = available_data_sets[params["data_set_type"]["method"]]()
 
         for elem in params["input_data"]:
             file_name = elem["file_name"]

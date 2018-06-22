@@ -11,7 +11,7 @@ class Parser:
 class WhalesPipelineParser(Parser):
     def __init__(self, logger=None):
         super(WhalesPipelineParser, self).__init__(logger)
-        self.expected_fields_types = {
+        self.expected_fields_types = {  # Ground truth for a good pipeline configuration
             "output_directory": str,
             "pipeline_type": str,
             "input_data": [({
@@ -59,7 +59,11 @@ class WhalesPipelineParser(Parser):
                 except NecessaryParameterAbsentError as e:
                     raise NecessaryParameterAbsentError(e.expected, f"Expecting parameter {e.expected} in "
                                                                     f"{key} but couldn't find it")
-            expected_types_not_in_parameters = set(expected_types.keys()) - set(parameters.keys())
+            if type(expected_types) is type:
+                return  # Happens when no further search is needed in the tree (i.e. search has reached dict object)
+            expected_types_keys = set(expected_types.keys())
+            parameters_keys = set(parameters.keys())
+            expected_types_not_in_parameters = expected_types_keys - parameters_keys
             for key in expected_types_not_in_parameters:
                 if type(expected_types[key]) is tuple and expected_types[key][1] == "optional":
                     pass
@@ -67,12 +71,14 @@ class WhalesPipelineParser(Parser):
                     raise NecessaryParameterAbsentError(key)
         if field_type is list:
             for elem, exp in zip(parameters, expected_types):
+                if type(exp) is type:
+                    return  # Happens when no further search is needed in the tree (i.e. search has reached dict object)
                 self.parse_field(elem, exp)
 
 
 class UnexpectedTypeError(Exception):
-    def __init__(self, obtained, expected, message):
-        super(UnexpectedTypeError, self).__init__(message=None)
+    def __init__(self, obtained, expected, message=None):
+        super(UnexpectedTypeError, self).__init__(message)
         self.obtained = obtained
         self.expected = expected
 
