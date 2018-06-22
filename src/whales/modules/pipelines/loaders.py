@@ -3,18 +3,19 @@ from glob import glob
 
 
 class Loader:
-    def __init__(self, pipeline, logger=None):
+    def __init__(self, pipeline, instructions_set, logger=None):
         self.logger = logger
         if self.logger is None:
             self.logger = logging.getLogger(self.__class__.__name__)
 
         self.loaders_execution_order = []
         self.pipeline = pipeline
+        self.instructions_set = instructions_set
 
 
 class SupervisedWhalesDetectorLoaders(Loader):
-    def __init__(self, pipeline, logger=None):
-        super(SupervisedWhalesDetectorLoaders, self).__init__(pipeline, logger)
+    def __init__(self, pipeline, instructions_set, logger=None):
+        super(SupervisedWhalesDetectorLoaders, self).__init__(pipeline, instructions_set, logger)
 
         self.loaders_execution_order = [
             self.load_input_data,
@@ -45,15 +46,14 @@ class SupervisedWhalesDetectorLoaders(Loader):
                 else:
                     real_input_data.append(elem)
         data_set_type = self.pipeline.parameters.get("data_set_type", "files_fold")
-        self.pipeline.add_instruction("build_data_set",
-                             {
-                                 "input_data": real_input_data,
-                                 "data_set_type": data_set_type,
-                                 "sliding_windows": {
-                                     "overlap": 0.3,
-                                     "sliding_window_width": "60s",
-                                 }
-                             })
+        self.pipeline.add_instruction(self.instructions_set.build_data_set, {
+            "input_data": real_input_data,
+            "data_set_type": data_set_type,
+            "sliding_windows": {
+                "overlap": 0.3,
+                "sliding_window_width": "60s",
+            }
+        })
 
     def load_labels(self):
         """Add instructions to load the labels. Also, use glob where stars are detected"""
@@ -73,7 +73,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
                         elem["labels_file"],
                         elem["labels_formatter"]
                     })
-        self.pipeline.add_instruction("set_labels", {"input_labels": real_labels})
+        self.pipeline.add_instruction(self.instructions_set.set_labels, {"input_labels": real_labels})
 
     def load_features_extractors(self):
         """Add instructions to load the features extractors"""
@@ -93,4 +93,4 @@ class SupervisedWhalesDetectorLoaders(Loader):
                         elem["labels_file"],
                         elem["labels_formatter"]
                     })
-        self.pipeline.add_instruction("set_labels", {"input_labels": real_labels})
+        self.pipeline.add_instruction(self.instructions_set.set_labels, {"input_labels": real_labels})
