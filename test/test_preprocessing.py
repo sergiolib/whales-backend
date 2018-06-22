@@ -21,4 +21,3 @@ def test_scale():
     assert p.description != ""
     assert result.shape[0] == data.shape[0]
     assert result.dtype == np.float64
-
