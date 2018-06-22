@@ -26,8 +26,11 @@ class TestFilesFoldDataSet:
         training = ds.get_training()
         testing = ds.get_testing()
         validation = ds.get_validation()
+        expected_iterations = ds.iterations
+        i = 0
         for tr, te, val in zip(training, testing, validation):
-            pass
+            i += 1
+        assert expected_iterations == i
 
     def test_get_training_testing_set(self):
         ds = FilesFoldDataSet()
@@ -39,5 +42,8 @@ class TestFilesFoldDataSet:
         assert len(ds.datafiles) == 5
         training = ds.get_training()
         testing = ds.get_testing()
+        expected_iterations = ds.iterations
+        i = 0
         for tr, te in zip(training, testing):
-            pass
+            i += 1
+        assert expected_iterations == i
