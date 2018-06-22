@@ -1,6 +1,8 @@
 import logging
 from glob import glob
 
+from whales.modules.pipelines.getters import get_available_features_extractors
+
 
 class Loader:
     def __init__(self, pipeline, instructions_set, logger=None):
@@ -20,7 +22,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
         self.loaders_execution_order = [
             self.load_input_data,
             self.load_labels,
-            # self.load_features_extractors,
+            self.load_features_extractors,
             # self.load_performance_indicators
         ]
 
@@ -76,20 +78,13 @@ class SupervisedWhalesDetectorLoaders(Loader):
 
     def load_features_extractors(self):
         """Add instructions to load the features extractors"""
-        real_labels = []
-        for elem in self.pipeline.parameters["features_extractors"]:
-            if "labels_file" in elem:
-                if "*" in elem["labels_file"]:
-                    labels_files = glob(elem["labels_file"])
-                    labels_formatters = [elem["labels_formatter"]] * len(labels_files)
-                    new_elems = [{
-                        "labels_file": a,
-                        "labels_formatter": b,
-                    } for a, b in zip(labels_files, labels_formatters)]
-                    real_labels += new_elems
-                else:
-                    real_labels.append({
-                        elem["labels_file"],
-                        elem["labels_formatter"]
-                    })
-        self.pipeline.add_instruction(self.instructions_set.set_labels, {"input_labels": real_labels})
+        available_features = get_available_features_extractors()
+        for feat in self.pipeline.parameters["features_extractors"]:
+            method = feat["method"]
+            parameters = feat.get("parameters", {})
+            feat_cls = available_features.get(method, None)
+            if feat_cls is None:
+                raise ValueError(f"{method} is not a correct feature")
+            feat_fun = feat_cls()
+            feat_fun.parameters = parameters
+            self.pipeline.add_instruction(self.instructions_set.add_feature_extractor, {"feature_extractor": feat_fun})

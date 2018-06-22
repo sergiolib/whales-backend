@@ -50,3 +50,8 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                 df.load_labels(file_name, labels_formatter, label="whale")
 
         return {}
+
+    def add_feature_extractor(self, params):
+        added_feature_extractors = params.get("feature_extractors", [])
+        added_feature_extractors.append(params["feature_extractor"])
+        return {"feature_extractors": added_feature_extractors}
