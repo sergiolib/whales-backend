@@ -16,6 +16,10 @@ class FilesFoldDataSet(DataSet):
             "validation": True
         }
 
+    @property
+    def iterations(self):
+        return len(self.datafiles)
+
     def get_training(self):
         if not self.parameters["training"]:
             return None

@@ -6,6 +6,7 @@ class DataSet(Module):
     def __init__(self, logger=None):
         super().__init__(logger)
         self.datafiles = []
+        self._iterations = 1
 
     def add_datafile(self, datafile: DataFile):
         """Add data file to data set"""
