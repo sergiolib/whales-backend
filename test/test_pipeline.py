@@ -5,7 +5,7 @@ myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
 from glob import glob
-from utilities import get_5_file_names, get_labeled
+from whales.utilities.testing import get_5_file_names, get_labeled
 from whales.modules.pipelines.whale_detector import WhaleDetector
 from whales.modules.pipelines.getters import get_available_features_extractors
 from whales.modules.pipelines.getters import get_available_pre_processing
@@ -217,6 +217,11 @@ def test_whales_pipeline():
             "labels_file": "*.csv",
             "labels_formatter": "csv"
         }],
+        "features_extractors": [
+            {
+                "method": "skewness"
+            }
+        ],
         "output_directory": "./demo"
     }"""
     p.load_parameters(parameters)

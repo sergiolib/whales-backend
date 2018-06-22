@@ -1,4 +1,4 @@
-from utilities import get_labeled
+from whales.utilities.testing import get_5_file_names, get_labeled
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.formatters.aif import AIFFormatter
 from whales.modules.labels_formatters.csv import CSVLabelsFormatter

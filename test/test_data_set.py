@@ -1,5 +1,4 @@
-from test_data_files import TestAudioDataFiles
-from utilities import get_5_file_names
+from whales.utilities.testing import get_file_name, get_5_file_names
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.data_sets.files_fold import FilesFoldDataSet
 from whales.modules.formatters.aif import AIFFormatter
@@ -7,7 +6,10 @@ from whales.modules.formatters.aif import AIFFormatter
 
 class TestFilesFoldDataSet:
     def test_add_remove_datafile(self):
-        df = TestAudioDataFiles().test_load()
+        filename = get_file_name()
+        df = AudioDataFile()
+        df.load_data(filename,
+                     formatter=AIFFormatter())
         ds = FilesFoldDataSet()
         ds.add_datafile(df)
         assert len(ds.datafiles) == 1

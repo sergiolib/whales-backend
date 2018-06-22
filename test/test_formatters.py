@@ -1,13 +1,12 @@
 import sys, os
 
-from utilities import get_file_name
-
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
 import pandas as pd
-
 from os import rename
+
+from whales.utilities.testing import get_file_name
 from whales.modules.formatters.aif import AIFFormatter
 
 

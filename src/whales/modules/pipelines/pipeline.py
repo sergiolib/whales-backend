@@ -7,7 +7,7 @@ from whales.modules.module import Module
 from whales.modules.pipelines.parsers import PipelineParser
 
 
-class Pipeline(Module, PipelineParser):
+class Pipeline(Module):
     """Module that parses JSON formatted parameter set, sets up the pipelines and allows launching it.
     Actual pipelines initialization or instructions are implemented in children classes."""
     def __init__(self, logger=logging.getLogger(__name__)):
@@ -15,7 +15,9 @@ class Pipeline(Module, PipelineParser):
         self.process = None
         self.description = "Generic Pipeline"
         self.instructions_series = []
-        self.instructions_set = {}  # No instructions by default
+        self.instructions_set = None
+        self.loaders = None
+        self.parser = None
         self.results = {}
 
         # Default parameters
@@ -46,7 +48,7 @@ class Pipeline(Module, PipelineParser):
 
     def load_parameters(self, parameters_file: str):
         dictionary = json.loads(parameters_file)
-        self.parameters = self.parse_parameters(dictionary)
+        self.parameters = self.parser.parse(dictionary)
         self.logger.debug("Parameters set")
 
     def instructions(self):
@@ -75,3 +77,7 @@ class Pipeline(Module, PipelineParser):
         else:
             instruction = self.instructions_series.pop(0)
         return instruction
+
+    def initialize(self):
+        for loader in self.loaders.loaders_execution_order:
+            loader()

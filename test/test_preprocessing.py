@@ -1,14 +1,13 @@
 import sys, os
 
-from whales.modules.data_files.audio import AudioDataFile
-from whales.modules.formatters.aif import AIFFormatter
-
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from src.whales.modules.pre_processing.scale import Scale
-from utilities import get_file_name
 import numpy as np
+from whales.modules.data_files.audio import AudioDataFile
+from whales.modules.formatters.aif import AIFFormatter
+from whales.modules.pre_processing.scale import Scale
+from whales.utilities.testing import get_file_name
 
 
 def test_scale():

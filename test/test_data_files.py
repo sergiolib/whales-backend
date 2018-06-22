@@ -4,7 +4,7 @@ import sys, os
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-from utilities import get_file_name, get_labeled, get_labeled_txt
+from whales.utilities.testing import get_file_name, get_labeled, get_labeled_txt
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.formatters.aif import AIFFormatter
 from whales.modules.formatters.hdf5 import HDF5Formatter
@@ -19,7 +19,6 @@ class TestAudioDataFiles:
         df.load_data(filename,
                      formatter=AIFFormatter())
         assert df.duration.seconds > 0
-        return df
 
     def test_save(self):
         filename = get_file_name()

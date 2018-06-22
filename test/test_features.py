@@ -1,16 +1,12 @@
 import sys, os
 
-from utilities import get_file_name
-
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
+import numpy as np
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.formatters.aif import AIFFormatter
-
-
-import numpy as np
-
+from whales.utilities.testing import get_file_name
 from src.whales.modules.features_extractors.mfcc import PipelineMethod as MFCC
 from src.whales.modules.features_extractors.identity import PipelineMethod as Identity
 from src.whales.modules.features_extractors.zero_crossing_rate import PipelineMethod as ZeroCrossingRate

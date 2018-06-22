@@ -1,16 +1,35 @@
+import logging
 from glob import glob
 
-from whales.modules.module import Module
+
+class Loader:
+    def __init__(self, pipeline, logger=None):
+        self.logger = logger
+        if self.logger is None:
+            self.logger = logging.getLogger(self.__class__.__name__)
+
+        self.loaders_execution_order = []
+        self.pipeline = pipeline
 
 
-class PipelineLoaders(Module):
+class SupervisedWhalesDetectorLoaders(Loader):
+    def __init__(self, pipeline, logger=None):
+        super(SupervisedWhalesDetectorLoaders, self).__init__(pipeline, logger)
+
+        self.loaders_execution_order = [
+            self.load_input_data,
+            self.load_labels,
+            self.load_features_extractors,
+            self.load_performance_indicators
+        ]
+
     def load_performance_indicators(self):
         pass
 
     def load_input_data(self):
         """Add instructions to load the input data. Also, use glob where stars are detected"""
         real_input_data = []
-        for elem in self.parameters["input_data"]:
+        for elem in self.pipeline.parameters["input_data"]:
             if "file_name" in elem:
                 if "*" in elem["file_name"]:
                     # Glob detected
@@ -25,8 +44,8 @@ class PipelineLoaders(Module):
                     real_input_data += new_elems
                 else:
                     real_input_data.append(elem)
-        data_set_type = self.parameters.get("data_set_type", "files_fold")
-        self.add_instruction("build_data_set",
+        data_set_type = self.pipeline.parameters.get("data_set_type", "files_fold")
+        self.pipeline.add_instruction("build_data_set",
                              {
                                  "input_data": real_input_data,
                                  "data_set_type": data_set_type,
@@ -39,7 +58,7 @@ class PipelineLoaders(Module):
     def load_labels(self):
         """Add instructions to load the labels. Also, use glob where stars are detected"""
         real_labels = []
-        for elem in self.parameters["input_labels"]:
+        for elem in self.pipeline.parameters["input_labels"]:
             if "labels_file" in elem:
                 if "*" in elem["labels_file"]:
                     labels_files = glob(elem["labels_file"])
@@ -54,12 +73,12 @@ class PipelineLoaders(Module):
                         elem["labels_file"],
                         elem["labels_formatter"]
                     })
-        self.add_instruction("set_labels", {"input_labels": real_labels})
+        self.pipeline.add_instruction("set_labels", {"input_labels": real_labels})
 
     def load_features_extractors(self):
         """Add instructions to load the features extractors"""
         real_labels = []
-        for elem in self.parameters["features_extractors"]:
+        for elem in self.pipeline.parameters["features_extractors"]:
             if "labels_file" in elem:
                 if "*" in elem["labels_file"]:
                     labels_files = glob(elem["labels_file"])
@@ -74,4 +93,4 @@ class PipelineLoaders(Module):
                         elem["labels_file"],
                         elem["labels_formatter"]
                     })
-        self.add_instruction("set_labels", {"input_labels": real_labels})
+        self.pipeline.add_instruction("set_labels", {"input_labels": real_labels})

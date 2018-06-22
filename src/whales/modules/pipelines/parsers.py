@@ -2,23 +2,25 @@ import logging
 
 
 class Parser:
-    def __init__(self, logger=None):
+    def __init__(self, pipeline, logger=None):
         self.logger = logger
         if self.logger is None:
             self.logger = logging.getLogger(self.__class__.__name__)
 
+        self.pipeline = pipeline
+
 
 class PipelineParser(Parser):
-    def parse_parameters(self, parameters_dict):
+    def parse(self, parameters_dict):
         self.logger.debug("Parsing pipeline parameters")
 
         # Parse for necessary parameters
-        for key in self.parameters["necessary_parameters"]:
+        for key in self.pipeline.parameters["necessary_parameters"]:
             if key not in parameters_dict:
                 self.logger.error(f"Parameters dict does not include necessary parameter: {key}")
                 raise ValueError(f"Parameters dict does not include necessary parameter: {key}")
 
-        expected_parameters = {**self.parameters["necessary_parameters"], **self.parameters["optional_parameters"]}
+        expected_parameters = {**self.pipeline.parameters["necessary_parameters"], **self.pipeline.parameters["optional_parameters"]}
         for key in parameters_dict:
             if key in expected_parameters:
                 actual_type = type(parameters_dict[key])
@@ -34,14 +36,14 @@ class PipelineParser(Parser):
                 self.logger.error(f"Parameters dict included unexpected key {key}")
                 raise ValueError(f"Parameters dict included unexpected key {key}")
 
-        self._parse_parameters_structure(parameters_dict)
-        self._parse_input_data(parameters_dict["input_data"])
-        self._parse_input_labels(parameters_dict["input_labels"])
-        self._parse_features_extractors(parameters_dict["features_extractors"])
+        self.parse_parameters_structure(parameters_dict)
+        self.parse_input_data(parameters_dict["input_data"])
+        self.parse_input_labels(parameters_dict["input_labels"])
+        self.parse_features_extractors(parameters_dict["features_extractors"])
 
         return parameters_dict
 
-    def _parse_parameters_structure(self, current_elem):
+    def parse_parameters_structure(self, current_elem):
         """
         1. Make sure that sub_dict's lists have only dictionaries inside.
         :param current_elem:
@@ -50,7 +52,7 @@ class PipelineParser(Parser):
         if type(current_elem) is list:
             for next_elem in current_elem:
                 if type(next_elem) is dict:
-                    self._parse_parameters_structure(next_elem)
+                    self.parse_parameters_structure(next_elem)
                 else:
                     raise ValueError(
                         (
@@ -61,10 +63,10 @@ class PipelineParser(Parser):
         elif type(current_elem) is dict:
             for _, val in current_elem.items():
                 if type(val) is dict:
-                    self._parse_parameters_structure(val)
+                    self.parse_parameters_structure(val)
 
-    def _parse_input_data(self, input_data):
-        expected_parameters = self.parameters["expected_input_parameters"]
+    def parse_input_data(self, input_data):
+        expected_parameters = self.pipeline.parameters["expected_input_parameters"]
         for elem in input_data:
             if type(elem) is not dict:
                 raise ValueError("Data should be specified in a dict")
@@ -80,8 +82,8 @@ class PipelineParser(Parser):
                         f"{expected_parameters[p]} and it is actually a {type(elem[p])}"
                     ))
 
-    def _parse_input_labels(self, input_labels):
-        expected_parameters = self.parameters["expected_labels_parameters"]
+    def parse_input_labels(self, input_labels):
+        expected_parameters = self.pipeline.parameters["expected_labels_parameters"]
         for elem in input_labels:
             if type(elem) is not dict:
                 raise ValueError("Labels should be specified in a dict")
@@ -97,8 +99,8 @@ class PipelineParser(Parser):
                         f"{expected_parameters[p]} and it is actually a {type(elem[p])}"
                     ))
 
-    def _parse_features_extractors(self, features_extractors):
-        expected_parameters = self.parameters["expected_features_parameters"]
+    def parse_features_extractors(self, features_extractors):
+        expected_parameters = self.pipeline.parameters["expected_features_parameters"]
         for elem in features_extractors:
             if type(elem) is not dict:
                 raise ValueError("Features extractors should be specified each one in a dict")
