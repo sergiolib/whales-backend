@@ -1,7 +1,8 @@
 import logging
 from glob import glob
 
-from whales.modules.pipelines.getters import get_available_features_extractors, get_available_performance_indicators
+from whales.modules.pipelines.getters import get_available_features_extractors, get_available_performance_indicators, \
+    get_available_pre_processing
 
 
 class Loader:
@@ -22,6 +23,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
         self.loaders_execution_order = [
             self.load_input_data,
             self.load_labels,
+            self.load_pre_processing,
             self.load_features_extractors,
             self.load_performance_indicators
         ]
@@ -84,7 +86,20 @@ class SupervisedWhalesDetectorLoaders(Loader):
                 raise ValueError(f"{method} is not a correct feature")
             feat_fun = feat_cls()
             feat_fun.parameters = parameters
-            self.pipeline.add_instruction(self.instructions_set.add_feature_extractor, {"features_extractor": feat_fun})
+            self.pipeline.add_instruction(self.instructions_set.add_features_extractor, {"features_extractor": feat_fun})
+
+    def load_pre_processing(self):
+        """Add instructions to load the pre processing methods"""
+        available_pre_processing = get_available_pre_processing()
+        for pp in self.pipeline.parameters["pre_processing"]:
+            method = pp["method"]
+            parameters = pp.get("parameters", {})
+            feat_cls = available_pre_processing.get(method, None)
+            if feat_cls is None:
+                raise ValueError(f"{method} is not a correct pre processing method")
+            feat_fun = feat_cls()
+            feat_fun.parameters = parameters
+            self.pipeline.add_instruction(self.instructions_set.add_pre_processing_method, {"pp_method": feat_fun})
 
     def load_performance_indicators(self):
         """Add instructions to load the performance indicators"""

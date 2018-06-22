@@ -74,7 +74,7 @@ class TestWhalesDetectorPipeline:
         _ = get_5_file_names()
         p = WhaleDetector()
         [os.remove(file) for file in glob("*.aif")]
-        labeled_fns = get_labeled()
+        get_labeled()
         parameters = """{
             "pipeline_type": "whale_detector",
             "input_data": [
@@ -97,7 +97,11 @@ class TestWhalesDetectorPipeline:
             "data_set_type": {
                 "method": "files_fold"
             },
-            "pre_processing": [],
+            "pre_processing": [
+                {
+                    "method": "scale"
+                }
+            ],
             "performance_indicators": [
                 {
                     "method": "accuracy"
