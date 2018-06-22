@@ -10,7 +10,7 @@ class Parser:
 
 class WhalesPipelineParser(Parser):
     def __init__(self, logger=None):
-        super(WhalesPipelineParser, self).__init__(logger)
+        super().__init__(logger)
         self.expected_fields_types = {  # Ground truth for a good pipeline configuration
             "output_directory": str,
             "pipeline_type": str,
@@ -78,18 +78,18 @@ class WhalesPipelineParser(Parser):
 
 class UnexpectedTypeError(Exception):
     def __init__(self, obtained, expected, message=None):
-        super(UnexpectedTypeError, self).__init__(message)
+        super().__init__(message)
         self.obtained = obtained
         self.expected = expected
 
 
 class NecessaryParameterAbsentError(Exception):
     def __init__(self, expected, message=None):
-        super(NecessaryParameterAbsentError, self).__init__(message)
+        super().__init__(message)
         self.expected = expected
 
 
 class UnexpectedParameterError(Exception):
     def __init__(self, parameter_name, message=None):
-        super(UnexpectedParameterError, self).__init__(message)
+        super().__init__(message)
         self.parameter_name = parameter_name

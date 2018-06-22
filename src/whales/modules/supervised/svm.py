@@ -6,7 +6,7 @@ from whales.modules.supervised.supervised import Supervised
 
 class SVM(Supervised, SKLearnSaveLoadMixin):
     def __init__(self, logger=None):
-        super(SVM, self).__init__(logger)
+        super().__init__(logger)
 
         self.needs_fitting = True
 

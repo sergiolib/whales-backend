@@ -15,13 +15,13 @@ class Loader:
 
 class SupervisedWhalesDetectorLoaders(Loader):
     def __init__(self, pipeline, instructions_set, logger=None):
-        super(SupervisedWhalesDetectorLoaders, self).__init__(pipeline, instructions_set, logger)
+        super().__init__(pipeline, instructions_set, logger)
 
         self.loaders_execution_order = [
             self.load_input_data,
             self.load_labels,
-            self.load_features_extractors,
-            self.load_performance_indicators
+            # self.load_features_extractors,
+            # self.load_performance_indicators
         ]
 
     def load_performance_indicators(self):

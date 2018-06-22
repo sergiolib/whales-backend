@@ -6,7 +6,7 @@ class Energy(FeatureExtraction):
         pass
 
     def __init__(self, logger=None):
-        super(Energy, self).__init__(logger)
+        super().__init__(logger)
         self.description = "Energy"
         self.needs_fitting = False
         self.parameters = {}

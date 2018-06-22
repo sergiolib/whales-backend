@@ -4,7 +4,7 @@ from whales.modules.module import Module
 
 class DataSet(Module):
     def __init__(self, logger=None):
-        super(DataSet, self).__init__(logger)
+        super().__init__(logger)
         self.datafiles = []
 
     def add_datafile(self, datafile: DataFile):

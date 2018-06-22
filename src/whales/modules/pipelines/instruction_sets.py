@@ -1,6 +1,7 @@
 import logging
 
-from whales.modules.pipelines.getters import get_available_datasets, get_available_datafiles, get_available_formatters
+from whales.modules.pipelines.getters import get_available_datasets, get_available_datafiles, get_available_formatters, \
+    get_available_labels_formatters
 
 
 class InstructionSet:
@@ -37,6 +38,15 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         return {"data_set": ds}
 
     def set_labels(self, params):
-        results = params.get("results", {})
-        data_set = params.get("data_set")
+        labels_params = params["input_labels"]
+        ds = params["data_set"]
+
+        lf = get_available_labels_formatters()
+
+        for p in labels_params:
+            file_name = p["labels_file"]
+            labels_formatter = lf[p["labels_formatter"]]()
+            for df in ds.datafiles:
+                df.load_labels(file_name, labels_formatter, label="whale")
+
         return {}

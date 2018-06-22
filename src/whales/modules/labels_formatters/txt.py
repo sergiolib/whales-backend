@@ -4,7 +4,7 @@ from whales.modules.labels_formatters.labels_formatters import LabelsFormatter
 
 class TXTLabelsFormatter(LabelsFormatter):
     def __init__(self, logger=None):
-        super(TXTLabelsFormatter, self).__init__(logger)
+        super().__init__(logger)
         self.description = """TXT label files parser and loader"""
 
     def read(self, filename):

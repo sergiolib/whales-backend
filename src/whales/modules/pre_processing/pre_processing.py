@@ -5,7 +5,7 @@ from src.whales.modules.module import Module
 
 class PreProcessing(Module):
     def __init__(self, logger=None):
-        super(PreProcessing, self).__init__(logger)
+        super().__init__(logger)
 
     def fit(self, data):
         if self.needs_fitting is False:

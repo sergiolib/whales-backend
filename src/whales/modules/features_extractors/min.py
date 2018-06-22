@@ -4,7 +4,7 @@ from whales.modules.features_extractors.feature_extraction import FeatureExtract
 
 class Min(FeatureExtraction):
     def __init__(self, logger=None):
-        super(Min, self).__init__(logger)
+        super().__init__(logger)
         self.description = "Minimum"
         self.needs_fitting = False
         self.parameters = {}

@@ -4,7 +4,7 @@ from whales.modules.performance_indicators.performance_indicator import Performa
 
 class Accuracy(PerformanceIndicator):
     def __init__(self, logger=None):
-        super(Accuracy, self).__init__(logger)
+        super().__init__(logger)
 
         self.description = "Number of correct predictions divided in the total of predicted values"
 

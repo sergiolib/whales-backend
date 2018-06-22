@@ -6,7 +6,7 @@ from whales.modules.pipelines.pipeline import Pipeline
 
 class WhaleDetector(Pipeline):
     def __init__(self, logger=None):
-        super(WhaleDetector, self).__init__(logger)
+        super().__init__(logger)
 
         self.loaders = SupervisedWhalesDetectorLoaders(pipeline=self, instructions_set=SupervisedWhalesInstructionSet())
         self.parser = WhalesPipelineParser()

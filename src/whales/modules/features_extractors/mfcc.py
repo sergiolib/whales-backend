@@ -5,7 +5,7 @@ import librosa
 
 class MFCC(FeatureExtraction):
     def __init__(self, logger=None):
-        super(MFCC, self).__init__(logger)
+        super().__init__(logger)
         self.needs_fitting = False
         self.description = """Mel Frequency Cepstral Coefficients"""
         self.parameters = {

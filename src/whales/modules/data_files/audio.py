@@ -6,7 +6,7 @@ class AudioDataFile(TimeSeriesDataFile):
     description = "Audio data files"
 
     def __init__(self, logger=None):
-        super(AudioDataFile, self).__init__(logger)
+        super().__init__(logger)
         self.parameters = {
             "sliding_window_width": "60s",  # str
             "overlap": 0.3,  # Percentage
@@ -33,7 +33,7 @@ class AudioDataFile(TimeSeriesDataFile):
 
     @property
     def data(self):
-        data = super(AudioDataFile, self).data
+        data = super().data
         if "labels" in data.columns:
             return data
         else:

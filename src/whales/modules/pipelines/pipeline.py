@@ -10,7 +10,7 @@ class Pipeline(Module):
     """Module that parses JSON formatted parameter set, sets up the pipelines and allows launching it.
     Actual pipelines initialization or instructions are implemented in children classes."""
     def __init__(self, logger=logging.getLogger(__name__)):
-        super(Pipeline, self).__init__(logger)
+        super().__init__(logger)
         self.process = None
         self.description = "Generic Pipeline"
         self.instructions_series = []
@@ -39,7 +39,7 @@ class Pipeline(Module):
             if ins is None:
                 break  # Finished executing instructions. Results in the results attribute
             fun, param = ins
-            param["results"] = self.results
+            param.update(self.results)
             if fun is None:
                 raise RuntimeError(f"Instruction {ins} is not defined")
             instruction_results = fun(param)

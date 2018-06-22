@@ -4,7 +4,7 @@ from whales.modules.labels_formatters.labels_formatters import LabelsFormatter
 
 class CSVLabelsFormatter(LabelsFormatter):
     def __init__(self, logger=None):
-        super(CSVLabelsFormatter, self).__init__(logger)
+        super().__init__(logger)
         self.description = """CSV label files parser and loader"""
 
     def read(self, filename):

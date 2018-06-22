@@ -8,7 +8,7 @@ from .formatters import Formatter
 
 class AIFFormatter(Formatter):
     def __init__(self, logger=None):
-        super(AIFFormatter, self).__init__(logger)
+        super().__init__(logger)
         self.parameters = {
             "byteswapped": True,
             "dtype": np.short,

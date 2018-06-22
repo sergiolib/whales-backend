@@ -5,7 +5,7 @@ from whales.modules.data_sets.data_sets import DataSet
 class FilesFoldDataSet(DataSet):
     """Perform K fold where every file is treated as a separate source"""
     def __init__(self, logger=None):
-        super(FilesFoldDataSet, self).__init__(logger)
+        super().__init__(logger)
         self.current_file = 0
 
         self.description = """K Folding of three separate sets for every fold"""

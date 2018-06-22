@@ -5,7 +5,7 @@ from whales.modules.module import Module
 
 class DataFile(Module):
     def __init__(self, logger=None):
-        super(DataFile, self).__init__(logger)
+        super().__init__(logger)
         self.metadata = {}
         self._data = None
         self.file_name = None

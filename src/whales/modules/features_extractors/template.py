@@ -3,7 +3,7 @@ from whales.modules.features_extractors.feature_extraction import FeatureExtract
 
 class Demo(FeatureExtraction):
     def __init__(self, logger=None):  # There should be no parameters here
-        super(Demo, self).__init__(logger)
+        super().__init__(logger)
 
         self.needs_fitting = True  # If True, the method can't be used without fitting it
         # Also, if set, Demo().fit() will be callable. Else, it won't.

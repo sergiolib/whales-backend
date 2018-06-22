@@ -3,7 +3,7 @@ from whales.modules.module import Module
 
 class SemiSupervised(Module):
     def __init__(self, logger=None):
-        super(SemiSupervised, self).__init__(logger)
+        super().__init__(logger)
         self.parameters = {
             "unlabeled_placeholder": -1,
         }
