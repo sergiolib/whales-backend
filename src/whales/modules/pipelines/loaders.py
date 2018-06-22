@@ -87,4 +87,6 @@ class SupervisedWhalesDetectorLoaders(Loader):
                 raise ValueError(f"{method} is not a correct feature")
             feat_fun = feat_cls()
             feat_fun.parameters = parameters
-            self.pipeline.add_instruction(self.instructions_set.add_feature_extractor, {"feature_extractor": feat_fun})
+            self.pipeline.add_instruction(self.instructions_set.add_feature_extractor, {"features_extractor": feat_fun})
+
+    # def

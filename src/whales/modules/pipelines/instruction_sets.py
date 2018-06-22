@@ -52,6 +52,6 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         return {}
 
     def add_feature_extractor(self, params):
-        added_feature_extractors = params.get("feature_extractors", [])
-        added_feature_extractors.append(params["feature_extractor"])
-        return {"feature_extractors": added_feature_extractors}
+        added_feature_extractors = params.get("features_extractors", [])
+        added_feature_extractors.append(params["features_extractor"])
+        return {"features_extractors": added_feature_extractors}

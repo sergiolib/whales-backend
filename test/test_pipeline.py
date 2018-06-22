@@ -107,7 +107,8 @@ class TestWhalesDetectorPipeline:
         p.load_parameters(parameters)
         p.initialize()
         p.start()
-        ds = p.results["data_set"]
-        tr = ds.get_training()
-        for t in tr:
-            return
+        assert "data_set" in p.results
+        assert len(p.results["data_set"].datafiles) > 0
+        assert "features_extractors" in p.results
+        assert len(p.results["features_extractors"]) > 0
+        assert False
