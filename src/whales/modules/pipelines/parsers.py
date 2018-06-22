@@ -56,13 +56,15 @@ class WhalesPipelineParser(Parser):
                     raise UnexpectedTypeError(e.obtained, e.expected, (f"Parameter {key} has unexpected type: ",
                                                                        f"obtained {e.obtained} ",
                                                                        f"while expecting {e.expected}"))
+                except NecessaryParameterAbsentError as e:
+                    raise NecessaryParameterAbsentError(e.expected, f"Expecting parameter {e.expected} in "
+                                                                    f"{key} but couldn't find it")
             expected_types_not_in_parameters = set(expected_types.keys()) - set(parameters.keys())
             for key in expected_types_not_in_parameters:
                 if type(expected_types[key]) is tuple and expected_types[key][1] == "optional":
                     pass
                 else:
-                    raise NecessaryParameterAbsent(key, f"Expecting parameter {key} in "
-                                                        f"{parameters} but couldn't find it")
+                    raise NecessaryParameterAbsentError(key)
         if field_type is list:
             for elem, exp in zip(parameters, expected_types):
                 self.parse_field(elem, exp)
@@ -70,18 +72,18 @@ class WhalesPipelineParser(Parser):
 
 class UnexpectedTypeError(Exception):
     def __init__(self, obtained, expected, message):
-        super(UnexpectedTypeError, self).__init__(message)
+        super(UnexpectedTypeError, self).__init__(message=None)
         self.obtained = obtained
         self.expected = expected
 
 
 class NecessaryParameterAbsentError(Exception):
-    def __init__(self, expected, message):
+    def __init__(self, expected, message=None):
         super(NecessaryParameterAbsentError, self).__init__(message)
         self.expected = expected
 
 
 class UnexpectedParameterError(Exception):
-    def __init__(self, parameter_name, message):
+    def __init__(self, parameter_name, message=None):
         super(UnexpectedParameterError, self).__init__(message)
         self.parameter_name = parameter_name
