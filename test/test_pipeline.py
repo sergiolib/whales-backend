@@ -13,58 +13,6 @@ from whales.modules.pipelines.whale_detector import WhaleDetector
 
 
 class TestWhalesDetectorPipeline:
-    def test_load_parameters(self):
-        """Test that loading set of parameters works the way it is expected"""
-        p = WhaleDetector()
-
-        demo_parameters = """
-{
-    "pipeline_type": "whale_detector",
-    "input_data": [
-        {
-            "file_name": "demo_data.h5",
-            "data_file": "time_series",
-            "formatter": "hdf5"
-        }
-    ],
-    "input_labels": [{
-        "labels_file": "demo_labels.txt",
-        "labels_formatter": "txt"
-    }],
-    "pre_processing": [
-        {
-            "method": "scale",
-            "parameters": {}
-        }
-    ],
-    "features_extractors": [
-        {
-            "method": "identity",
-            "parameters": {}
-        }
-    ],
-    "machine_learning": {
-        "type": "unsupervised",
-        "method": "kmeans",
-        "parameters": {}
-    },
-    "performance_indicators": [
-        {
-            "method": "accuracy",
-            "parameters": {}
-        }
-    ],
-    "output_directory": "./demo",
-    "data_set_type": {
-        "method": "files_fold"
-    }
-}
-        """
-
-        p.load_parameters(demo_parameters)
-        assert type(p.parameters["machine_learning"]) is dict
-        assert p.parameters["performance_indicators"][0]["method"] == "accuracy"
-
     def test_missing_necessary_parameters(self):
         p = WhaleDetector()
 
