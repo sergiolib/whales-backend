@@ -1,7 +1,7 @@
 import logging
 from glob import glob
 
-from whales.modules.pipelines.getters import get_available_features_extractors
+from whales.modules.pipelines.getters import get_available_features_extractors, get_available_performance_indicators
 
 
 class Loader:
@@ -23,11 +23,8 @@ class SupervisedWhalesDetectorLoaders(Loader):
             self.load_input_data,
             self.load_labels,
             self.load_features_extractors,
-            # self.load_performance_indicators
+            self.load_performance_indicators
         ]
-
-    def load_performance_indicators(self):
-        pass
 
     def load_input_data(self):
         """Add instructions to load the input data. Also, use glob where stars are detected"""
@@ -89,4 +86,16 @@ class SupervisedWhalesDetectorLoaders(Loader):
             feat_fun.parameters = parameters
             self.pipeline.add_instruction(self.instructions_set.add_feature_extractor, {"features_extractor": feat_fun})
 
-    # def
+    def load_performance_indicators(self):
+        """Add instructions to load the performance indicators"""
+        available_pi = get_available_performance_indicators()
+        for pi in self.pipeline.parameters["performance_indicators"]:
+            method = pi["method"]
+            parameters = pi.get("parameters", {})
+            pi_cls = available_pi.get(method, None)
+            if pi_cls is None:
+                raise ValueError(f"{method} is not a correct performance indicator")
+            pi_fun = pi_cls()
+            pi_fun.parameters = parameters
+            self.pipeline.add_instruction(self.instructions_set.add_performance_indicator,
+                                          {"performance_indicator": pi_fun})

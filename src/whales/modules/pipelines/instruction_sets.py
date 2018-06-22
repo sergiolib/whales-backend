@@ -55,3 +55,8 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         added_feature_extractors = params.get("features_extractors", [])
         added_feature_extractors.append(params["features_extractor"])
         return {"features_extractors": added_feature_extractors}
+
+    def add_performance_indicator(self, params):
+        added_performance_indicators = params.get("performance_indicators", [])
+        added_performance_indicators.append(params["performance_indicator"])
+        return {"performance_indicators": added_performance_indicators}

@@ -98,7 +98,11 @@ class TestWhalesDetectorPipeline:
                 "method": "files_fold"
             },
             "pre_processing": [],
-            "performance_indicators": [],
+            "performance_indicators": [
+                {
+                    "method": "accuracy"
+                }
+            ],
             "machine_learning": {
                 "method": "svm",
                 "type": "supervised"
@@ -111,4 +115,6 @@ class TestWhalesDetectorPipeline:
         assert len(p.results["data_set"].datafiles) > 0
         assert "features_extractors" in p.results
         assert len(p.results["features_extractors"]) > 0
+        assert "performance_indicators" in p.results
+        assert len(p.results["performance_indicators"]) > 0
         assert False
