@@ -1,5 +1,7 @@
 import logging
 
+from whales.modules.pipelines.getters import get_available_datasets, get_available_datafiles, get_available_formatters
+
 
 class InstructionSet:
     def __init__(self, logger=None):

@@ -4,7 +4,7 @@ import json
 import logging
 from multiprocessing import Process
 from whales.modules.module import Module
-from whales.modules.pipelines.parsers import PipelineParser
+from whales.modules.pipelines.parsers import WhalesPipelineParser
 
 
 class Pipeline(Module):
@@ -21,23 +21,7 @@ class Pipeline(Module):
         self.results = {}
 
         # Default parameters
-        self.parameters = {
-            "necessary_parameters": {},
-            "optional_parameters": {},
-            "expected_input_parameters": {
-                "file_name": str,
-                "data_file": str,
-                "formatter": str,
-            },
-            "expected_labels_parameters": {
-                "labels_file": str,
-                "labels_formatter": str,
-            },
-            "expected_features_parameters": {
-                "method": str,
-                "parameters": dict,
-            }
-        }
+        self.parameters = {}
 
     def start(self):
         """Run the instructions series"""
@@ -58,7 +42,7 @@ class Pipeline(Module):
                 break  # Finished executing instructions. Results in the results attribute
             ins, param = ins
             param["results"] = self.results
-            fun = self.instruction_set.get(ins)
+            fun = getattr(self.instructions_set, ins)
             if fun is None:
                 raise RuntimeError(f"Instruction {ins} is not defined")
             instruction_results = fun(param)
