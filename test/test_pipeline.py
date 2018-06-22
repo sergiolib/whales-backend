@@ -3,6 +3,7 @@ import pytest
 
 from whales.modules.pipelines.parsers import NecessaryParameterAbsentError, UnexpectedParameterError, \
     UnexpectedTypeError
+from whales.modules.supervised.svm import SVM
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
@@ -121,4 +122,5 @@ class TestWhalesDetectorPipeline:
         assert len(p.results["features_extractors"]) > 0
         assert "performance_indicators" in p.results
         assert len(p.results["performance_indicators"]) > 0
+        assert type(p.results["ml_method"]) is SVM
         assert False

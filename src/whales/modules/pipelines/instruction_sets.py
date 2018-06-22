@@ -65,3 +65,6 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         added_pp_method = params.get("pre_processing_methods", [])
         added_pp_method.append(params["pp_method"])
         return {"pre_processing_methods": added_pp_method}
+
+    def set_machine_learning_method(self, params):
+        return {"ml_method": params["ml_method"]}

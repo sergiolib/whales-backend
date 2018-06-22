@@ -2,7 +2,8 @@ import logging
 from glob import glob
 
 from whales.modules.pipelines.getters import get_available_features_extractors, get_available_performance_indicators, \
-    get_available_pre_processing
+    get_available_pre_processing, get_available_supervised_methods, get_available_unsupervised_methods, \
+    get_available_semi_supervised_methods
 
 
 class Loader:
@@ -25,7 +26,9 @@ class SupervisedWhalesDetectorLoaders(Loader):
             self.load_labels,
             self.load_pre_processing,
             self.load_features_extractors,
-            self.load_performance_indicators
+            self.load_performance_indicators,
+            self.load_method,
+            # self.load_running_instructions
         ]
 
     def load_input_data(self):
@@ -114,3 +117,24 @@ class SupervisedWhalesDetectorLoaders(Loader):
             pi_fun.parameters = parameters
             self.pipeline.add_instruction(self.instructions_set.add_performance_indicator,
                                           {"performance_indicator": pi_fun})
+
+    def load_method(self):
+        """Add instructions to load the machine learning method"""
+        method_name = self.pipeline.parameters["machine_learning"]["method"]
+        method_type = self.pipeline.parameters["machine_learning"]["type"]
+        method_params = self.pipeline.parameters["machine_learning"].get("parameters", {})
+        if method_type == "supervised":
+            available_methods = get_available_supervised_methods()
+        elif method_type == "unsupervised":
+            available_methods = get_available_unsupervised_methods()
+        elif method_type == "semi_supervised":
+            available_methods = get_available_semi_supervised_methods()
+        else:
+            raise ValueError(f"Machine learning type {method_type} not understood")
+        ml_cls = available_methods.get(method_name, None)
+        if ml_cls is None:
+            raise ValueError(f"Machine learning method {method_name} not understood")
+        ml_fun = ml_cls()
+        ml_fun.parameters = method_params
+        self.pipeline.add_instruction(self.instructions_set.set_machine_learning_method,
+                                      {"ml_method": ml_fun})
