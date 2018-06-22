@@ -39,10 +39,8 @@ class WhalesPipelineParser(Parser):
         field_type = type(parameters)
         if type(expected_types) is tuple:
             expected_type = expected_types[0] if type(expected_types[0]) is type else type(expected_types[0])
-            necessary = expected_types[1] == "necessary"
         else:
             expected_type = expected_types if type(expected_types) is type else type(expected_types)
-            necessary = True
         expected_types = expected_types[0] if type(expected_types) is tuple else expected_types
         if field_type is not expected_type:
             raise UnexpectedTypeError(field_type, expected_type)
@@ -55,6 +53,12 @@ class WhalesPipelineParser(Parser):
                 except UnexpectedTypeError as e:
                     raise ValueError(f"Parameter {key} has unexpected type: obtained {e.obtained} ",
                                      f"while expecting {e.expected}")
+            expected_types_not_in_parameters = set(expected_types.keys()) - set(parameters.keys())
+            for key in expected_types_not_in_parameters:
+                if type(expected_types[key]) is tuple and expected_types[key][1] == "optional":
+                    pass
+                else:
+                    raise ValueError(f"Expecting parameter {key} in object {parameters} but couldn't find it")
         if field_type is list:
             for elem, exp in zip(parameters, expected_types):
                 self.parse_field(elem, exp)
