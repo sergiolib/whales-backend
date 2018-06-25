@@ -45,6 +45,8 @@ class WhalesPipelineParser(Parser):
         if field_type is not expected_type:
             raise UnexpectedTypeError(field_type, expected_type)
         if field_type is dict:
+            if type(expected_types) is type:
+                return  # Happens when no further search is needed in the tree (i.e. search has reached dict object)
             for key in parameters:
                 try:
                     self.parse_field(parameters[key], expected_types[key])
@@ -59,8 +61,6 @@ class WhalesPipelineParser(Parser):
                 except NecessaryParameterAbsentError as e:
                     raise NecessaryParameterAbsentError(e.expected, f"Expecting parameter {e.expected} in "
                                                                     f"{key} but couldn't find it")
-            if type(expected_types) is type:
-                return  # Happens when no further search is needed in the tree (i.e. search has reached dict object)
             expected_types_keys = set(expected_types.keys())
             parameters_keys = set(parameters.keys())
             expected_types_not_in_parameters = expected_types_keys - parameters_keys

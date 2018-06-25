@@ -2,6 +2,7 @@
 
 import logging
 
+from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.pipelines.getters import get_available_datasets, get_available_datafiles, get_available_formatters, \
     get_available_labels_formatters
 
@@ -14,13 +15,13 @@ class InstructionSet:
 
 
 class SupervisedWhalesInstructionSet(InstructionSet):
-    def build_data_set(self, params:  dict):
-        available_data_sets = get_available_datasets()
+    def build_data_file(self, params:  dict):
+        """"""
         available_data_files = get_available_datafiles()
         available_formatters = get_available_formatters()
 
-        ds = available_data_sets[params["data_set_type"]["method"]]()
-
+        # Load every small input data file and concatenate all into the big data file
+        dfs = []
         for elem in params["input_data"]:
             file_name = elem["file_name"]
             data_file_name = elem["data_file"]
@@ -28,28 +29,21 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             df = available_data_files[data_file_name]()
             fmt = available_formatters[formatter_name]()
             df.load_data(file_name=file_name, formatter=fmt)
+            dfs.append(df)
+        big_df = dfs[0].concatenate(dfs)
 
-            # Sliding windows
-            sw_params = params.get("sliding_windows")
-            if sw_params is not None:
-                df.parameters.update(sw_params)
-                sliding_windows = df.generate_sliding_windows()
-                [ds.add_datafile(i) for i in sliding_windows]
-            else:
-                ds.add_datafile(df)
-        return {"data_set": ds}
+        return {"input_data": big_df}
 
     def set_labels(self, params:  dict):
         labels_params = params["input_labels"]
-        ds = params["data_set"]
+        input_data = params["input_data"]
 
         lf = get_available_labels_formatters()
 
         for p in labels_params:
             file_name = p["labels_file"]
             labels_formatter = lf[p["labels_formatter"]]()
-            for df in ds.datafiles:
-                df.load_labels(file_name, labels_formatter, label="whale")
+            input_data.load_labels(file_name, labels_formatter, label="whale")
 
         return {}
 
@@ -81,27 +75,36 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         }
 
     def train_machine_learning_method(self, params: dict):
+        ml_method = params["ml_method"]
         return {}
 
     def train_performance_indicators(self, params: dict):
-        return {}
-
-    def train_pre_processing(self, params: dict):
+        performance_indicators = params["performance_indicators"]
         return {}
 
     def train_features(self, params: dict):
+        feat = params["features_extractors"]
         return {}
 
     def transform_features(self, params: dict):
+        feat = params["features_extractors"]
         return {}
 
     def transform_pre_processing(self, params: dict):
-        return {}
+        pre_processing_methods = params["pre_processing_methods"]
+        input_data = params["input_data"]
+        data = input_data
+        for pp in pre_processing_methods:
+            data = pp.transform(data)
+        output_data = data
+        return {"input_data": output_data}
 
     def predict_machine_learning_method(self, params: dict):
+        ml_method = params["ml_method"]
         return {}
 
     def compute_performance_indicators(self, params: dict):
+        performance_indicators = params["performance_indicators"]
         return {}
 
     def train_execute_methods(self, params: dict):
@@ -118,37 +121,29 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         for iteration, (current_training, current_testing, current_validation) in enumerate(zip(
                 training_sets, testing_sets, validation_sets)):
             # Set current sets
-            current_data_set = {}
-            current_data_set["current_training_set"] = current_training
-            current_data_set["current_testing_set"] = current_testing
-            current_data_set["current_validation_set"] = current_validation
-
-            # Partial results dictionary
-            output = {}
-
-            # Train pre processing methods
-            output.update(self.train_pre_processing(current_data_set))
+            params["current_training_set"] = current_training
+            params["current_testing_set"] = current_testing
+            params["current_validation_set"] = current_validation
 
             # Train features extractors
-            output.update(self.train_features(output))
+            params.update(self.train_features(params))
 
             # Transform data
-            output.update(self.transform_pre_processing(output))
-            output.update(self.transform_features(output))
+            params.update(self.transform_features(params))
 
             # Train machine learning method
-            output.update(self.train_machine_learning_method(output))
+            params.update(self.train_machine_learning_method(params))
 
             # Train performance indicators
-            output.update(self.train_performance_indicators(output))
+            params.update(self.train_performance_indicators(params))
 
             # Predict with machine learning method
-            output.update(self.predict_machine_learning_method(output))
+            params.update(self.predict_machine_learning_method(params))
 
             # Compute performance indicators
-            output.update(self.compute_performance_indicators(output))
+            params.update(self.compute_performance_indicators(params))
 
             # Store results
-            results[f"{iteration + 1}/{number_of_sets}"] = output
+            results[f"{iteration + 1}/{number_of_sets}"] = params
 
         return results

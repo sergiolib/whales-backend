@@ -100,6 +100,14 @@ class TestWhalesDetectorPipeline:
             },
             "pre_processing": [
                 {
+                    "method": "sliding_windows",
+                    "parameters": {
+                        "window_width": "60s",
+                        "overlap": 0.3,
+                        "labels_treatment": "mean"
+                    }
+                },
+                {
                     "method": "scale"
                 }
             ],

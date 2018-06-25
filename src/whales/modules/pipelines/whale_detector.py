@@ -11,8 +11,7 @@ class WhaleDetector(Pipeline):
         self.loaders = SupervisedWhalesDetectorLoaders(pipeline=self, instructions_set=SupervisedWhalesInstructionSet())
         self.parser = WhalesPipelineParser()
 
-        self.parameters = {
-        }
+        self.parameters = {}
 
 
 PipelineType = WhaleDetector

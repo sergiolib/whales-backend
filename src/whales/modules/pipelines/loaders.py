@@ -31,7 +31,6 @@ class SupervisedWhalesDetectorLoaders(Loader):
             self.load_features_extractors,
             self.load_performance_indicators,
             self.load_method,
-            self.load_running_instructions,
             self.load_train_execute_methods,
         ]
 
@@ -53,14 +52,8 @@ class SupervisedWhalesDetectorLoaders(Loader):
                     real_input_data += new_elems
                 else:
                     real_input_data.append(elem)
-        data_set_type = self.pipeline.parameters.get("data_set_type", "files_fold")
-        self.pipeline.add_instruction(self.instructions_set.build_data_set, {
+        self.pipeline.add_instruction(self.instructions_set.build_data_file, {
             "input_data": real_input_data,
-            "data_set_type": data_set_type,
-            "sliding_windows": {
-                "overlap": 0.3,
-                "sliding_window_width": "60s",
-            }
         })
 
     def load_labels(self):
@@ -93,7 +86,8 @@ class SupervisedWhalesDetectorLoaders(Loader):
                 raise ValueError(f"{method} is not a correct feature")
             feat_fun = feat_cls()
             feat_fun.parameters = parameters
-            self.pipeline.add_instruction(self.instructions_set.add_features_extractor, {"features_extractor": feat_fun})
+            self.pipeline.add_instruction(self.instructions_set.add_features_extractor,
+                                          {"features_extractor": feat_fun})
 
     def load_pre_processing(self):
         """Add instructions to load the pre processing methods"""
@@ -107,6 +101,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
             feat_fun = feat_cls()
             feat_fun.parameters = parameters
             self.pipeline.add_instruction(self.instructions_set.add_pre_processing_method, {"pp_method": feat_fun})
+        self.pipeline.add_instruction(self.instructions_set.transform_pre_processing, {})
 
     def load_performance_indicators(self):
         """Add instructions to load the performance indicators"""
@@ -142,9 +137,6 @@ class SupervisedWhalesDetectorLoaders(Loader):
         ml_fun.parameters = method_params
         self.pipeline.add_instruction(self.instructions_set.set_machine_learning_method,
                                       {"ml_method": ml_fun})
-
-    def load_running_instructions(self):
-        self.pipeline.add_instruction(self.instructions_set.set_data_iterators, {})
 
     def load_train_execute_methods(self):
         self.pipeline.add_instruction(self.instructions_set.train_execute_methods, {})

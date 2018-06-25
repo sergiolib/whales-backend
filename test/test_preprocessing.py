@@ -17,7 +17,7 @@ def test_scale():
     data = df.data.values.ravel()
     data = data / abs(data).max()
     p = Scale()
-    result = p.transform(data=data)
+    result = p.transform(data_file=data)
     assert p.description != ""
     assert result.shape[0] == data.shape[0]
     assert result.dtype == np.float64
