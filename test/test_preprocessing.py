@@ -5,7 +5,6 @@ from whales.modules.pre_processing.sliding_windows import SlidingWindows
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
-import numpy as np
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.formatters.aif import AIFFormatter
 from whales.modules.pre_processing.scale import Scale
@@ -16,13 +15,10 @@ def test_scale():
     file_name = get_file_name()
     df = AudioDataFile().load_data(file_name,
                                    formatter=AIFFormatter())
-    data = df.data.values.ravel()
-    data = data / abs(data).max()
     p = Scale()
-    result = p.transform(data_file=data)
+    result = p.transform(data_file=df)
     assert p.description != ""
-    assert result.shape[0] == data.shape[0]
-    assert result.dtype == np.float64
+    assert type(result) is df.__class__
 
 
 def test_sliding_windows():
@@ -35,3 +31,4 @@ def test_sliding_windows():
                  formatter=AIFFormatter())
     new_df = p.transform(df)
     new_df.get_sliding_windows_data_frame()
+    assert p.description != ""

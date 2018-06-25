@@ -1,6 +1,5 @@
-import numpy as np
 from src.whales.modules.pre_processing.pre_processing import PreProcessing
-from whales.modules.data_files.audio_windows import AudioWindowsDataFile
+from whales.modules.data_files.audio import AudioDataFile
 
 
 class Scale(PreProcessing):
@@ -10,7 +9,7 @@ class Scale(PreProcessing):
         self.parameters = {}
 
     def method_transform(self, data_file):
-        if type(data_file) is AudioWindowsDataFile:
+        if issubclass(data_file.__class__, AudioDataFile):
             out = data_file.data["data_0"]
             out -= out.mean()
             out /= out.std()
