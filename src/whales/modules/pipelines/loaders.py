@@ -31,7 +31,8 @@ class SupervisedWhalesDetectorLoaders(Loader):
             self.load_features_extractors,
             self.load_performance_indicators,
             self.load_method,
-            self.load_running_instructions
+            self.load_running_instructions,
+            self.load_train_execute_methods,
         ]
 
     def load_input_data(self):
@@ -144,4 +145,6 @@ class SupervisedWhalesDetectorLoaders(Loader):
 
     def load_running_instructions(self):
         self.pipeline.add_instruction(self.instructions_set.set_data_iterators, {})
-        # TODO: complete this
+
+    def load_train_execute_methods(self):
+        self.pipeline.add_instruction(self.instructions_set.train_execute_methods, {})

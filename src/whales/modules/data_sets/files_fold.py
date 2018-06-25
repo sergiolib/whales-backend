@@ -37,7 +37,7 @@ class FilesFoldDataSet(DataSet):
         for i in range(len(self.datafiles)):
             curr_datafiles = self.datafiles.copy()
             testing = curr_datafiles.pop(i)
-            yield DataFile().concatenate([testing], axis=0)
+            yield self.datafiles[0].__class__().concatenate([testing], axis=0)
 
     def get_validation(self):
         if not self.parameters["validation"]:
@@ -45,7 +45,7 @@ class FilesFoldDataSet(DataSet):
         for i in list(range(len(self.datafiles) - 1)) + [-1]:
             curr_datafiles = self.datafiles.copy()
             validation = curr_datafiles.pop(i + 1)
-            yield DataFile().concatenate([validation], axis=0)
+            yield self.datafiles[0].__class__().concatenate([validation], axis=0)
 
 
 PipelineDataSet = FilesFoldDataSet

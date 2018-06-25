@@ -123,4 +123,3 @@ class TestWhalesDetectorPipeline:
         assert "performance_indicators" in p.results
         assert len(p.results["performance_indicators"]) > 0
         assert type(p.results["ml_method"]) is SVM
-        assert False

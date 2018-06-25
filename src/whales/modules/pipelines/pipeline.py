@@ -45,7 +45,7 @@ class Pipeline(Module):
             instruction_results = fun(param)
             if type(instruction_results) is not dict:
                 raise RuntimeError(f"Instruction {ins} should return a dictionary")
-            self.results = {**self.results, **instruction_results}
+            self.results.update(instruction_results)
 
     def add_instruction(self, instruction_type, instruction_parameters):
         """Adds instruction to the last execution place"""
