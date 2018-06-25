@@ -1,5 +1,7 @@
 import sys, os
 
+from whales.modules.pre_processing.sliding_windows import SlidingWindows
+
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
@@ -21,3 +23,15 @@ def test_scale():
     assert p.description != ""
     assert result.shape[0] == data.shape[0]
     assert result.dtype == np.float64
+
+
+def test_sliding_windows():
+    filename = get_file_name()
+    p = SlidingWindows()
+    p.parameters["sliding_window_width"] = "13s"
+    p.parameters["overlap"] = 0.12
+    df = AudioDataFile()
+    df.load_data(filename,
+                 formatter=AIFFormatter())
+    new_df = p.transform(df)
+    new_df.get_sliding_windows_data_frame()

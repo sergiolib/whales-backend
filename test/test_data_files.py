@@ -48,16 +48,3 @@ class TestAudioDataFiles:
                        label="whale")
         assert [0, 1] in df.data.labels.unique()
         assert "whale" in df.name_label
-
-    def test_sliding_windows(self):
-        filename = get_file_name()
-        df = AudioDataFile()
-        df.parameters["sliding_window_width"] = "13s"
-        df.parameters["overlap"] = 0.12
-        df.load_data(filename,
-                     formatter=AIFFormatter())
-        sw = df.generate_sliding_windows()
-        dfs = []
-        for w in sw:
-            dfs.append(w)
-        pass
