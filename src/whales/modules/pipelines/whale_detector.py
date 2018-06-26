@@ -8,6 +8,8 @@ class WhaleDetector(Pipeline):
     def __init__(self, logger=None):
         super().__init__(logger)
 
+        self.description = "Whale Detector Pipeline"
+
         self.loaders = SupervisedWhalesDetectorLoaders(pipeline=self, instructions_set=SupervisedWhalesInstructionSet())
         self.parser = WhalesPipelineParser()
 
