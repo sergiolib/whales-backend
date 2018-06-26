@@ -8,7 +8,7 @@ from whales.modules.pipelines.getters import get_available_performance_indicator
 from whales.modules.pipelines.getters import get_available_unsupervised_methods
 from whales.modules.pipelines.getters import get_available_supervised_methods
 from whales.modules.pipelines.getters import get_available_semi_supervised_methods
-from whales.modules.pipelines.getters import get_available_datasets
+from whales.modules.pipelines.getters import get_available_data_sets
 
 
 def test_get_available_feature_extractors():
@@ -73,5 +73,5 @@ def test_get_available_pipeline_types():
 
 def test_get_available_datasets():
     """Test that get_available_datasets function works correctly"""
-    ds = get_available_datasets()
+    ds = get_available_data_sets()
     assert "files_fold" in ds

@@ -347,7 +347,7 @@ def get_available_pipeline_types():
     return res
 
 
-def get_available_datasets():
+def get_available_data_sets():
     """Return the available data sets types classes.
     :return: dict whose keys are data sets and whose values are the
     methods classes"""

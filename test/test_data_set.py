@@ -11,17 +11,17 @@ class TestFilesFoldDataSet:
         df.load_data(filename,
                      formatter=AIFFormatter())
         ds = FilesFoldDataSet()
-        ds.add_datafile(df)
+        ds.add_data_file(df)
         assert len(ds.datafiles) == 1
-        ds.remove_datafile(df)
+        ds.remove_data_file(df)
         assert len(ds.datafiles) == 0
 
     def test_get_training_testing_validation_set(self):
         ds = FilesFoldDataSet()
         file_names = get_5_file_names()
         for filename in file_names:
-            ds.add_datafile(AudioDataFile().load_data(filename,
-                                                      formatter=AIFFormatter()))
+            ds.add_data_file(AudioDataFile().load_data(filename,
+                                                       formatter=AIFFormatter()))
         assert len(ds.datafiles) == 5
         training = ds.get_training()
         testing = ds.get_testing()
@@ -37,8 +37,8 @@ class TestFilesFoldDataSet:
         ds.parameters["validation"] = False  # Disable validation set generation
         file_names = get_5_file_names()
         for filename in file_names:
-            ds.add_datafile(AudioDataFile().load_data(filename,
-                                                      formatter=AIFFormatter()))
+            ds.add_data_file(AudioDataFile().load_data(filename,
+                                                       formatter=AIFFormatter()))
         assert len(ds.datafiles) == 5
         training = ds.get_training()
         testing = ds.get_testing()

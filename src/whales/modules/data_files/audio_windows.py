@@ -24,19 +24,32 @@ class AudioWindowsDataFile(AudioDataFile):
             self.metadata = data_file.metadata.copy()
             self.parameters = data_file.parameters
 
-    def get_sliding_windows_data_frame(self):
+    # def get_sliding_windows_data_frame(self):
+    #     data = super().data
+    #     if self.parameters["number_of_windows"] == 0:
+    #         return data
+    #     start_times = self.parameters["start_time"]
+    #     end_times = self.parameters["end_time"]
+    #     label = self.parameters["label"]
+    #     res = []
+    #     for st, en, label in zip(start_times, end_times, label):
+    #         window = data.loc[st:en]
+    #         window = window["data_0"].reset_index()
+    #         window["label"] = label
+    #         res.append(window)
+    #     return pd.concat(res, axis=1).T
+
+    def get_window(self, ind):
         data = super().data
         if self.parameters["number_of_windows"] == 0:
             return data
-        start_times = self.parameters["start_time"]
-        end_times = self.parameters["end_time"]
-        label = self.parameters["label"]
-        res = []
-        for st, en, label in zip(start_times, end_times, label):
-            window = data.loc[st:en]
-            window = window["data_0"].reset_index()
-            res.append(window)
-        return pd.concat(res, axis=1).T
+        st = self.parameters["start_time"][ind]
+        en = self.parameters["end_time"][ind]
+        label = self.parameters["label"][ind]
+        window = data.loc[st:en]
+        window = window.reset_index()["data_0"]
+        window["label"] = label
+        return window
 
     def add_window(self, start_time, end_time, label=0):
         if not self.start_time <= start_time < end_time <= self.end_time:

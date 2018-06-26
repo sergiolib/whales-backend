@@ -96,7 +96,7 @@ class TestWhalesDetectorPipeline:
             ],
             "output_directory": "./demo",
             "data_set_type": {
-                "method": "files_fold"
+                "method": "windows_fold"
             },
             "pre_processing": [
                 {

@@ -31,6 +31,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
             self.load_features_extractors,
             self.load_performance_indicators,
             self.load_method,
+            self.load_build_data_set,
             self.load_train_execute_methods,
         ]
 
@@ -140,3 +141,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
 
     def load_train_execute_methods(self):
         self.pipeline.add_instruction(self.instructions_set.train_execute_methods, {})
+
+    def load_build_data_set(self):
+        data_set_options = self.pipeline.parameters["data_set_type"]
+        self.pipeline.add_instruction(self.instructions_set.build_data_set, {"ds_options": data_set_options})

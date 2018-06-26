@@ -8,11 +8,11 @@ class DataSet(Module):
         self.datafiles = []
         self._iterations = 1
 
-    def add_datafile(self, datafile: DataFile):
+    def add_data_file(self, data_file: DataFile):
         """Add data file to data set"""
-        self.datafiles.append(datafile)
+        self.datafiles.append(data_file)
 
-    def remove_datafile(self, datafile: DataFile):
+    def remove_data_file(self, data_file: DataFile):
         """Remove data file from data set"""
-        self.datafiles.remove(datafile)
+        self.datafiles.remove(data_file)
 

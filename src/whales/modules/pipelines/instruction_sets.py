@@ -3,7 +3,7 @@
 import logging
 
 from whales.modules.data_files.audio import AudioDataFile
-from whales.modules.pipelines.getters import get_available_datasets, get_available_datafiles, get_available_formatters, \
+from whales.modules.pipelines.getters import get_available_data_sets, get_available_datafiles, get_available_formatters, \
     get_available_labels_formatters
 
 
@@ -106,6 +106,17 @@ class SupervisedWhalesInstructionSet(InstructionSet):
     def compute_performance_indicators(self, params: dict):
         performance_indicators = params["performance_indicators"]
         return {}
+
+    def build_data_set(self, params: dict):
+        available_data_sets = get_available_data_sets()
+        method = params["ds_options"]["method"]
+        ds_cls = available_data_sets[method]
+        ds = ds_cls()
+        data_file = params["input_data"]
+        ds.add_data_file(data_file)
+        tr, te, val = ds.get_data_files()
+        number_of_sets = ds.iterations
+        return {"training_sets": tr, "testing_sets": te, "validation_sets": val, "number_of_sets": number_of_sets}
 
     def train_execute_methods(self, params: dict):
         training_sets = params["training_sets"]
