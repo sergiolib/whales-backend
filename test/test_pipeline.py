@@ -92,6 +92,9 @@ class TestWhalesDetectorPipeline:
             "features_extractors": [
                 {
                     "method": "skewness"
+                },
+                {
+                    "method": "range"
                 }
             ],
             "output_directory": "./demo",
@@ -104,7 +107,7 @@ class TestWhalesDetectorPipeline:
                     "parameters": {
                         "window_width": "60s",
                         "overlap": 0.3,
-                        "labels_treatment": "mean"
+                        "labels_treatment": "mode"
                     }
                 },
                 {
@@ -124,8 +127,6 @@ class TestWhalesDetectorPipeline:
         p.load_parameters(parameters)
         p.initialize()
         p.start()
-        assert "data_set" in p.results
-        assert len(p.results["data_set"].datafiles) > 0
         assert "features_extractors" in p.results
         assert len(p.results["features_extractors"]) > 0
         assert "performance_indicators" in p.results

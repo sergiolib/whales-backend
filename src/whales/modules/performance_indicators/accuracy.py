@@ -13,9 +13,9 @@ class Accuracy(PerformanceIndicator):
             "prediction": None,
         }
 
-    def method_evaluate(self):
-        target = self.parameters["target"]
-        prediction = self.parameters["prediction"]
+    def method_compute(self):
+        target = np.array(self.parameters["target"])
+        prediction = np.array(self.parameters["prediction"])
         return np.count_nonzero(target == prediction) / len(target)
 
 

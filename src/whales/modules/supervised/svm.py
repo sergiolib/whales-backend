@@ -10,7 +10,7 @@ class SVM(Supervised, SKLearnSaveLoadMixin):
 
         self.needs_fitting = True
 
-        self.description = "This is a demo"
+        self.description = "Support Vector Machine Classifier"
 
         self._model = SVC()
 
@@ -35,7 +35,7 @@ class SVM(Supervised, SKLearnSaveLoadMixin):
         self._model.fit(data, target)
 
     def method_predict(self, data):
-        self._model.predict(data)
+        return self._model.predict(data)
 
 
 PipelineMethod = SVM

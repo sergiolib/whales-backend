@@ -21,16 +21,18 @@ class MFCC(FeatureExtraction):
         :return: {numpy array} Mel frequency cepstral coefficients
         """
 
+        # Commented until output has correct shape (1 column per sample, multiple rows)
+
         sfr = SpectralFrames()
         spectral_frames = sfr.transform(data=data)
-        melspect = librosa.feature.melspectrogram(S=spectral_frames.T)
+        melspect = librosa.feature.melspectrogram(S=spectral_frames.data.values.T)
         mfcc = librosa.feature.mfcc(
             S=melspect,
             sr=self.parameters["rate"],
             n_mfcc=self.parameters["n_mfcc"]
         )
-        print(mfcc.shape)
+        # print(mfcc.shape)
         return mfcc
 
 
-PipelineMethod = MFCC
+# PipelineMethod = MFCC

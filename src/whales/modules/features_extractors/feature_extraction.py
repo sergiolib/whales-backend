@@ -1,4 +1,7 @@
 import time
+import pandas as pd
+
+from whales.modules.data_files.feature import FeatureDataFile
 from whales.modules.module import Module
 
 
@@ -18,7 +21,9 @@ class FeatureExtraction(Module):
         if self.needs_fitting and not self.is_fitted:
             raise RuntimeError(f"Feature {self} has not been fitted")
         t0 = time.time()
-        res = self.method_transform(data)
+        out = self.method_transform(data)
+        res = FeatureDataFile()
+        res.data = pd.DataFrame(out, columns=[f"{self.short_name.lower()}_{i}" for i in range(out.shape[1])])
         self.logger.debug(f"Transformed data with feature {self}")
         tf = time.time()
         self.logger.debug(f"Feature {self} fitting took {tf - t0} s")

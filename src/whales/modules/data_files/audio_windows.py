@@ -43,12 +43,14 @@ class AudioWindowsDataFile(AudioDataFile):
         data = super().data
         if self.parameters["number_of_windows"] == 0:
             return data
+        if ind > len(self.parameters["start_time"]):
+            return None
         st = self.parameters["start_time"][ind]
         en = self.parameters["end_time"][ind]
         label = self.parameters["label"][ind]
         window = data.loc[st:en]
         window = window.reset_index()["data_0"]
-        window["label"] = label
+        window["labels"] = label
         return window
 
     def add_window(self, start_time, end_time, label=0):
@@ -59,6 +61,3 @@ class AudioWindowsDataFile(AudioDataFile):
         self.parameters["start_time"].append(start_time)
         self.parameters["end_time"].append(end_time)
         self.parameters["label"].append(label)
-
-
-PipelineDatafile = AudioWindowsDataFile

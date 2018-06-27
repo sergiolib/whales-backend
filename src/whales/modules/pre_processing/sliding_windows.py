@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.data_files.audio_windows import AudioWindowsDataFile
@@ -49,6 +50,8 @@ class SlidingWindows(PreProcessing):
                 label = labels.mode()
             else:
                 raise ValueError("Labels treatment not understood")
+
+            label = np.asscalar(label)
 
             new_df.add_window(a, b, label)
         return new_df
