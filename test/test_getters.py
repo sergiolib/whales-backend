@@ -3,7 +3,7 @@ from whales.modules.pipelines.getters import get_available_pre_processing
 from whales.modules.pipelines.getters import get_available_pipeline_types
 from whales.modules.pipelines.getters import get_available_formatters
 from whales.modules.pipelines.getters import get_available_labels_formatters
-from whales.modules.pipelines.getters import get_available_datafiles
+from whales.modules.pipelines.getters import get_available_data_files
 from whales.modules.pipelines.getters import get_available_performance_indicators
 from whales.modules.pipelines.getters import get_available_unsupervised_methods
 from whales.modules.pipelines.getters import get_available_supervised_methods
@@ -61,7 +61,7 @@ def test_get_available_labels_formatters():
 
 def test_get_available_datafiles():
     """Test that get_available_datafiles function works correctly"""
-    cl = get_available_datafiles()
+    cl = get_available_data_files()
     assert "audio" in cl
 
 

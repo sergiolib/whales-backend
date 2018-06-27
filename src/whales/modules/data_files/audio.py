@@ -73,8 +73,8 @@ class AudioDataFile(TimeSeriesDataFile):
             delta = pd.Timedelta(seconds=end_time-start_time)
             a = first + from_first
             b = first + from_first + delta
-            data[a:b].labels = self.name_label[label]
+            data.loc[a:b, "labels"] = self.name_label[label]
         self.data = data
 
 
-PipelineDatafile = AudioDataFile
+PipelineDataFile = AudioDataFile

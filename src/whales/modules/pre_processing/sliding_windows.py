@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.data_files.audio_windows import AudioWindowsDataFile
@@ -16,12 +17,12 @@ class SlidingWindows(PreProcessing):
         self.parameters = {
             "window_width": "60s",
             "overlap": 0.3,
-            "labels_treatment": "mean",
+            "labels_treatment": "max",
         }
 
     def method_transform(self, data_file):
         if type(data_file) not in [AudioDataFile]:
-            raise ValueError("Input should be a Pandas object")
+            raise ValueError("Input should be a data file")
 
         t0 = data_file.start_time
         offset = self.parameters["window_width"]
@@ -46,9 +47,13 @@ class SlidingWindows(PreProcessing):
             if labels_treatment == "mean":
                 label = labels.mean()
             elif labels_treatment == "mode":
-                label = labels.mode()
+                label = labels.mode().astype(int)
+            elif labels_treatment == "max":
+                label = labels.max().astype(int)
             else:
                 raise ValueError("Labels treatment not understood")
+
+            label = np.asscalar(label)
 
             new_df.add_window(a, b, label)
         return new_df

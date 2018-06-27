@@ -1,4 +1,4 @@
-from src.whales.modules.pre_processing.pre_processing import PreProcessing
+from whales.modules.pre_processing.pre_processing import PreProcessing
 from whales.modules.data_files.audio import AudioDataFile
 
 

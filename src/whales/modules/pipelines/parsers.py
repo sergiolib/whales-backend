@@ -7,35 +7,14 @@ class Parser:
         if self.logger is None:
             self.logger = logging.getLogger(self.__class__.__name__)
 
-
-class WhalesPipelineParser(Parser):
-    def __init__(self, logger=None):
-        super().__init__(logger)
-        self.expected_fields_types = {  # Ground truth for a good pipeline configuration
-            "output_directory": str,
-            "pipeline_type": str,
-            "input_data": [({
-                                "file_name": str,
-                                "data_file": str,
-                                "formatter": str
-                            }, "optional")],
-            "input_labels": [({"labels_file": str, "labels_formatter": str}, "optional")],
-            "pre_processing": [({"method": str, "parameters": (dict, "optional")}, "optional")],
-            "features_extractors": [({"method": str, "parameters": (dict, "optional")}, "optional")],
-            "performance_indicators": [({"method": str, "parameters": (dict, "optional")}, "optional")],
-            "machine_learning": {"type": str, "method": str, "parameters": (dict, "optional")},
-            "data_set_type": {"method": str, "parameters": (dict, "optional")},
-            "active": (bool, "optional"),
-            "verbose": (bool, "optional"),
-            "seed": (int, "optional"),
-        }
-
     def parse(self, parameters_dict):
         self.logger.debug("Parsing pipeline parameters")
         self.parse_field(parameters_dict, (self.expected_fields_types, "necessary"))
         return parameters_dict
 
     def parse_field(self, parameters, expected_types):
+        """Parses the dictionary of parameters comparing it to the one of expected_types.
+        Discrepancies are show to the user as informative exceptions or logs."""
         field_type = type(parameters)
         if type(expected_types) is tuple:
             expected_type = expected_types[0] if type(expected_types[0]) is type else type(expected_types[0])
@@ -93,3 +72,26 @@ class UnexpectedParameterError(Exception):
     def __init__(self, parameter_name, message=None):
         super().__init__(message)
         self.parameter_name = parameter_name
+
+
+class WhalesPipelineParser(Parser):
+    def __init__(self, logger=None):
+        super().__init__(logger)
+        self.expected_fields_types = {  # Ground truth for a good pipeline configuration
+            "output_directory": str,
+            "pipeline_type": str,
+            "input_data": [({
+                                "file_name": str,
+                                "data_file": str,
+                                "formatter": str
+                            }, "optional")],
+            "input_labels": [({"labels_file": str, "labels_formatter": str}, "optional")],
+            "pre_processing": [({"method": str, "parameters": (dict, "optional")}, "optional")],
+            "features_extractors": [({"method": str, "parameters": (dict, "optional")}, "optional")],
+            "performance_indicators": [({"method": str, "parameters": (dict, "optional")}, "optional")],
+            "machine_learning": {"type": str, "method": str, "parameters": (dict, "optional")},
+            "data_set_type": {"method": str, "parameters": (dict, "optional")},
+            "active": (bool, "optional"),
+            "verbose": (bool, "optional"),
+            "seed": (int, "optional"),
+        }

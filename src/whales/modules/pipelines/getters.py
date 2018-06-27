@@ -279,9 +279,9 @@ def get_available_labels_formatters():
     return res
 
 
-def get_available_datafiles():
-    """Return the available datafile classes.
-    :return: dict whose keys are datafile names and whose values are the
+def get_available_data_files():
+    """Return the available data_file classes.
+    :return: dict whose keys are data_file names and whose values are the
     methods classes"""
     this_dir = abspath(dirname(__file__))
     r = join(this_dir, "..", "data_files", "*.py")
@@ -301,7 +301,7 @@ def get_available_datafiles():
     for n in fmt_name:
         try:
             fmt_classes.append(importlib.import_module(
-                "whales.modules.data_files.{}".format(n)).PipelineDatafile)
+                "whales.modules.data_files.{}".format(n)).PipelineDataFile)
             fmt_names.append(n)
         except AttributeError:
             functions_logger.debug(f"Module {n} doesn't have a valid method'")

@@ -1,4 +1,4 @@
-from whales.modules.pipelines.instruction_sets import SupervisedWhalesInstructionSet
+from whales.modules.pipelines.instructions_sets import SupervisedWhalesInstructionSet
 from whales.modules.pipelines.loaders import SupervisedWhalesDetectorLoaders
 from whales.modules.pipelines.parsers import WhalesPipelineParser
 from whales.modules.pipelines.pipeline import Pipeline

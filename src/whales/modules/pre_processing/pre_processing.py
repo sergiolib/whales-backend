@@ -1,6 +1,6 @@
 import time
 
-from src.whales.modules.module import Module
+from whales.modules.module import Module
 
 
 class PreProcessing(Module):

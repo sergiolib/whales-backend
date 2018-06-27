@@ -1,7 +1,9 @@
 from math import ceil
 import numpy as np
+import pandas as pd
 
 from whales.modules.data_files.audio_windows import AudioWindowsDataFile
+from whales.modules.data_files.data_files import DataFile
 from whales.modules.data_sets.data_sets import DataSet
 
 
@@ -25,23 +27,35 @@ class WindowsFold(DataSet):
     def iterations(self):
         return ceil(1.0 / self.parameters["testing"])
 
-    def get_data_files(self):
-        tr = AudioWindowsDataFile()
-        te = AudioWindowsDataFile()
-        val = AudioWindowsDataFile()
+    def get_data_frames(self):
+        tr = DataFile()
+        te = DataFile()
+        val = DataFile()
         n = self.parameters["number_of_windows"]
         n_tr = int(round(n * self.parameters["training"]))
         n_val = int(round(n * self.parameters["validation"]))
-        inds = np.random.permutation(n)
-        tr_inds = inds[:n_tr]
-        te_inds = inds[n_tr:-n_val]
-        val_inds = inds[-n_val:]
-        df = tr
-        for i in tr_inds:
-            df_ind, window_ind = self.parameters["inds_to_df_and_ind"][i]
-            window = self.datafiles[df_ind].get_window(window_ind)
-            df.add_window()
-        return tr, te, val
+        offset_step = int(round(n * self.parameters["testing"]))
+        inds_list = np.random.permutation(n).tolist()
+        for k in range(self.iterations):
+            offset = k * offset_step
+            f = inds_list[offset:]
+            s = inds_list[:offset]
+            inds = f + s
+            tr_inds = inds[:n_tr]
+            te_inds = inds[n_tr:-n_val]
+            val_inds = inds[-n_val:]
+            training_windows = []
+            testing_windows = []
+            validation_windows = []
+            for df, it, winds in zip([tr, te, val], [tr_inds, te_inds, val_inds],
+                                       [training_windows, testing_windows, validation_windows]):
+                for i in it:
+                    df_ind, window_ind = self.parameters["inds_to_df_and_ind"][i]
+                    window = self.datafiles[df_ind].get_window(window_ind)
+                    window.name = None
+                    winds.append(window)
+                df.data = pd.concat(winds, axis=1, sort=False).T
+            yield tr, te, val
 
     def add_data_file(self, data_file):
         if type(data_file) is not AudioWindowsDataFile:
