@@ -52,3 +52,15 @@ class DataFile(Module):
     @data.setter
     def data(self, data):
         self._data = data
+
+    def __repr__(self):
+        if hasattr(self, "data"):
+            data = self.data
+            n_samples = len(data)
+            n_columns = data.shape[1]
+            return f"{self.__class__.__name__} ({n_samples} samples x {n_columns} columns)"
+        else:
+            return f"{self.__class__.__name__}"
+
+    def __str__(self):
+        return self.__repr__()

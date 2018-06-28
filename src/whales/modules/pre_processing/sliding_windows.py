@@ -39,10 +39,11 @@ class SlidingWindows(PreProcessing):
                 break
             starting_times.append(finishing_times[-1] - overlap)
         new_df = AudioWindowsDataFile(data_file)
+        data = data_file.get_labeled_data()
         for a, b in zip(starting_times, finishing_times):
             if b > data_file.end_time:
                 b = data_file.end_time
-            labels = data_file.data["labels"].loc[a:b]
+            labels = data["labels"].loc[a:b]
 
             if labels_treatment == "mean":
                 label = labels.mean()

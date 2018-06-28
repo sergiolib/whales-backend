@@ -13,6 +13,7 @@ class AudioWindowsDataFile(AudioDataFile):
                 # Dictionary that maps actual label index to the label name
                 0: "unlabeled"
             },
+            "labels": [],
             "number_of_windows": 0,
             "start_time": [],
             "end_time": [],
@@ -28,8 +29,8 @@ class AudioWindowsDataFile(AudioDataFile):
         sw = []
         for i in range(self.parameters["number_of_windows"]):
             window = self.get_window(i)
-            window.name = None
-            sw.append(window)
+            window[0].name = None
+            sw.append(window[0])
         return pd.concat(sw, axis=1, sort=False).T
 
     def get_window(self, ind):
@@ -43,8 +44,7 @@ class AudioWindowsDataFile(AudioDataFile):
         label = self.parameters["label"][ind]
         window = data.loc[st:en]
         window = window.reset_index()["data_0"]
-        window["labels"] = label
-        return window
+        return window, label
 
     def add_window(self, start_time, end_time, label=0):
         if not self.start_time <= start_time < end_time <= self.end_time:
@@ -54,3 +54,9 @@ class AudioWindowsDataFile(AudioDataFile):
         self.parameters["start_time"].append(start_time)
         self.parameters["end_time"].append(end_time)
         self.parameters["label"].append(label)
+
+    def __repr__(self):
+        if hasattr(self, "data"):
+            n_windows = len(self.parameters["start_time"])
+            return f"{self.__class__.__name__} ({n_windows} windows)"
+        return f"{self.__class__.__name__}"

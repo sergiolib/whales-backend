@@ -1,6 +1,7 @@
 """Computing heavy instructions for generating step results throughout the pipeline"""
 
 import logging
+import numpy as np
 
 from whales.modules.data_files.feature import FeatureDataFile
 from whales.modules.pipelines.getters import get_available_data_sets, get_available_data_files, get_available_formatters, \
@@ -77,53 +78,50 @@ class SupervisedWhalesInstructionSet(InstructionSet):
     def train_machine_learning_method(self, params: dict):
         ml_method = params["ml_method"]
         transformed_training_set = params["transformed_training_set"]
-        y = transformed_training_set.data["labels"].values.astype(int)
-        x = transformed_training_set.data.drop("labels", axis=1).values
+        y = transformed_training_set.parameters["labels"]
+        x = transformed_training_set.data.values.astype(float)
         ml_method.fit(x, y)
         return {}
 
     def train_performance_indicators(self, params: dict):
         pi = params["performance_indicators"]
         current_training_set = params["current_training_set"]
-        x = current_training_set.data.drop("labels", axis=1)
+        x = current_training_set.data.values
         for p in pi:
-            p.fit(x.values)
+            p.fit(x)
         return {}
 
     def train_features(self, params: dict):
         feat = params["features_extractors"]
         current_training_set = params["current_training_set"]
-        x = current_training_set.data.drop("labels", axis=1)
+        x = current_training_set.data.values.astype(float)
         for f in feat:
-            f.fit(x.values)
+            f.fit(x)
         return {}
 
     def transform_features(self, params: dict):
         feat = params["features_extractors"]
         current_set = {}
         transformed_set = {}
-        labels_set = {}
         for s in ["training", "testing", "validation"]:
             current_set[s] = params[f"current_{s}_set"]
-            x = current_set[s].data.drop("labels", axis=1).values.astype(float)
+            x = current_set[s].data.values.astype(float)
             transformed_set[s] = []
             for f in feat:
                 res = f.transform(x)
                 transformed_set[s].append(res)
 
             transformed_set[s] = FeatureDataFile().concatenate(transformed_set[s])
-            labels_set[s] = current_set[s].data["labels"].astype(int)
-            transformed_set[s].data["labels"] = labels_set[s]
-            transformed_set[s].data = transformed_set[s].data.dropna(axis="rows")
-            labels_set[s] = transformed_set[s].data["labels"]
+            labels = current_set[s].parameters["labels"]
+            drop = transformed_set[s].data.notna().min(axis=1)
+            transformed_set[s].data = transformed_set[s].data[drop]
+            labels = np.array(labels)[drop].tolist()
+            transformed_set[s].parameters["labels"] = labels
 
         return {
             "transformed_training_set": transformed_set["training"],
             "transformed_testing_set": transformed_set["testing"],
             "transformed_validation_set": transformed_set["validation"],
-            "labels_training": labels_set["training"].values.ravel(),
-            "labels_testing": labels_set["testing"].values.ravel(),
-            "labels_validation": labels_set["validation"].values.ravel(),
         }
 
     def transform_pre_processing(self, params: dict):
@@ -140,21 +138,22 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         results = {}
         for dset in ["training", "testing", "validation"]:
             df = params[f"transformed_{dset}_set"]
-            x = df.data.drop("labels", axis=1).values
+            x = df.data.values.astype(float)
             prediction = ml_method.predict(x)
             results[f"prediction_{dset}"] = prediction
-        return {**results}
+        return results
 
     def compute_performance_indicators(self, params: dict):
         pi = params["performance_indicators"]
+        ns = params["number_of_sets"]
         results = {}
         for dset in ["testing", "validation"]:
-            ns = params["number_of_sets"]
             predicted_labels = []
             target_labels = []
             for i in range(ns):
+                df = params[f"{i + 1}/{ns}"][f"transformed_{dset}_set"]
                 predicted_labels += params[f"{i + 1}/{ns}"][f"prediction_{dset}"].tolist()
-                target_labels += params[f"{i + 1}/{ns}"][f"labels_{dset}"].tolist()
+                target_labels += df.parameters["labels"]
             for i in pi:
                 i.parameters = {
                     "target": target_labels,
@@ -162,7 +161,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                 }
                 res = i.compute()
                 results[f"pi_{i.__class__.__name__}_{dset}"] = res
-        return {**results}
+        return results
 
     def build_data_set(self, params: dict):
         available_data_sets = get_available_data_sets()

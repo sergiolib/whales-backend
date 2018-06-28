@@ -30,5 +30,5 @@ def test_sliding_windows():
     df.load_data(filename,
                  formatter=AIFFormatter())
     new_df = p.transform(df)
-    new_df.get_sliding_windows_data_frame()
+    new_df.get_windows_data_frame()
     assert p.description != ""

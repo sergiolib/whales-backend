@@ -4,6 +4,7 @@ import json
 import logging
 from multiprocessing import Process
 from whales.modules.module import Module
+import pprint
 
 
 class Pipeline(Module):
@@ -62,3 +63,9 @@ class Pipeline(Module):
     def initialize(self):
         for loader in self.loaders.loaders_execution_order:
             loader()
+
+    def __repr__(self):
+        ret = []
+        for i, r in enumerate(self.instructions_series):
+            ret.append("\n".join([str(i + 1) + ". " + "\033[1m" + r[0].__name__ + "\033[0m", pprint.pformat(r[1])]))
+        return "\n\n".join(ret)

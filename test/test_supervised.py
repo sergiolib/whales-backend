@@ -10,5 +10,5 @@ from whales.modules.supervised.svm import SVM
 #     df = AudioDatafile().load_data(data, formatter=AIFFormatter)
 #     df.load_labels(labels, labels_formatter=CSVLabelsFormatter, label="whale")
 #     X = df.data.drop("labels", axis=1).values
-#     y = df.data.labels.values
+#     y = df.get_labeled_data().labels.values
 #     # SVM().fit(Xf, y)

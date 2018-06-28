@@ -11,6 +11,7 @@ class AudioDataFile(TimeSeriesDataFile):
                 # Dictionary that maps actual label index to the label name
                 0: "unlabeled"
             },
+            "labels": []
         }
 
     @property
@@ -43,18 +44,14 @@ class AudioDataFile(TimeSeriesDataFile):
             raise RuntimeError("No end time in unloaded data")
         return end_time
 
-    @property
-    def data(self):
-        data = super().data
-        if "labels" in data.columns:
-            return data
-        else:
-            data["labels"] = self.name_label["unlabeled"]  # Set everything as unlabeled if hasn't been labeled
+    def get_labeled_data(self):
+        data = super().data.copy()
+        labels_list = [self.name_label["unlabeled"]] * len(data)
+        labels_series = pd.Series(labels_list, index=data.index)
+        for a, b, l in self.parameters["labels"]:
+            labels_series[a:b] = l
+        data["labels"] = labels_series
         return data
-
-    @data.setter
-    def data(self, data):
-        self._data = data
 
     def load_labels(self, file_name, labels_formatter, label="whale"):
         label_name = self.parameters["label_name"]
@@ -73,8 +70,13 @@ class AudioDataFile(TimeSeriesDataFile):
             delta = pd.Timedelta(seconds=end_time-start_time)
             a = first + from_first
             b = first + from_first + delta
-            data.loc[a:b, "labels"] = self.name_label[label]
+            self.parameters["labels"].append((a, b, self.name_label[label]))
         self.data = data
+
+    def __repr__(self):
+        if hasattr(self, "data"):
+            return f"{self.__class__.__name__} ({self.duration})"
+        return f"{self.__class__.__name__}"
 
 
 PipelineDataFile = AudioDataFile

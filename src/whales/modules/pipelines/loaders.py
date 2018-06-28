@@ -19,6 +19,12 @@ class Loader:
         self.pipeline = pipeline
         self.instructions_set = instructions_set
 
+    def __repr__(self):
+        ret = []
+        for loader in self.loaders_execution_order:
+            ret.append(str(loader.__name__))
+        return "\n".join(ret)
+
 
 class SupervisedWhalesDetectorLoaders(Loader):
     def __init__(self, pipeline, instructions_set, logger=None):

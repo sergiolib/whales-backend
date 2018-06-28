@@ -47,14 +47,20 @@ class WindowsFold(DataSet):
             training_windows = []
             testing_windows = []
             validation_windows = []
-            for df, it, winds in zip([tr, te, val], [tr_inds, te_inds, val_inds],
-                                       [training_windows, testing_windows, validation_windows]):
+            training_labels = []
+            testing_labels = []
+            validation_labels = []
+            for df, it, winds, labs in zip([tr, te, val], [tr_inds, te_inds, val_inds],
+                                           [training_windows, testing_windows, validation_windows],
+                                           [training_labels, testing_labels, validation_labels]):
                 for i in it:
                     df_ind, window_ind = self.parameters["inds_to_df_and_ind"][i]
-                    window = self.datafiles[df_ind].get_window(window_ind)
+                    window, label = self.datafiles[df_ind].get_window(window_ind)
                     window.name = None
                     winds.append(window)
+                    labs.append(label)
                 df.data = pd.concat(winds, axis=1, sort=False).T
+                df.parameters["labels"] = labs
             yield tr, te, val
 
     def add_data_file(self, data_file):

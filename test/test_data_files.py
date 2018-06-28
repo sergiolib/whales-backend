@@ -36,7 +36,7 @@ class TestAudioDataFiles:
         df.load_labels(filename_labels,
                        labels_formatter=CSVLabelsFormatter(),
                        label="whale")
-        assert [0, 1] in df.data.labels.unique()
+        assert [0, 1] in df.get_labeled_data().labels.unique()
         assert "whale" in df.name_label
 
     def test_load_labels_from_txt(self):
@@ -46,5 +46,5 @@ class TestAudioDataFiles:
         df.load_labels(filename_labels,
                        labels_formatter=TXTLabelsFormatter(),
                        label="whale")
-        assert [0, 1] in df.data.labels.unique()
+        assert [0, 1] in df.get_labeled_data().labels.unique()
         assert "whale" in df.name_label

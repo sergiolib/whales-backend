@@ -7,14 +7,14 @@ import numpy as np
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.formatters.aif import AIFFormatter
 from whales.utilities.testing import get_file_name
-from whales.modules.features_extractors.mfcc import PipelineMethod as MFCC
+from whales.modules.features_extractors.mfcc import MFCC
 from whales.modules.features_extractors.identity import PipelineMethod as Identity
 from whales.modules.features_extractors.zero_crossing_rate import PipelineMethod as ZeroCrossingRate
 from whales.modules.features_extractors.min import PipelineMethod as Min
 from whales.modules.features_extractors.range import PipelineMethod as Range
 from whales.modules.features_extractors.skewness import PipelineMethod as Skewness
 from whales.modules.features_extractors.energy import PipelineMethod as Energy
-from whales.modules.features_extractors.spectral_frames import PipelineMethod as SpectralFrames
+# from whales.modules.features_extractors.spectral_frames import PipelineMethod as SpectralFrames
 
 
 def generate_data(n, d):
@@ -42,7 +42,7 @@ def test_mfcc():
     file_name = get_file_name()
     df = AudioDataFile().load_data(file_name,
                                    formatter=AIFFormatter())
-    data = df.data.drop("labels", axis="columns").values
+    data = df.data.values.astype(float)
     data = data / abs(data).max()
     parameters = {
         "win": 4096,

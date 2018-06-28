@@ -60,3 +60,8 @@ class Module:
 
     def method_load(self, location):
         raise NotImplementedError
+
+    def __repr__(self):
+        name = self.__class__.__name__
+        params = str(self.parameters)
+        return " ".join([name, params])
