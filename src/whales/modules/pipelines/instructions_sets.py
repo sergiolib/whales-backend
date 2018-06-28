@@ -170,7 +170,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         ds = ds_cls()
         data_file = params["input_data"]
         ds.add_data_file(data_file)
-        data_generator = ds.get_data_frames()
+        data_generator = ds.get_data_sets()
         number_of_sets = ds.iterations
         return {"data_generator": data_generator, "number_of_sets": number_of_sets}
 

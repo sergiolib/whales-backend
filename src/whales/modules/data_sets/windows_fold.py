@@ -1,9 +1,7 @@
 from math import ceil
 import numpy as np
-import pandas as pd
 
 from whales.modules.data_files.audio import AudioDataFile
-from whales.modules.data_files.data_files import DataFile
 from whales.modules.data_files.feature import AudioSegments
 from whales.modules.data_sets.data_sets import DataSet
 
@@ -20,31 +18,33 @@ class WindowsFold(DataSet):
             "training": 0.6,
             "testing": 0.2,
             "validation": 0.2,
-            "inds_to_df_and_ind": {},
+            "inds_to_df_and_ind": {},  # Mapper of which data file goes in which window
             "number_of_windows": 0
         }
 
     @property
     def iterations(self):
-        return ceil(1.0 / self.parameters["testing"])
+        return int(round(ceil(1.0 / self.parameters["testing"])))
 
-    def get_data_frames(self):
-        tr = AudioSegments()
-        te = AudioSegments()
-        val = AudioSegments()
+    def get_data_sets(self):
+        tr, te, val = AudioSegments(), AudioSegments(), AudioSegments()
         n = self.parameters["number_of_windows"]
         n_tr = int(round(n * self.parameters["training"]))
         n_val = int(round(n * self.parameters["validation"]))
         offset_step = int(round(n * self.parameters["testing"]))
         inds_list = np.random.permutation(n).tolist()
         for k in range(self.iterations):
+            # Move all elements of the list in offset to the left
             offset = k * offset_step
-            f = inds_list[offset:]
-            s = inds_list[:offset]
+            f, s = inds_list[offset:], inds_list[:offset]
             inds = f + s
+
+            # Get the indices for the data sets
             tr_inds = inds[:n_tr]
             te_inds = inds[n_tr:-n_val]
             val_inds = inds[-n_val:]
+
+            # Iterate over data files and indices
             for df, it in zip([tr, te, val], [tr_inds, te_inds, val_inds]):
                 for i in it:
                     df_ind, window_ind = self.parameters["inds_to_df_and_ind"][i]
