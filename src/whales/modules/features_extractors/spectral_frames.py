@@ -24,13 +24,12 @@ class SpectralFrames(FeatureExtraction):
         # Commented until output has correct shape (1 column per sample, multiple rows)
 
         # print(self.parameters)
-        for column in range(data.shape[1]):
-            stft = librosa.stft(data[:, column], self.parameters["win"],
-                                hop_length=self.parameters["step"], center=False)
-            spectrogram = np.abs(stft) ** 2
-            if self.parameters["to_db"]:
-                spectrogram = librosa.amplitude_to_db(spectrogram, ref=np.max).T
-            return spectrogram
+        stft = librosa.stft(data, self.parameters["win"],
+                            hop_length=self.parameters["step"], center=False)
+        spectrogram = np.abs(stft) ** 2
+        if self.parameters["to_db"]:
+            spectrogram = librosa.amplitude_to_db(spectrogram, ref=np.max).T
+        return spectrogram
 
 
 # PipelineMethod = SpectralFrames

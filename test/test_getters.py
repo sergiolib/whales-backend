@@ -74,4 +74,4 @@ def test_get_available_pipeline_types():
 def test_get_available_datasets():
     """Test that get_available_datasets function works correctly"""
     ds = get_available_data_sets()
-    assert "files_fold" in ds
+    assert "one_out" in ds

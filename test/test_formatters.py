@@ -15,14 +15,14 @@ class TestAIFFormatter:
         filename = get_file_name()
         formatter = AIFFormatter()
         df = formatter.read(filename)
-        assert type(df) is pd.DataFrame
+        assert type(df) is pd.Series
         assert len(df) > 0
         assert type(df.index) is pd.DatetimeIndex
 
         new_filename = "same_file_new_name.aif"
         rename(filename, "same_file_new_name.aif")
         df = formatter.read(new_filename)
-        assert type(df) is pd.DataFrame
+        assert type(df) is pd.Series
         assert len(df) > 0
         assert type(df.index) is pd.RangeIndex
 
