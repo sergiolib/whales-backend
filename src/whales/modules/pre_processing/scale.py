@@ -10,7 +10,7 @@ class Scale(PreProcessing):
 
     def method_transform(self, data_file):
         if issubclass(data_file.__class__, AudioDataFile):
-            out = data_file.data["data_0"]
+            out = data_file.data
             out -= out.mean()
             out /= out.std()
             return data_file

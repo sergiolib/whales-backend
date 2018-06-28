@@ -3,6 +3,7 @@
 import logging
 import numpy as np
 
+from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.data_files.feature import FeatureDataFile
 from whales.modules.pipelines.getters import get_available_data_sets, get_available_data_files, get_available_formatters, \
     get_available_labels_formatters
@@ -31,7 +32,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             fmt = available_formatters[formatter_name]()
             df.load_data(file_name=file_name, formatter=fmt)
             dfs.append(df)
-        big_df = dfs[0].concatenate(dfs)
+        big_df = AudioDataFile().concatenate(dfs)
 
         return {"input_data": big_df}
 

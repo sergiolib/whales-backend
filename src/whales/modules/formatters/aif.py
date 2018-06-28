@@ -45,7 +45,7 @@ class AIFFormatter(Formatter):
                                 freq=f'{1e9//rate}ns')
         except Exception:
             rng = None
-        return pd.Series(ndarray, index=rng, name="data_0").to_frame()  # Return a DataFrame object
+        return pd.Series(ndarray, index=rng, name=filename)
 
     def read_metadata(self, metadata_filename):
         """Read the metadata filename (might be the same data file) and return a dictionary of metadata."""

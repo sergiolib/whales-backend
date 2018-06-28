@@ -1,5 +1,3 @@
-import pandas as pd
-
 from whales.modules.module import Module
 
 
@@ -23,23 +21,6 @@ class DataFile(Module):
         If no data has changed, read data from the Datafile and write it in the file."""
         formatter.write(file_name, self.data)
         formatter.write_metadata(file_name, self.metadata)
-
-    def concatenate(self, datafiles_list, axis=1):
-        """Add data_files from datafiles_list to new datafile and return it"""
-        data = []
-        new_df = self.__class__()
-        metadata = {}
-        for df in datafiles_list:
-            # metadata[df.file_name] = df.metadata
-            data_col = df.data.columns
-            new_col = [f"data_{i}" for i, _ in enumerate(data_col)]
-            df_data = df.data.rename(columns={a: b for a, b in zip(data_col.tolist(), new_col)})
-            data.append(df_data)
-
-        new_df.data = pd.concat(data, axis=axis)
-        new_df.data.sort_index(inplace=True)
-        new_df.metadata = metadata
-        return new_df
 
     @property
     def data(self):

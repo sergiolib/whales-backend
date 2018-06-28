@@ -56,7 +56,7 @@ class AudioDataFile(TimeSeriesDataFile):
         return end_time
 
     def get_labeled_data(self):
-        data = super().data.copy()
+        data = super().data.to_frame()
         labels_list = [self.name_label["unlabeled"]] * len(data)
         labels_series = pd.Series(labels_list, index=data.index)
         for a, b, l in self.parameters["labels"]:
@@ -82,7 +82,6 @@ class AudioDataFile(TimeSeriesDataFile):
             a = first + from_first
             b = first + from_first + delta
             self.parameters["labels"].append((a, b, self.name_label[label]))
-        self.data = data
 
     def get_windows_data_frame(self):
         sw = []
@@ -102,7 +101,6 @@ class AudioDataFile(TimeSeriesDataFile):
         en = self.parameters["end_time"][ind]
         label = self.parameters["label"][ind]
         window = data.loc[st:en]
-        window = window.reset_index()["data_0"]
         return window, label
 
     def add_window(self, start_time, end_time, label=0):
@@ -122,6 +120,17 @@ class AudioDataFile(TimeSeriesDataFile):
             else:
                 return f"{self.__class__.__name__} ({self.duration})"
         return f"{self.__class__.__name__}"
+
+    def concatenate(self, datafiles_list):
+        """Add data_files from datafiles_list to new datafile and return it"""
+        new_df = self.__class__()
+        for df in datafiles_list:
+            if new_df._data is None:
+                new_df.data = df.data.copy()
+            else:
+                new_df.data.append(df.data)
+        new_df.data.sort_index(inplace=True)
+        return new_df
 
 
 PipelineDataFile = AudioDataFile

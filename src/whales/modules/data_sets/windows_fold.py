@@ -49,7 +49,8 @@ class WindowsFold(DataSet):
                 for i in it:
                     df_ind, window_ind = self.parameters["inds_to_df_and_ind"][i]
                     window, label = self.datafiles[df_ind].get_window(window_ind)
-                    window.name = None
+                    window.index -= window.index[0]
+                    window.name = f"{df_ind}_{window_ind}"
                     df.add_segment(window, label)
             yield tr, te, val
 
