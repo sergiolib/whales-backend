@@ -31,7 +31,7 @@ class DataFile(Module):
         metadata = {}
         for df in datafiles_list:
             # metadata[df.file_name] = df.metadata
-            data_col = df.data.columns.drop("labels", errors="ignore")
+            data_col = df.data.columns
             new_col = [f"data_{i}" for i, _ in enumerate(data_col)]
             df_data = df.data.rename(columns={a: b for a, b in zip(data_col.tolist(), new_col)})
             data.append(df_data)

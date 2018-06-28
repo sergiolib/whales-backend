@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 
 from whales.modules.data_files.audio import AudioDataFile
-from whales.modules.data_files.audio_windows import AudioWindowsDataFile
 from whales.modules.pre_processing.pre_processing import PreProcessing
 
 
@@ -38,7 +37,6 @@ class SlidingWindows(PreProcessing):
             if finishing_times[-1] > data_file.start_time + data_file.duration:
                 break
             starting_times.append(finishing_times[-1] - overlap)
-        new_df = AudioWindowsDataFile(data_file)
         data = data_file.get_labeled_data()
         for a, b in zip(starting_times, finishing_times):
             if b > data_file.end_time:
@@ -56,8 +54,8 @@ class SlidingWindows(PreProcessing):
 
             label = np.asscalar(label)
 
-            new_df.add_window(a, b, label)
-        return new_df
+            data_file.add_window(a, b, label)
+        return data_file
 
 
 PipelineMethod = SlidingWindows

@@ -3,7 +3,7 @@ from whales.modules.data_files.time_series import TimeSeriesDataFile
 
 
 class AudioDataFile(TimeSeriesDataFile):
-    def __init__(self, logger=None):
+    def __init__(self, data_file=None, logger=None):
         super().__init__(logger)
         self.description = "Audio data files"
         self.parameters = {
@@ -11,8 +11,19 @@ class AudioDataFile(TimeSeriesDataFile):
                 # Dictionary that maps actual label index to the label name
                 0: "unlabeled"
             },
-            "labels": []
+            "labels": [],
+            "sliding_window_width": "60s",  # str
+            "overlap": 0.3,  # Percentage
+            "number_of_windows": 0,
+            "start_time": [],
+            "end_time": [],
+            "label": [],
         }
+
+        if data_file is not None:
+            self._data = data_file.data.copy()
+            self.metadata = data_file.metadata.copy()
+            self.parameters = data_file.parameters
 
     @property
     def name_label(self):
@@ -73,9 +84,43 @@ class AudioDataFile(TimeSeriesDataFile):
             self.parameters["labels"].append((a, b, self.name_label[label]))
         self.data = data
 
+    def get_windows_data_frame(self):
+        sw = []
+        for i in range(self.parameters["number_of_windows"]):
+            window = self.get_window(i)
+            window[0].name = None
+            sw.append(window[0])
+        return pd.concat(sw, axis=1, sort=False).T
+
+    def get_window(self, ind):
+        data = super().data
+        if self.parameters["number_of_windows"] == 0:
+            return data
+        if ind > len(self.parameters["start_time"]):
+            return None
+        st = self.parameters["start_time"][ind]
+        en = self.parameters["end_time"][ind]
+        label = self.parameters["label"][ind]
+        window = data.loc[st:en]
+        window = window.reset_index()["data_0"]
+        return window, label
+
+    def add_window(self, start_time, end_time, label=0):
+        if not self.start_time <= start_time < end_time <= self.end_time:
+            raise AttributeError("Times are not in a correct range")
+
+        self.parameters["number_of_windows"] += 1
+        self.parameters["start_time"].append(start_time)
+        self.parameters["end_time"].append(end_time)
+        self.parameters["label"].append(label)
+
     def __repr__(self):
         if hasattr(self, "data"):
-            return f"{self.__class__.__name__} ({self.duration})"
+            n_windows = len(self.parameters["start_time"])
+            if n_windows > 0:
+                return f"{self.__class__.__name__} ({n_windows} windows)"
+            else:
+                return f"{self.__class__.__name__} ({self.duration})"
         return f"{self.__class__.__name__}"
 
 

@@ -2,8 +2,9 @@ from math import ceil
 import numpy as np
 import pandas as pd
 
-from whales.modules.data_files.audio_windows import AudioWindowsDataFile
+from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.data_files.data_files import DataFile
+from whales.modules.data_files.feature import AudioSegments
 from whales.modules.data_sets.data_sets import DataSet
 
 
@@ -28,9 +29,9 @@ class WindowsFold(DataSet):
         return ceil(1.0 / self.parameters["testing"])
 
     def get_data_frames(self):
-        tr = DataFile()
-        te = DataFile()
-        val = DataFile()
+        tr = AudioSegments()
+        te = AudioSegments()
+        val = AudioSegments()
         n = self.parameters["number_of_windows"]
         n_tr = int(round(n * self.parameters["training"]))
         n_val = int(round(n * self.parameters["validation"]))
@@ -44,28 +45,17 @@ class WindowsFold(DataSet):
             tr_inds = inds[:n_tr]
             te_inds = inds[n_tr:-n_val]
             val_inds = inds[-n_val:]
-            training_windows = []
-            testing_windows = []
-            validation_windows = []
-            training_labels = []
-            testing_labels = []
-            validation_labels = []
-            for df, it, winds, labs in zip([tr, te, val], [tr_inds, te_inds, val_inds],
-                                           [training_windows, testing_windows, validation_windows],
-                                           [training_labels, testing_labels, validation_labels]):
+            for df, it in zip([tr, te, val], [tr_inds, te_inds, val_inds]):
                 for i in it:
                     df_ind, window_ind = self.parameters["inds_to_df_and_ind"][i]
                     window, label = self.datafiles[df_ind].get_window(window_ind)
                     window.name = None
-                    winds.append(window)
-                    labs.append(label)
-                df.data = pd.concat(winds, axis=1, sort=False).T
-                df.parameters["labels"] = labs
+                    df.add_segment(window, label)
             yield tr, te, val
 
     def add_data_file(self, data_file):
-        if type(data_file) is not AudioWindowsDataFile:
-            raise AttributeError("Only window data files are admitted")
+        if type(data_file) is not AudioDataFile:
+            raise AttributeError("Only audio data files are admitted")
         super().add_data_file(data_file)
         for i in range(self.parameters["number_of_windows"],
                        self.parameters["number_of_windows"] + len(data_file.parameters["start_time"])):
