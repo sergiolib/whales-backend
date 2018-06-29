@@ -1,3 +1,4 @@
+from itertools import cycle
 from math import ceil
 import numpy as np
 
@@ -29,20 +30,28 @@ class WindowsFold(DataSet):
     def get_data_sets(self):
         n = self.parameters["number_of_windows"]
         n_tr = int(round(n * self.parameters["training"]))
+        n_te = int(round(n * self.parameters["testing"]))
         n_val = int(round(n * self.parameters["validation"]))
-        offset_step = int(round(n * self.parameters["testing"]))
-        inds_list = np.random.permutation(n).tolist()
+        inds = np.random.permutation(n).tolist()
+        g_te = cycle(inds)
+        g_val = cycle(inds[n_te:] + inds[:n_te])
+        g_tr = cycle(inds[n_te + n_val:] + inds[:n_te + n_val])
         for k in range(self.iterations):
             tr, te, val = AudioSegments(), AudioSegments(), AudioSegments()
-            # Move all elements of the list in offset to the left
-            offset = k * offset_step
-            f, s = inds_list[offset:], inds_list[:offset]
-            inds = f + s
 
             # Get the indices for the data sets
-            tr_inds = inds[:n_tr]
-            te_inds = inds[n_tr:-n_val]
-            val_inds = inds[-n_val:]
+            tr_inds = []
+            te_inds = []
+            val_inds = []
+
+            for i in range(n_tr):
+                tr_inds.append(next(g_tr))
+
+            for i in range(n_te):
+                te_inds.append(next(g_te))
+
+            for i in range(n_val):
+                val_inds.append(next(g_val))
 
             # Iterate over data files and indices
             for df, it in zip([tr, te, val], [tr_inds, te_inds, val_inds]):

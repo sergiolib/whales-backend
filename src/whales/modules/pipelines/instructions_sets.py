@@ -159,7 +159,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                 if predicted_labels is None:
                     predicted_labels = pd.Series(this_run_params[f"prediction_{dset}"])
                 else:
-                    predicted_labels = predicted_labels.append(pd.Series(this_run_params[f"prediction_{dset}"]))  # TODO: solve repetitions of labelss
+                    predicted_labels = predicted_labels.append(pd.Series(this_run_params[f"prediction_{dset}"]))
                 if target_labels is None:
                     target_labels = df.parameters["labels"]
                 else:

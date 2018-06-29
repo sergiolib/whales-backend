@@ -27,7 +27,7 @@ class AudioSegments(FeatureDataFile):
         }
 
     def __repr__(self):
-        if hasattr(self, "data"):
+        if hasattr(self, "data") and self.data is not None:
             n_audios = len(self.data)
             return " ".join([self.__class__.__name__, f"({n_audios} segments)"])
         return self.__class__.__name__

@@ -25,7 +25,10 @@ class DataFile(Module):
     @property
     def data(self):
         if self._data is None:
-            res = self.formatter.read(self.file_name)
+            if self.formatter is None:
+                res = None
+            else:
+                res = self.formatter.read(self.file_name)
         else:
             res = self._data
         return res
