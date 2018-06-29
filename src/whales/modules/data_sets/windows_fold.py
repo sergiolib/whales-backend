@@ -27,13 +27,13 @@ class WindowsFold(DataSet):
         return int(round(ceil(1.0 / self.parameters["testing"])))
 
     def get_data_sets(self):
-        tr, te, val = AudioSegments(), AudioSegments(), AudioSegments()
         n = self.parameters["number_of_windows"]
         n_tr = int(round(n * self.parameters["training"]))
         n_val = int(round(n * self.parameters["validation"]))
         offset_step = int(round(n * self.parameters["testing"]))
         inds_list = np.random.permutation(n).tolist()
         for k in range(self.iterations):
+            tr, te, val = AudioSegments(), AudioSegments(), AudioSegments()
             # Move all elements of the list in offset to the left
             offset = k * offset_step
             f, s = inds_list[offset:], inds_list[:offset]

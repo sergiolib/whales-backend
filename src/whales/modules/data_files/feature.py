@@ -23,7 +23,7 @@ class AudioSegments(FeatureDataFile):
         super().__init__(data_file=data_file, logger=logger)
 
         self.parameters = {
-            "labels": []
+            "labels": None,
         }
 
     def __repr__(self):
@@ -34,9 +34,10 @@ class AudioSegments(FeatureDataFile):
 
     def add_segment(self, data, label):
         labels = self.parameters["labels"]
-        data.name = None
-        if len(labels) == 0:
+        if labels is None:
             self.data = pd.DataFrame(data).T
+            labels = pd.Series({data.name: label})
         else:
-            self.data = self.data.append(data, sort=False, ignore_index=True)
-        labels.append(label)
+            self.data = self.data.append(data, sort=False)
+            labels = labels.append(pd.Series({data.name: label}))
+        self.parameters["labels"] = labels

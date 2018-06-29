@@ -1,7 +1,7 @@
 """Computing heavy instructions for generating step results throughout the pipeline"""
 
 import logging
-import numpy as np
+import pandas as pd
 
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.data_files.feature import FeatureDataFile
@@ -113,10 +113,11 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                 transformed_set[s].append(res)
 
             transformed_set[s] = FeatureDataFile().concatenate(transformed_set[s])
+            transformed_set[s].data.index = current_set[s].data.index
             labels = current_set[s].parameters["labels"]
             drop = transformed_set[s].data.notna().min(axis=1)
             transformed_set[s].data = transformed_set[s].data[drop]
-            labels = np.array(labels)[drop].tolist()
+            labels = labels[drop]
             transformed_set[s].parameters["labels"] = labels
 
         return {
@@ -141,6 +142,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             df = params[f"transformed_{dset}_set"]
             x = df.data.values.astype(float)
             prediction = ml_method.predict(x)
+            prediction = pd.Series(prediction, index=df.data.index)
             results[f"prediction_{dset}"] = prediction
         return results
 
@@ -149,12 +151,18 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         ns = params["number_of_sets"]
         results = {}
         for dset in ["testing", "validation"]:
-            predicted_labels = []
-            target_labels = []
+            predicted_labels = None
+            target_labels = None
             for i in range(ns):
                 df = params[f"{i + 1}/{ns}"][f"transformed_{dset}_set"]
-                predicted_labels += params[f"{i + 1}/{ns}"][f"prediction_{dset}"].tolist()
-                target_labels += df.parameters["labels"]
+                if predicted_labels is None:
+                    predicted_labels = pd.Series(params[f"{i + 1}/{ns}"][f"prediction_{dset}"])
+                else:
+                    predicted_labels.append(pd.Series(params[f"{i + 1}/{ns}"][f"prediction_{dset}"]))
+                if target_labels is None:
+                    target_labels = df.parameters["labels"]
+                else:
+                    target_labels.append(df.parameters["labels"])
             for i in pi:
                 i.parameters = {
                     "target": target_labels,
@@ -206,7 +214,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             params.update(self.predict_machine_learning_method(params))
 
             # Store results
-            results[f"{iteration + 1}/{number_of_sets}"] = params
+            results[f"{iteration + 1}/{number_of_sets}"] = params.copy()
 
         # Compute performance indicators
         params.update(self.compute_performance_indicators({**results, **params}))

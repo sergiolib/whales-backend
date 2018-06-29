@@ -87,7 +87,7 @@ class AudioDataFile(TimeSeriesDataFile):
         sw = []
         for i in range(self.parameters["number_of_windows"]):
             window = self.get_window(i)
-            window[0].name = None
+            window[0].index -= window[0].index[0]
             sw.append(window[0])
         return pd.concat(sw, axis=1, sort=False).T
 
@@ -95,12 +95,14 @@ class AudioDataFile(TimeSeriesDataFile):
         data = super().data
         if self.parameters["number_of_windows"] == 0:
             return data
-        if ind > len(self.parameters["start_time"]):
+        n = len(self.parameters["start_time"])
+        if ind > n:
             return None
         st = self.parameters["start_time"][ind]
         en = self.parameters["end_time"][ind]
         label = self.parameters["label"][ind]
         window = data.loc[st:en]
+        window.name += f"_{ind + 1}_{n}"
         return window, label
 
     def add_window(self, start_time, end_time, label=0):
