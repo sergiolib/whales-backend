@@ -154,15 +154,16 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             predicted_labels = None
             target_labels = None
             for i in range(ns):
-                df = params[f"{i + 1}/{ns}"][f"transformed_{dset}_set"]
+                this_run_params = params[f"{i + 1}/{ns}"]
+                df = this_run_params[f"transformed_{dset}_set"]
                 if predicted_labels is None:
-                    predicted_labels = pd.Series(params[f"{i + 1}/{ns}"][f"prediction_{dset}"])
+                    predicted_labels = pd.Series(this_run_params[f"prediction_{dset}"])
                 else:
-                    predicted_labels.append(pd.Series(params[f"{i + 1}/{ns}"][f"prediction_{dset}"]))
+                    predicted_labels = predicted_labels.append(pd.Series(this_run_params[f"prediction_{dset}"]))  # TODO: solve repetitions of labelss
                 if target_labels is None:
                     target_labels = df.parameters["labels"]
                 else:
-                    target_labels.append(df.parameters["labels"])
+                    target_labels = target_labels.append(df.parameters["labels"])
             for i in pi:
                 i.parameters = {
                     "target": target_labels,
