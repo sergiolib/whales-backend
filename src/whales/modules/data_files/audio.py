@@ -11,14 +11,14 @@ class AudioDataFile(TimeSeriesDataFile):
                 # Dictionary that maps actual label index to the label name
                 0: "unlabeled"
             },
-            "labels": [],
-            "sliding_window_width": "60s",  # str
-            "overlap": 0.3,  # Percentage
             "number_of_windows": 0,
+            "labels": [],
             "start_time": [],
             "end_time": [],
-            "label": [],
+            "labels_treatment": "max",
         }
+
+        self.cache_labeled_data = None
 
         if data_file is not None:
             self._data = data_file.data.copy()
@@ -55,13 +55,16 @@ class AudioDataFile(TimeSeriesDataFile):
             raise RuntimeError("No end time in unloaded data")
         return end_time
 
-    def get_labeled_data(self):
+    def get_labeled_data(self, clean=False):
+        if not clean and self.cache_labeled_data is not None:
+            return self.cache_labeled_data
         data = super().data.to_frame()
         labels_list = [self.name_label["unlabeled"]] * len(data)
         labels_series = pd.Series(labels_list, index=data.index)
         for a, b, l in self.parameters["labels"]:
             labels_series[a:b] = l
         data["labels"] = labels_series
+        self.cache_labeled_data = data
         return data
 
     def load_labels(self, file_name, labels_formatter, label="whale"):
@@ -91,7 +94,7 @@ class AudioDataFile(TimeSeriesDataFile):
             sw.append(window[0])
         return pd.concat(sw, axis=1, sort=False).T
 
-    def get_window(self, ind):
+    def get_window(self, ind, return_label=True):
         data = super().data
         if self.parameters["number_of_windows"] == 0:
             return data
@@ -100,19 +103,32 @@ class AudioDataFile(TimeSeriesDataFile):
             return None
         st = self.parameters["start_time"][ind]
         en = self.parameters["end_time"][ind]
-        label = self.parameters["label"][ind]
+        label = 0
+        if return_label:
+            labeled_data = self.get_labeled_data()
+            labels_treatment = self.parameters["labels_treatment"]
+            if labels_treatment == "max":
+                label = int(labeled_data.loc[st:en].labels.max())
+            elif labels_treatment == "mode":
+                label = int(labeled_data.loc[st:en].labels.mode())
+            elif labels_treatment == "mean":
+                label = labeled_data.loc[st:en].labels.mean()
+            else:
+                raise ValueError(f"labels_treatment parameter value not understood: {labels_treatment}")
         window = data.loc[st:en]
         window.name += f"_{ind + 1}_{n}"
-        return window, label
+        if return_label:
+            return window, label
+        else:
+            return window
 
-    def add_window(self, start_time, end_time, label=0):
+    def add_window(self, start_time, end_time):
         if not self.start_time <= start_time < end_time <= self.end_time:
             raise AttributeError("Times are not in a correct range")
 
         self.parameters["number_of_windows"] += 1
         self.parameters["start_time"].append(start_time)
         self.parameters["end_time"].append(end_time)
-        self.parameters["label"].append(label)
 
     def __repr__(self):
         if hasattr(self, "data"):

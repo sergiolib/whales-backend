@@ -48,3 +48,24 @@ class TestAudioDataFiles:
                        label="whale")
         assert [0, 1] in df.get_labeled_data().labels.unique()
         assert "whale" in df.name_label
+
+    def test_get_window(self):
+        filename_data, filename_labels = get_labeled_txt()
+        df = AudioDataFile().load_data(filename_data,
+                                       formatter=AIFFormatter())
+        df.load_labels(filename_labels,
+                       labels_formatter=TXTLabelsFormatter(),
+                       label="whale")
+        st1 = df.data.index[0]
+        en1 = df.data.index[5]
+        st2 = df.parameters["labels"][0][0]
+        en2 = st2 + 4
+        df.add_window(st1, en1)  # Length 6
+        df.add_window(st2, en2)  # Length 4
+        assert df.parameters["number_of_windows"] == 2
+        l = df.get_windows_data_frame()
+        assert len(l) == 2
+        w1, l1 = df.get_window(0)
+        w2, l2 = df.get_window(1)
+        assert len(w1) == 6
+        assert len(w2) == 4

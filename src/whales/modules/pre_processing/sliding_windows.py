@@ -16,12 +16,16 @@ class SlidingWindows(PreProcessing):
         self.parameters = {
             "window_width": "60s",
             "overlap": 0.3,
-            "labels_treatment": "max",
+            "labels_treatment": "max"
         }
 
     def method_transform(self, data_file):
         if type(data_file) not in [AudioDataFile]:
             raise ValueError("Input should be a data file")
+
+        data_file.parameters = {
+            "labels_treatment": self.parameters["labels_treatment"]
+        }
 
         t0 = data_file.start_time
         offset = self.parameters["window_width"]
@@ -30,31 +34,16 @@ class SlidingWindows(PreProcessing):
         starting_times = [t0]
         finishing_times = []
 
-        labels_treatment = self.parameters["labels_treatment"]
-
         while True:  # Just to generate iteration
             finishing_times.append(starting_times[-1] + offset - 1)
             if finishing_times[-1] > data_file.start_time + data_file.duration:
                 break
             starting_times.append(finishing_times[-1] - overlap)
-        data = data_file.get_labeled_data()
         for a, b in zip(starting_times, finishing_times):
             if b > data_file.end_time:
                 b = data_file.end_time
-            labels = data["labels"].loc[a:b]
 
-            if labels_treatment == "mean":
-                label = labels.mean()
-            elif labels_treatment == "mode":
-                label = labels.mode().astype(int)
-            elif labels_treatment == "max":
-                label = labels.max().astype(int)
-            else:
-                raise ValueError("Labels treatment not understood")
-
-            label = np.asscalar(label)
-
-            data_file.add_window(a, b, label)
+            data_file.add_window(a, b)
         return data_file
 
 
