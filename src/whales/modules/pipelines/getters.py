@@ -100,7 +100,7 @@ def get_available_performance_indicators():
                 "whales.modules.performance_indicators.{}".format(n)).PipelineMethod)
             pi_names.append(n)
         except AttributeError:
-            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+            functions_logger.debug(f"Module {n} doesn't have a valid method")
 
     res = dict()
     for a, b in zip(pi_names, pi_classes):
@@ -134,7 +134,7 @@ def get_available_unsupervised_methods():
                 "whales.modules.unsupervised.{}".format(n)).PipelineMethod)
             cl_names.append(n)
         except AttributeError:
-            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+            functions_logger.debug(f"Module {n} doesn't have a valid method")
 
     res = dict()
     for a, b in zip(cl_names, cl_classes):
@@ -168,7 +168,7 @@ def get_available_supervised_methods():
                 "whales.modules.supervised.{}".format(n)).PipelineMethod)
             cl_names.append(n)
         except AttributeError:
-            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+            functions_logger.debug(f"Module {n} doesn't have a valid method")
 
     res = dict()
     for a, b in zip(cl_names, cl_classes):
@@ -202,7 +202,7 @@ def get_available_semi_supervised_methods():
                 "whales.modules.semi_supervised.{}".format(n)).PipelineMethod)
             cl_names.append(n)
         except AttributeError:
-            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+            functions_logger.debug(f"Module {n} doesn't have a valid method")
 
     res = dict()
     for a, b in zip(cl_names, cl_classes):
@@ -236,7 +236,7 @@ def get_available_formatters():
                 "whales.modules.formatters.{}".format(n)).PipelineFormatter)
             fmt_names.append(n)
         except AttributeError:
-            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+            functions_logger.debug(f"Module {n} doesn't have a valid method")
 
     res = dict()
     for a, b in zip(fmt_names, fmt_classes):
@@ -270,7 +270,7 @@ def get_available_labels_formatters():
                 "whales.modules.labels_formatters.{}".format(n)).PipelineFormatter)
             fmt_names.append(n)
         except AttributeError:
-            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+            functions_logger.debug(f"Module {n} doesn't have a valid method")
 
     res = dict()
     for a, b in zip(fmt_names, fmt_classes):
@@ -304,7 +304,7 @@ def get_available_data_files():
                 "whales.modules.data_files.{}".format(n)).PipelineDataFile)
             fmt_names.append(n)
         except AttributeError:
-            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+            functions_logger.debug(f"Module {n} doesn't have a valid method")
 
     res = dict()
     for a, b in zip(fmt_names, fmt_classes):
@@ -338,7 +338,7 @@ def get_available_pipeline_types():
                 "whales.modules.pipelines.{}".format(n)).PipelineType)
             fmt_names.append(n)
         except AttributeError:
-            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+            functions_logger.debug(f"Module {n} doesn't have a valid method")
 
     res = dict()
     for a, b in zip(fmt_names, fmt_classes):
@@ -372,7 +372,7 @@ def get_available_data_sets():
                 "whales.modules.data_sets.{}".format(n)).PipelineDataSet)
             fmt_names.append(n)
         except AttributeError:
-            functions_logger.debug(f"Module {n} doesn't have a valid method'")
+            functions_logger.debug(f"Module {n} doesn't have a valid method")
 
     res = dict()
     for a, b in zip(fmt_names, fmt_classes):
