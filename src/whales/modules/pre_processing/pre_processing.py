@@ -14,7 +14,7 @@ class PreProcessing(Module):
         res = self.method_transform(data_file)
         self.logger.debug(f"Transformed data with pre processing {self}")
         tf = time.time()
-        self.logger.debug(f"Pre processing {self} fitting took {tf - t0} s")
+        self.logger.debug(f"Pre processing {self} transformation took {tf - t0} s")
         return res
 
     def method_transform(self, data_file):
