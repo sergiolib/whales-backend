@@ -6,6 +6,8 @@ from whales.modules.data_files.data_files import DataFile
 class FeatureDataFile(DataFile):
     def __init__(self, data_file=None, logger=None):
         super().__init__(logger=logger)
+        self.metadata["labels"] = None
+
         if data_file is not None:
             self._data = data_file.data
             self.metadata = data_file.metadata
@@ -31,8 +33,6 @@ class AudioSegments(FeatureDataFile):
         return self.__class__.__name__
 
     def add_segment(self, data, label):
-        if "labels" not in self.metadata:
-            self.metadata["labels"] = None
         labels = self.metadata["labels"]
         if labels is None:
             self.data = pd.DataFrame(data).T

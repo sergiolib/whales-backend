@@ -4,7 +4,7 @@ from whales.modules.module import Module
 class DataFile(Module):
     def __init__(self, logger=None):
         super().__init__(logger)
-        self.metadata = {}
+        self._metadata = {}
         self._data = None
         self.file_name = None
         self.formatter = None
@@ -48,3 +48,11 @@ class DataFile(Module):
 
     def __str__(self):
         return self.__repr__()
+
+    @property
+    def metadata(self):
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, new_metadata):
+        self._metadata.update(new_metadata)

@@ -19,6 +19,8 @@ class AudioDataFile(TimeSeriesDataFile):
 
         self.cache_labeled_data = None
 
+        self.metadata["labels"] = []
+
         if data_file is not None:
             self._data = data_file.data.copy()
             self.metadata = data_file.metadata.copy()
@@ -60,8 +62,6 @@ class AudioDataFile(TimeSeriesDataFile):
         data = super().data.to_frame()
         labels_list = [self.name_label["unlabeled"]] * len(data)
         labels_series = pd.Series(labels_list, index=data.index)
-        if "labels" not in self.metadata:
-            self.metadata["labels"] = []
         for a, b, l in self.metadata["labels"]:
             labels_series[a:b] = l
         data["labels"] = labels_series
@@ -78,8 +78,6 @@ class AudioDataFile(TimeSeriesDataFile):
         cols = list(labels.columns)
         begin_time_col = [i for i in cols if "Begin" in i][0]  # If contains Begin, then assume begin_time
         end_time_col = [i for i in cols if "End" in i][0]  # If contains End, then assume end_time
-        if "labels" not in self.metadata:
-            self.metadata["labels"] = []
         for _, row in labels.iterrows():
             start_time = row[begin_time_col]
             end_time = row[end_time_col]
@@ -92,9 +90,9 @@ class AudioDataFile(TimeSeriesDataFile):
     def get_windows_data_frame(self):
         sw = []
         for i in range(self.parameters["number_of_windows"]):
-            window = self.get_window(i)
-            window[0].index -= window[0].index[0]
-            sw.append(window[0])
+            window = self.get_window(i, return_label=False)
+            window.index -= window.index[0]
+            sw.append(window)
         return pd.concat(sw, axis=1, sort=False).T
 
     def get_window(self, ind, return_label=True):
@@ -115,7 +113,7 @@ class AudioDataFile(TimeSeriesDataFile):
             elif labels_treatment == "mode":
                 label = int(labeled_data.loc[st:en].labels.mode())
             elif labels_treatment == "mean":
-                label = labeled_data.loc[st:en].labels.mean()
+                label = float(labeled_data.loc[st:en].labels.mean())
             else:
                 raise ValueError(f"labels_treatment parameter value not understood: {labels_treatment}")
         window = data.loc[st:en]
@@ -134,8 +132,8 @@ class AudioDataFile(TimeSeriesDataFile):
         self.parameters["end_time"].append(end_time)
 
     def __repr__(self):
-        if hasattr(self, "data"):
-            n_windows = len(self.parameters["start_time"])
+        if hasattr(self, "data") and self.data is not None:
+            n_windows = self.parameters["number_of_windows"]
             if n_windows > 0:
                 return f"{self.__class__.__name__} ({n_windows} windows)"
             else:
@@ -149,7 +147,7 @@ class AudioDataFile(TimeSeriesDataFile):
             if new_df._data is None:
                 new_df.data = df.data.copy()
             else:
-                new_df.data.append(df.data)
+                new_df.data = new_df.data.append(df.data)
         new_df.data.sort_index(inplace=True)
         return new_df
 
