@@ -1,9 +1,23 @@
+import pandas as pd
+
+from whales.modules.data_files.data_files import DataFile
 from whales.modules.module import Module
 
 
 class Unsupervised(Module):
-    def fit(self, data):
-        self.method_fit(data)
+    def __init__(self, logger=None):
+        super().__init__(logger=logger)
+        self.parameters = {
+            "data": [],
+            "target": []
+        }
+
+    def fit(self):
+        data = self.parameters["data"]
+        if issubclass(data.__class__, DataFile):
+            inds = data.data.index
+            self.parameters["data"] = data.data.loc[inds].values
+        self.method_fit()
 
     def method_fit(self, data):
         raise NotImplementedError
@@ -11,5 +25,12 @@ class Unsupervised(Module):
     def method_predict(self, data):
         raise NotImplementedError
 
-    def predict(self, data):
-        return self.method_predict(data)
+    def predict(self):
+        data = self.parameters["data"]
+        if issubclass(data.__class__, DataFile):
+            inds = data.data.index
+            self.parameters["data"] = data.data.loc[inds].values
+        else:
+            raise ValueError("Data input should be a Data File")
+        res = self.method_predict()
+        return pd.Series(res, index=data.data.index)

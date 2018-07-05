@@ -14,13 +14,13 @@ class SpectralFrames(FeatureExtraction):
             "to_db": True  # {boolean} Set to True if you want return stft in decibel scale
         }
 
-    def method_transform(self, data):
+    def method_transform(self):
         """
         Transform the audio signal in short fourier fast form for any overlapped frame
         :param data: {numpy array} with audio signal (waveform)
         :return: {numpy array} Contains the short-time fourier transform in [0] axis and frame index in [1] axis
         """
-
+        data = self.parameters["data"]
         # Commented until output has correct shape (1 column per sample, multiple rows)
 
         # print(self.parameters)

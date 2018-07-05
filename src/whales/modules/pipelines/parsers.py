@@ -8,8 +8,8 @@ class Parser:
             self.logger = logging.getLogger(self.__class__.__name__)
 
     def parse(self, parameters_dict):
-        self.logger.debug("Parsing pipeline parameters")
         self.parse_field(parameters_dict, (self.expected_fields_types, "necessary"))
+        self.logger.info("Parsed pipeline parameters")
         return parameters_dict
 
     def parse_field(self, parameters, expected_types):

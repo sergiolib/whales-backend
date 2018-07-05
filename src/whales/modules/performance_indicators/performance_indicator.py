@@ -6,5 +6,5 @@ class PerformanceIndicator(Module):
         raise NotImplementedError
 
     def compute(self):
-        self.logger.info("Evaluating {}".format(self.__class__.__name__))
+        self.logger.info("Evaluating performance indicator {}".format(self.__class__.__name__))
         return self.method_compute()

@@ -12,7 +12,6 @@ class AudioDataFile(TimeSeriesDataFile):
                 0: "unlabeled"
             },
             "number_of_windows": 0,
-            "labels": [],
             "start_time": [],
             "end_time": [],
             "labels_treatment": "max",
@@ -61,7 +60,9 @@ class AudioDataFile(TimeSeriesDataFile):
         data = super().data.to_frame()
         labels_list = [self.name_label["unlabeled"]] * len(data)
         labels_series = pd.Series(labels_list, index=data.index)
-        for a, b, l in self.parameters["labels"]:
+        if "labels" not in self.metadata:
+            self.metadata["labels"] = []
+        for a, b, l in self.metadata["labels"]:
             labels_series[a:b] = l
         data["labels"] = labels_series
         self.cache_labeled_data = data
@@ -77,6 +78,8 @@ class AudioDataFile(TimeSeriesDataFile):
         cols = list(labels.columns)
         begin_time_col = [i for i in cols if "Begin" in i][0]  # If contains Begin, then assume begin_time
         end_time_col = [i for i in cols if "End" in i][0]  # If contains End, then assume end_time
+        if "labels" not in self.metadata:
+            self.metadata["labels"] = []
         for _, row in labels.iterrows():
             start_time = row[begin_time_col]
             end_time = row[end_time_col]
@@ -84,7 +87,7 @@ class AudioDataFile(TimeSeriesDataFile):
             delta = pd.Timedelta(seconds=end_time-start_time)
             a = first + from_first
             b = first + from_first + delta
-            self.parameters["labels"].append((a, b, self.name_label[label]))
+            self.metadata["labels"].append((a, b, self.name_label[label]))
 
     def get_windows_data_frame(self):
         sw = []

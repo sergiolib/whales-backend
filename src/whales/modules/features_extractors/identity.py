@@ -8,7 +8,9 @@ class Identity(FeatureExtraction):
         self.needs_fitting = False
         self.parameters = {}
 
-    def method_transform(self, data):
+    def method_transform(self):
+        data = self.parameters["data"]
+        # Caution with nan values as they cannot go into the classifiers
         return data
 
 

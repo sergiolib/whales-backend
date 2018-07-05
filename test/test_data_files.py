@@ -16,22 +16,22 @@ class TestAudioDataFiles:
     def test_load(self):
         filename = get_file_name()
         df = AudioDataFile()
-        df.load_data(filename,
+        df.load(filename,
                      formatter=AIFFormatter())
         assert df.duration.seconds > 0
 
     def test_save(self):
         filename = get_file_name()
         df = AudioDataFile()
-        df.load_data(filename,
+        df.load(filename,
                      formatter=AIFFormatter())
-        df.save_data("tmp.h5", formatter=HDF5Formatter())
-        df2 = AudioDataFile().load_data("tmp.h5", formatter=HDF5Formatter())
+        df.save("tmp.h5", formatter=HDF5Formatter())
+        df2 = AudioDataFile().load("tmp.h5", formatter=HDF5Formatter())
         assert df2.duration.seconds > 0
 
     def test_load_labels(self):
         filename_data, filename_labels = get_labeled()
-        df = AudioDataFile().load_data(filename_data,
+        df = AudioDataFile().load(filename_data,
                                        formatter=AIFFormatter())
         df.load_labels(filename_labels,
                        labels_formatter=CSVLabelsFormatter(),
@@ -41,7 +41,7 @@ class TestAudioDataFiles:
 
     def test_load_labels_from_txt(self):
         filename_data, filename_labels = get_labeled_txt()
-        df = AudioDataFile().load_data(filename_data,
+        df = AudioDataFile().load(filename_data,
                                        formatter=AIFFormatter())
         df.load_labels(filename_labels,
                        labels_formatter=TXTLabelsFormatter(),
@@ -51,14 +51,14 @@ class TestAudioDataFiles:
 
     def test_get_window(self):
         filename_data, filename_labels = get_labeled_txt()
-        df = AudioDataFile().load_data(filename_data,
+        df = AudioDataFile().load(filename_data,
                                        formatter=AIFFormatter())
         df.load_labels(filename_labels,
                        labels_formatter=TXTLabelsFormatter(),
                        label="whale")
         st1 = df.data.index[0]
         en1 = df.data.index[5]
-        st2 = df.parameters["labels"][0][0]
+        st2 = df.metadata["labels"][0][0]
         en2 = st2 + 4
         df.add_window(st1, en1)  # Length 6
         df.add_window(st2, en2)  # Length 4

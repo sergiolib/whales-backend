@@ -19,7 +19,8 @@ class SlidingWindows(PreProcessing):
             "labels_treatment": "max"
         }
 
-    def method_transform(self, data_file):
+    def method_transform(self):
+        data_file = self.parameters["data"]
         if type(data_file) not in [AudioDataFile]:
             raise ValueError("Input should be a data file")
 

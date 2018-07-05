@@ -5,32 +5,32 @@ import pandas as pd
 
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.data_files.feature import FeatureDataFile
-from whales.modules.pipelines.getters import get_available_data_sets, get_available_data_files, get_available_formatters, \
-    get_available_labels_formatters
+from whales.modules.pipelines import getters
 
 
 class InstructionSet:
     def __init__(self, logger=None):
         self.logger = logger
         if self.logger is None:
-            logging.getLogger(self.__class__.__name__)
+            self.logger = logging.getLogger(self.__class__.__name__)
 
 
 class SupervisedWhalesInstructionSet(InstructionSet):
     def build_data_file(self, params:  dict):
         """"""
-        available_data_files = get_available_data_files()
-        available_formatters = get_available_formatters()
+        available_data_files = getters.get_available_data_files()
+        available_formatters = getters.get_available_formatters()
 
         # Load every small input data file and concatenate all into the big data file
         dfs = []
         for elem in params["input_data"]:
+            self.logger.info(f"Loading and appending file {elem['file_name']}")
             file_name = elem["file_name"]
             data_file_name = elem["data_file"]
             formatter_name = elem["formatter"]
             df = available_data_files[data_file_name]()
             fmt = available_formatters[formatter_name]()
-            df.load_data(file_name=file_name, formatter=fmt)
+            df.load(file_name=file_name, formatter=fmt)
             dfs.append(df)
         big_df = AudioDataFile().concatenate(dfs)
 
@@ -40,9 +40,10 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         labels_params = params["input_labels"]
         input_data = params["input_data"]
 
-        lf = get_available_labels_formatters()
+        lf = getters.get_available_labels_formatters()
 
         for p in labels_params:
+            self.logger.info(f"Setting labels in file p['labels_file']")
             file_name = p["labels_file"]
             labels_formatter = lf[p["labels_formatter"]]()
             input_data.load_labels(file_name, labels_formatter, label="whale")
@@ -78,26 +79,27 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
     def train_machine_learning_method(self, params: dict):
         ml_method = params["ml_method"]
-        transformed_training_set = params["transformed_training_set"]
-        y = transformed_training_set.parameters["labels"]
-        x = transformed_training_set.data.values.astype(float)
-        ml_method.fit(x, y)
+        df = params["transformed_training_set"]
+        self.logger.info(f"Training method {params['ml_method'].__class__.__name__} with {len(df.data)} data points")
+        ml_method.parameters["data"] = df
+        ml_method.fit()
         return {}
 
     def train_performance_indicators(self, params: dict):
         pi = params["performance_indicators"]
-        current_training_set = params["current_training_set"]
-        x = current_training_set.data.values
+        df = params["current_training_set"]
         for p in pi:
-            p.fit(x)
+            self.logger.info(f"Training performance indicator {p.__class__.__name__} with {len(df.data)} data points")
+            p.fit(df)
         return {}
 
     def train_features(self, params: dict):
         feat = params["features_extractors"]
-        current_training_set = params["current_training_set"]
-        x = current_training_set.data.values.astype(float)
+        df = params["current_training_set"]
         for f in feat:
-            f.fit(x)
+            f.parameters["data"] = df
+            self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
+            f.fit()
         return {}
 
     def transform_features(self, params: dict):
@@ -105,20 +107,20 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         current_set = {}
         transformed_set = {}
         for s in ["training", "testing", "validation"]:
-            current_set[s] = params[f"current_{s}_set"]
-            x = current_set[s].data.values.astype(float)
+            df = current_set[s] = params[f"current_{s}_set"]
             transformed_set[s] = []
             for f in feat:
-                res = f.transform(x)
+                f.parameters["data"] = df
+                msg = f"Transforming features extractor {f.__class__.__name__} with {len(df.data)} data points " \
+                      f"for {s} set"
+                self.logger.info(msg)
+                res = f.transform()
                 transformed_set[s].append(res)
 
             transformed_set[s] = FeatureDataFile().concatenate(transformed_set[s])
             transformed_set[s].data.index = current_set[s].data.index
-            labels = current_set[s].parameters["labels"]
-            drop = transformed_set[s].data.notna().min(axis=1)
-            transformed_set[s].data = transformed_set[s].data[drop]
-            labels = labels[drop]
-            transformed_set[s].parameters["labels"] = labels
+            labels = current_set[s].metadata["labels"]
+            transformed_set[s].metadata["labels"] = labels
 
         return {
             "transformed_training_set": transformed_set["training"],
@@ -131,7 +133,9 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         input_data = params["input_data"]
         data = input_data
         for pp in pre_processing_methods:
-            data = pp.transform(data)
+            pp.parameters["data"] = data
+            self.logger.info(f"Applying pre processing {pp.__class__.__name__} to {len(data.data)} data points")
+            data = pp.transform()
         output_data = data
         return {"input_data": output_data}
 
@@ -140,9 +144,10 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         results = {}
         for dset in ["training", "testing", "validation"]:
             df = params[f"transformed_{dset}_set"]
-            x = df.data.values.astype(float)
-            prediction = ml_method.predict(x)
-            prediction = pd.Series(prediction, index=df.data.index)
+            ml_method.parameters["data"] = df
+            msg = f"Predicting method {ml_method.__class__.__name__} to {len(df.data)} data points of {dset} set"
+            self.logger.info(msg)
+            prediction = ml_method.predict()
             results[f"prediction_{dset}"] = prediction
         return results
 
@@ -161,20 +166,22 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                 else:
                     predicted_labels = predicted_labels.append(pd.Series(this_run_params[f"prediction_{dset}"]))
                 if target_labels is None:
-                    target_labels = df.parameters["labels"]
+                    target_labels = df.metadata["labels"]
                 else:
-                    target_labels = target_labels.append(df.parameters["labels"])
+                    target_labels = target_labels.append(df.metadata["labels"])
             for i in pi:
                 i.parameters = {
                     "target": target_labels,
                     "prediction": predicted_labels,
                 }
+                self.logger.info(f"Performance indicators {i.__class__.__name__} of results from {dset} set")
                 res = i.compute()
                 results[f"pi_{i.__class__.__name__}_{dset}"] = res
         return results
 
     def build_data_set(self, params: dict):
-        available_data_sets = get_available_data_sets()
+        self.logger.info("Building data set")
+        available_data_sets = getters.get_available_data_sets()
         method = params["ds_options"]["method"]
         ds_cls = available_data_sets[method]
         ds = ds_cls()

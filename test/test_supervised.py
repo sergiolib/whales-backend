@@ -7,7 +7,7 @@ from whales.modules.supervised.svm import SVM
 
 # def test_svm():
 #     data, labels = get_labeled()
-#     df = AudioDatafile().load_data(data, formatter=AIFFormatter)
+#     df = AudioDatafile().load(data, formatter=AIFFormatter)
 #     df.load_labels(labels, labels_formatter=CSVLabelsFormatter, label="whale")
 #     X = df.data.drop("labels", axis=1).values
 #     y = df.get_labeled_data().labels.values

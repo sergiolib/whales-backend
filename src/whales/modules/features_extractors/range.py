@@ -9,9 +9,10 @@ class Range(FeatureExtraction):
         self.needs_fitting = False
         self.parameters = {}
 
-    def method_transform(self, data):
-        min_value = np.min(data, axis=1)
-        max_value = np.max(data, axis=1)
+    def method_transform(self):
+        data = self.parameters["data"]
+        min_value = np.nanmin(data, axis=1)
+        max_value = np.nanmax(data, axis=1)
         range_value = max_value - min_value
         return range_value.reshape(-1, 1)
 

@@ -10,8 +10,9 @@ class Kurtosis(FeatureExtraction):
         self.needs_fitting = False
         self.parameters = {}
 
-    def method_transform(self, data):
-        return scipy.stats.kurtosis(data, axis=1).reshape(-1, 1)
+    def method_transform(self):
+        data = self.parameters["data"]
+        return scipy.stats.kurtosis(data, axis=1, nan_policy="omit").reshape(-1, 1)
 
 
 PipelineMethod = Kurtosis

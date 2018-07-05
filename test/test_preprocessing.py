@@ -13,10 +13,11 @@ from whales.utilities.testing import get_file_name
 
 def test_scale():
     file_name = get_file_name()
-    df = AudioDataFile().load_data(file_name,
+    df = AudioDataFile().load(file_name,
                                    formatter=AIFFormatter())
     p = Scale()
-    result = p.transform(data_file=df)
+    p.parameters["data"] = df
+    result = p.transform()
     assert p.description != ""
     assert type(result) is df.__class__
 
@@ -27,8 +28,9 @@ def test_sliding_windows():
     p.parameters["sliding_window_width"] = "13s"
     p.parameters["overlap"] = 0.12
     df = AudioDataFile()
-    df.load_data(filename,
+    df.load(filename,
                  formatter=AIFFormatter())
-    new_df = p.transform(df)
+    p.parameters["data"] = df
+    new_df = p.transform()
     new_df.get_windows_data_frame()
     assert p.description != ""

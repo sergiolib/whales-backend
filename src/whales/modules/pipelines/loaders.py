@@ -3,6 +3,8 @@ sets"""
 
 import logging
 from glob import glob
+from os import makedirs
+from os.path import join
 
 from whales.modules.pipelines.getters import get_available_features_extractors, get_available_performance_indicators, \
     get_available_pre_processing, get_available_supervised_methods, get_available_unsupervised_methods, \
@@ -15,9 +17,20 @@ class Loader:
         if self.logger is None:
             self.logger = logging.getLogger(self.__class__.__name__)
 
-        self.loaders_execution_order = []
+        self.loaders_execution_order = [self.load_create_output_directory]
         self.pipeline = pipeline
         self.instructions_set = instructions_set
+
+    def load_create_output_directory(self):
+        """Initial loading output directory for saving logs, partial data files and results"""
+        main_directory = self.pipeline.parameters["output_directory"]
+        data_directory = join(main_directory, "data")
+        trained_models_directory = join(main_directory, "trained_models")
+        results_directory = join(main_directory, "results")
+        makedirs(data_directory, exist_ok=True)
+        makedirs(trained_models_directory, exist_ok=True)
+        makedirs(results_directory, exist_ok=True)
+        self.logger.debug("Data, models and results directories created")
 
     def __repr__(self):
         ret = []
@@ -30,7 +43,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
     def __init__(self, pipeline, instructions_set, logger=None):
         super().__init__(pipeline, instructions_set, logger)
 
-        self.loaders_execution_order = [  # Order matters!
+        self.loaders_execution_order += [  # Order matters!
             self.load_input_data,
             self.load_labels,
             self.load_pre_processing,
@@ -59,6 +72,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
                     real_input_data += new_elems
                 else:
                     real_input_data.append(elem)
+                self.logger.debug(f"Added file {real_input_data[-1]['file_name']}")
         self.pipeline.add_instruction(self.instructions_set.build_data_file, {
             "input_data": real_input_data,
         })

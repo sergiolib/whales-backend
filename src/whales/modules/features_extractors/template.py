@@ -18,12 +18,14 @@ class Demo(FeatureExtraction):
             # Add parameters here
         }
 
-    def method_fit(self, data):
+    def method_fit(self):
+        data = self.parameters["data"]
         # Here goes the training, if needed. Features always use data, and sometimes other inputs
         pass
 
-    def method_transform(self, data):
-        # Here goes the training. Same parameters as in fit
+    def method_transform(self):
+        data = self.parameters["data"]
+        # Here goes the training
         return None
 
 

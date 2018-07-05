@@ -8,7 +8,8 @@ class Scale(PreProcessing):
         self.description = "Center to the mean and scale to unit variance"
         self.parameters = {}
 
-    def method_transform(self, data_file):
+    def method_transform(self):
+        data_file = self.parameters["data"]
         if issubclass(data_file.__class__, AudioDataFile):
             out = data_file.data
             out -= out.mean()

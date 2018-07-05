@@ -22,9 +22,7 @@ class AudioSegments(FeatureDataFile):
     def __init__(self, data_file=None, logger=None):
         super().__init__(data_file=data_file, logger=logger)
 
-        self.parameters = {
-            "labels": None,
-        }
+        self.parameters = {}
 
     def __repr__(self):
         if hasattr(self, "data") and self.data is not None:
@@ -33,11 +31,13 @@ class AudioSegments(FeatureDataFile):
         return self.__class__.__name__
 
     def add_segment(self, data, label):
-        labels = self.parameters["labels"]
+        if "labels" not in self.metadata:
+            self.metadata["labels"] = None
+        labels = self.metadata["labels"]
         if labels is None:
             self.data = pd.DataFrame(data).T
             labels = pd.Series({data.name: label})
         else:
             self.data = self.data.append(data, sort=False)
             labels = labels.append(pd.Series({data.name: label}))
-        self.parameters["labels"] = labels
+        self.metadata["labels"] = labels

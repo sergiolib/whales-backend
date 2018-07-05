@@ -1,3 +1,6 @@
+import pandas as pd
+
+from whales.modules.data_files.data_files import DataFile
 from whales.modules.module import Module
 
 
@@ -6,16 +9,31 @@ class SemiSupervised(Module):
         super().__init__(logger)
         self.parameters = {
             "unlabeled_placeholder": -1,
+            "data": [],
+            "target": []
         }
 
-    def fit(self, data, target):
-        self.method_fit(data, target)
+    def fit(self):
+        data = self.parameters["data"]
+        if issubclass(data.__class__, DataFile):
+            inds = data.data.index
+            self.parameters["data"] = data.data.loc[inds].values
+            self.parameters["target"] = data.metadata["labels"].loc[inds].values
+        self.method_fit()
 
-    def method_fit(self, data, target):
+    def method_fit(self):
         raise NotImplementedError
 
-    def method_predict(self, data, target):
+    def method_predict(self):
         raise NotImplementedError
 
-    def predict(self, data, target):
-        return self.method_predict(data, target)
+    def predict(self):
+        data = self.parameters["data"]
+        if issubclass(data.__class__, DataFile):
+            inds = data.data.index
+            self.parameters["data"] = data.data.loc[inds].values
+            self.parameters["target"] = data.metadata["labels"].loc[inds].values
+        else:
+            raise ValueError("Data input should be a Data File")
+        res = self.method_predict()
+        return pd.Series(res, index=data.data.index)

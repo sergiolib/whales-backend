@@ -8,7 +8,7 @@ class TestFilesFoldDataSet:
     def test_add_remove_datafile(self):
         filename = get_file_name()
         df = AudioDataFile()
-        df.load_data(filename,
+        df.load(filename,
                      formatter=AIFFormatter())
         ds = OneDataFileOut()
         ds.add_data_file(df)
@@ -20,7 +20,7 @@ class TestFilesFoldDataSet:
         ds = OneDataFileOut()
         file_names = get_5_file_names()
         for filename in file_names:
-            ds.add_data_file(AudioDataFile().load_data(filename,
+            ds.add_data_file(AudioDataFile().load(filename,
                                                        formatter=AIFFormatter()))
         assert len(ds.datafiles) == 5
         training = ds.get_training()
@@ -37,7 +37,7 @@ class TestFilesFoldDataSet:
         ds.parameters["validation"] = False  # Disable validation set generation
         file_names = get_5_file_names()
         for filename in file_names:
-            ds.add_data_file(AudioDataFile().load_data(filename,
+            ds.add_data_file(AudioDataFile().load(filename,
                                                        formatter=AIFFormatter()))
         assert len(ds.datafiles) == 5
         training = ds.get_training()

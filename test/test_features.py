@@ -23,7 +23,7 @@ def generate_data(n, d):
 
 # def test_spectral_frames():
 #     file_name = get_file_name()
-#     df = AudioDataFile().load_data(file_name,
+#     df = AudioDataFile().load(file_name,
 #                                    formatter=AIFFormatter())
 #     data = df.data.values.ravel()
 #     data = data / abs(data).max()
@@ -33,84 +33,109 @@ def generate_data(n, d):
 #     }
 #     f = SpectralFrames()
 #     f.parameters = parameters
-#     t = f.transform(data=data)
+#     º vf.parameters["data"] = df
+#     t = f.transform()
 #     assert t.data.values.ndim == 2
 #     assert f.description != ""
 
 
-def test_mfcc():
-    file_name = get_file_name()
-    df = AudioDataFile().load_data(file_name,
-                                   formatter=AIFFormatter())
-    data = df.data.values.astype(float)
-    data = data / abs(data).max()
-    parameters = {
-        "win": 4096,
-        "step": 2048,
-        "to_db": True
-    }
-    f = MFCC()
-    f.parameters = parameters
-    t = f.transform(data=data)
-    #assert t.shape[0] == data.shape[0]
-    assert f.description != ""
-    assert t.data.values.ndim == 2
+# def test_mfcc():
+#     file_name = get_file_name()
+#     df = AudioDataFile().load(file_name,
+#                                    formatter=AIFFormatter())
+#     data = df.data.values.astype(float)
+#     data = data / abs(data).max()
+#     parameters = {
+#         "win": 4096,
+#         "step": 2048,
+#         "to_db": True
+#     }
+#     f = MFCC()
+#     f.parameters = parameters
+#     f.parameters["data"] = df
+#     t = f.transform()
+#     #assert t.shape[0] == data.shape[0]
+#     assert f.description != ""
+#     assert t.data.values.ndim == 2
 
 
 def test_identity():
-    data = generate_data(10000, 2500)
+    file_name = get_file_name()
+    df = AudioDataFile().load(file_name,
+                                   formatter=AIFFormatter())
     f = Identity()
-    t = f.transform(data=data)
-    np.testing.assert_allclose(data, t.data.values)
+    f.parameters["data"] = df
+    t = f.transform()
+    np.testing.assert_allclose(df.data.values.ravel(), t.data.values.ravel())
     assert f.description != ""
     assert t.data.values.ndim == 2
 
 
 def test_zero_crossing_rate():
-    data = generate_data(10000, 2500) - 0.5
+    file_name = get_file_name()
+    df = AudioDataFile().load(file_name,
+                                   formatter=AIFFormatter())
+    df.data -= df.data.mean()
     f = ZeroCrossingRate()
-    t = f.transform(data=data)
-    assert t.data.values.shape[0] == data.shape[0]
+    f.parameters["data"] = df
+    t = f.transform()
+    assert t.data.values.shape[0] == df.data.shape[0]
     assert t.data.values.shape[1] == 1
     assert f.description != ""
     assert t.data.values.ndim == 2
 
 
 def test_min():
-    data = generate_data(10000, 2500) - 0.5
+    file_name = get_file_name()
+    df = AudioDataFile().load(file_name,
+                                   formatter=AIFFormatter())
+    df.data -= df.data.mean()
     f = Min()
-    t = f.transform(data=data)
-    assert t.data.values.shape[0] == data.shape[0]
+    f.parameters["data"] = df
+    t = f.transform()
+    assert t.data.values.shape[0] == df.data.shape[0]
     assert t.data.values.shape[1] == 1
     assert f.description != ""
     assert t.data.values.ndim == 2
 
 
 def test_range():
-    data = generate_data(10000, 2500) - 0.5
+    file_name = get_file_name()
+    df = AudioDataFile().load(file_name,
+                                   formatter=AIFFormatter())
+    df.data -= df.data.mean()
     f = Range()
-    t = f.transform(data=data)
-    assert t.data.values.shape[0] == data.shape[0]
+    f.parameters["data"] = df
+    t = f.transform()
+    assert t.data.values.shape[0] == df.data.shape[0]
     assert t.data.values.shape[1] == 1
     assert f.description != ""
     assert t.data.values.ndim == 2
 
 
 def test_skewness():
-    data = generate_data(10000, 2500) - 0.5
+    file_name = get_file_name()
+    df = AudioDataFile().load(file_name,
+                                   formatter=AIFFormatter())
+    df.data -= df.data.mean()
     f = Skewness()
-    t = f.transform(data=data)
-    assert t.data.values.shape[0] == data.shape[0]
+    f.parameters["data"] = df
+    t = f.transform()
+    assert t.data.values.shape[0] == df.data.shape[0]
     assert t.data.values.shape[1] == 1
     assert f.description != ""
     assert t.data.values.ndim == 2
 
 
 def test_energy():
-    data = generate_data(10000, 2500) - 0.5
+    file_name = get_file_name()
+    df = AudioDataFile().load(file_name,
+                                   formatter=AIFFormatter())
+    df.data -= df.data.mean()
     f = Energy()
-    t = f.transform(data=data)
-    assert t.data.values.shape[0] == data.shape[0]
+    f.parameters["data"] = df
+    t = f.transform()
+    assert t.data.values.shape[0] == df.data.shape[0]
     assert t.data.values.shape[1] == 1
     assert f.description != ""
     assert t.data.values.ndim == 2

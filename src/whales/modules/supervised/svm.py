@@ -31,10 +31,13 @@ class SVM(Supervised, SKLearnSaveLoadMixin):
             "random_state": None,
         }
 
-    def method_fit(self, data, target):
+    def method_fit(self):
+        data = self.parameters["data"]
+        target = self.parameters["target"]
         self._model.fit(data, target)
 
-    def method_predict(self, data):
+    def method_predict(self):
+        data = self.parameters["data"]
         return self._model.predict(data)
 
 

@@ -24,7 +24,7 @@ class Pipeline(Module):
 
     def start(self):
         """Run the instructions series"""
-        self.logger.debug(f"Pipeline started")
+        self.logger.info(f"{self.__class__.__name__} pipeline started")
         # self.process = Process(target=self.instructions)
         # self.process.start()
         return self.instructions()

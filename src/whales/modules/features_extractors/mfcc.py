@@ -15,16 +15,17 @@ class MFCC(FeatureExtraction):
             "rate": 2000
         }
 
-    def method_transform(self, data):
+    def method_transform(self):
         """
         :param data: {numpy array} audio recording
         :return: {numpy array} Mel frequency cepstral coefficients
         """
-
+        data = self.parameters["data"]
         # Commented until output has correct shape (1 column per sample, multiple rows)
 
         sfr = SpectralFrames()
-        spectral_frames = sfr.transform(data=data)
+        sfr.parameters["data"] = data
+        spectral_frames = sfr.transform()
         melspect = librosa.feature.melspectrogram(S=spectral_frames.data.values.T)
         mfcc = librosa.feature.mfcc(
             S=melspect,
