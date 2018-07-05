@@ -12,21 +12,21 @@ class FeatureExtraction(Module):
         t0 = time.time()
         self.method_fit(data)
         tf = time.time()
-        self.logger.debug(f"Feature {self} fitting took {tf - t0} s")
+        self.logger.debug(f"Features extractor {self} fitting took {tf - t0} s")
 
     def method_fit(self, data):
-        raise NotImplementedError(f"Fitting method in {self} feature has not been implemented")
+        raise NotImplementedError(f"Fitting method in {self} features extractor has not been implemented")
 
     def transform(self, data):
         if self.needs_fitting and not self.is_fitted:
-            raise RuntimeError(f"Feature {self} has not been fitted")
+            raise RuntimeError(f"Features extractor {self} has not been fitted")
         t0 = time.time()
         out = self.method_transform(data)
         res = FeatureDataFile()
         res.data = pd.DataFrame(out, columns=[f"{self.short_name.lower()}_{i}" for i in range(out.shape[1])])
-        self.logger.debug(f"Transformed data with feature {self}")
+        self.logger.debug(f"Transformed data with features extractor {self}")
         tf = time.time()
-        self.logger.debug(f"Feature {self} fitting took {tf - t0} s")
+        self.logger.debug(f"Features extractor {self} transformation took {tf - t0} s")
         return res
 
     def method_transform(self, data):
