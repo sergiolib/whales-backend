@@ -132,9 +132,9 @@ class TestWhalesDetectorPipeline:
         }"""
         p.load_parameters(parameters)
         p.initialize()
-        results = p.start()
-        assert "features_extractors" in results
-        assert len(results["features_extractors"]) > 0
-        assert "performance_indicators" in results
-        assert len(results["performance_indicators"]) > 0
-        assert type(results["ml_method"]) is SVM
+        p.start()
+        assert "features_extractors" in p.results
+        assert len(p.results["features_extractors"]) > 0
+        assert "performance_indicators" in p.results
+        assert len(p.results["performance_indicators"]) > 0
+        assert type(p.results["ml_method"]) is SVM
