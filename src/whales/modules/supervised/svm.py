@@ -4,9 +4,9 @@ from whales.modules.sklearn_models import SKLearnSaveLoadMixin
 from whales.modules.supervised.supervised import Supervised
 
 
-class SVM(Supervised, SKLearnSaveLoadMixin):
+class SVM(SKLearnSaveLoadMixin, Supervised):
     def __init__(self, logger=None):
-        super().__init__(logger)
+        Supervised.__init__(self, logger)
 
         self.needs_fitting = True
 

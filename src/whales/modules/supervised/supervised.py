@@ -19,6 +19,7 @@ class Supervised(Module):
             self.parameters["data"] = data.data.loc[inds].values
             self.parameters["target"] = data.metadata["labels"].loc[inds].values
         self.method_fit()
+        self.is_fitted = True
 
     def method_fit(self):
         raise NotImplementedError
