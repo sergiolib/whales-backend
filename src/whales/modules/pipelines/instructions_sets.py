@@ -43,7 +43,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         lf = getters.get_available_labels_formatters()
 
         for p in labels_params:
-            self.logger.info(f"Setting labels in file p['labels_file']")
+            self.logger.info(f"Setting labels in file {p['labels_file']}")
             file_name = p["labels_file"]
             labels_formatter = lf[p["labels_formatter"]]()
             input_data.load_labels(file_name, labels_formatter, label="whale")
