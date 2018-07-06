@@ -36,7 +36,7 @@ class SlidingWindows(PreProcessing):
         finishing_times = []
 
         while True:  # Just to generate iteration
-            finishing_times.append(starting_times[-1] + offset - 1)
+            finishing_times.append(starting_times[-1] + offset)
             if finishing_times[-1] > data_file.start_time + data_file.duration:
                 break
             starting_times.append(finishing_times[-1] - overlap)
@@ -44,7 +44,9 @@ class SlidingWindows(PreProcessing):
             if b > data_file.end_time:
                 b = data_file.end_time
 
-            data_file.add_window(a, b)
+            if data_file.data.loc[a:b].count() > 0:
+                data_file.add_window(a, b)
+                # self.logger.debug(f"Added window from {a} to {b}")
         return data_file
 
 
