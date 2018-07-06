@@ -1,6 +1,7 @@
-import numpy as np
-from .feature_extraction import FeatureExtraction
 import librosa
+import numpy as np
+
+from .feature_extraction import FeatureExtraction
 
 
 class SpectralFrames(FeatureExtraction):
@@ -9,8 +10,7 @@ class SpectralFrames(FeatureExtraction):
         self.description = """Overlapped frames in frequency domain"""
         self.needs_fitting = False
         self.parameters = {
-            "win": 2048,  # {int} Sliding windows size. By default is 2024 samples
-            "step": 1024,  # {int] Number of points in the sliding windows. By default is 1024 samples
+            "sampling_rate": 2000.0,  # Hz
             "to_db": True  # {boolean} Set to True if you want return stft in decibel scale
         }
 
@@ -21,15 +21,15 @@ class SpectralFrames(FeatureExtraction):
         :return: {numpy array} Contains the short-time fourier transform in [0] axis and frame index in [1] axis
         """
         data = self.parameters["data"]
-        # Commented until output has correct shape (1 column per sample, multiple rows)
+        f = self.parameters["sampling_rate"]
 
-        # print(self.parameters)
-        stft = librosa.stft(data, self.parameters["win"],
-                            hop_length=self.parameters["step"], center=False)
-        spectrogram = np.abs(stft) ** 2
+        data[np.isnan(data)] = 0
+
+        spectrogram = np.abs(np.fft.rfft(data, axis=1)) ** 2
+        self.parameters["axis"] = np.fft.rfftfreq(data.shape[1], 1/f)
         if self.parameters["to_db"]:
-            spectrogram = librosa.amplitude_to_db(spectrogram, ref=np.max).T
+            spectrogram = 10 * np.log10(spectrogram)
         return spectrogram
 
 
-# PipelineMethod = SpectralFrames
+PipelineMethod = SpectralFrames

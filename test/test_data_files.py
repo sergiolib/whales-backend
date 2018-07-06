@@ -2,6 +2,10 @@ import sys, os
 import numpy as np
 import pytest
 
+from whales.modules.data_files.feature import FeatureDataFile, AudioSegments
+from whales.modules.features_extractors.energy import Energy
+from whales.modules.features_extractors.kurtosis import Kurtosis
+
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 
@@ -52,7 +56,7 @@ class TestAudioDataFiles:
     def test_load_labels_from_txt(self):
         filename_data, filename_labels = get_labeled_txt()
         df = AudioDataFile().load(filename_data,
-                                       formatter=AIFFormatter())
+                                  formatter=AIFFormatter())
         df.load_labels(filename_labels,
                        labels_formatter=TXTLabelsFormatter(),
                        label="whale")
@@ -139,3 +143,75 @@ class TestAudioDataFiles:
         big_df = AudioDataFile().concatenate(dfs)
         assert big_df.duration.seconds >= sum([d.duration.seconds for d in dfs])
 
+    def test_sampling_rate(self):
+        filename = get_file_name()
+        df = AudioDataFile()
+        assert df.sampling_rate is None
+        df.load(filename,
+                formatter=AIFFormatter())
+        assert df.sampling_rate > 0
+
+
+class TestFeatureDataFiles:
+    def load_feature_datafile(self):
+        filename_data, filename_labels = get_labeled_txt()
+        df = AudioDataFile().load(filename_data,
+                                  formatter=AIFFormatter())
+        df.load_labels(filename_labels,
+                       labels_formatter=TXTLabelsFormatter(),
+                       label="whale")
+        # Make 5 windows
+        st = df.start_time
+        step = df.duration / 5
+        out = AudioSegments()
+        for i in range(5):
+            df.add_window(st + i * step, st + (i + 1) * step)
+            out.add_segment(*df.get_window(i))
+        df = out
+
+        # Get features
+        f1 = Energy()
+        f1.parameters["data"] = df
+        f2 = Kurtosis()
+        f2.parameters["data"] = df
+        f1 = f1.transform()
+        f2 = f2.transform()
+
+        return FeatureDataFile().concatenate([f1, f2])
+
+    def test_save_load(self):
+        df = self.load_feature_datafile()
+
+        # Test repr
+        assert str(df) == "FeatureDataFile (5 samples x 2 columns)"
+        new_df = FeatureDataFile()
+        assert str(new_df) == "FeatureDataFile"
+
+        # Test copy
+        new_df = FeatureDataFile(df)
+        assert df.data.equals(new_df.data)
+
+        # Test save
+        df.save("tmp.h5", formatter=HDF5Formatter())
+
+        new_df = FeatureDataFile().load("tmp.h5", formatter=HDF5Formatter())
+        assert df.data.equals(new_df.data)
+
+    def test_segments_repr(self):
+        filename_data, filename_labels = get_labeled_txt()
+        df = AudioDataFile().load(filename_data,
+                                  formatter=AIFFormatter())
+        df.load_labels(filename_labels,
+                       labels_formatter=TXTLabelsFormatter(),
+                       label="whale")
+        # Make 5 windows
+        st = df.start_time
+        step = df.duration / 5
+        out = AudioSegments()
+        assert str(out) == "AudioSegments"
+
+        for i in range(5):
+            df.add_window(st + i * step, st + (i + 1) * step)
+            out.add_segment(*df.get_window(i))
+
+        assert str(out) == "AudioSegments (5 segments)"

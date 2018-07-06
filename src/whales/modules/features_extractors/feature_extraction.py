@@ -1,5 +1,6 @@
 import time
 import pandas as pd
+import numpy as np
 
 from whales.modules.data_files.data_files import DataFile
 from whales.modules.data_files.feature import FeatureDataFile
@@ -17,6 +18,8 @@ class FeatureExtraction(Module):
         if self.needs_fitting is False:
             return
         data = self.parameters["data"]
+        if not issubclass(data.__clas__, DataFile):
+            raise AttributeError("Data parameter should be a proper data file")
         if issubclass(data.__class__, DataFile):
             self.parameters["data"] = data.data.values
         if data.ndim == 1:
@@ -36,9 +39,11 @@ class FeatureExtraction(Module):
         if issubclass(data.__class__, DataFile):
             self.parameters["data"] = data.data.values
         if self.parameters["data"].ndim == 1:
-            self.parameters["data"] = self.parameters["data"].reshape(-1, 1)
+            self.parameters["data"] = self.parameters["data"].reshape(1, -1)
         t0 = time.time()
         out = self.method_transform()
+        if np.isnan(out).any():
+            raise RuntimeError(f"Feature {self} returned a NaN")
         res = FeatureDataFile()
         res.data = pd.DataFrame(out, columns=[f"{self.short_name.lower()}_{i}" for i in range(out.shape[1])])
         tf = time.time()

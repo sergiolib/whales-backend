@@ -95,6 +95,12 @@ class TestWhalesDetectorPipeline:
                 },
                 {
                     "method": "range"
+                },
+                {
+                    "method": "mfcc",
+                    "parameters": {
+                        "n_components": 25
+                    }
                 }
             ],
             "output_directory": "./demo",
@@ -103,15 +109,15 @@ class TestWhalesDetectorPipeline:
             },
             "pre_processing": [
                 {
+                    "method": "scale"
+                },
+                {
                     "method": "sliding_windows",
                     "parameters": {
                         "window_width": "60s",
                         "overlap": 0.3,
                         "labels_treatment": "mode"
                     }
-                },
-                {
-                    "method": "scale"
                 }
             ],
             "performance_indicators": [

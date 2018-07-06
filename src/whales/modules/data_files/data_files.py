@@ -38,7 +38,7 @@ class DataFile(Module):
         self._data = data
 
     def __repr__(self):
-        if hasattr(self, "data"):
+        if hasattr(self, "data") and self.data is not None:
             data = self.data
             n_samples = len(data)
             n_columns = data.shape[1]

@@ -1,5 +1,5 @@
 from whales.modules.features_extractors.feature_extraction import FeatureExtraction
-from whales.modules.features_extractors.spectral_frames import SpectralFrames
+from whales.modules.features_extractors.spectrogram import SpectralFrames
 import librosa
 
 
@@ -11,8 +11,8 @@ class MFCC(FeatureExtraction):
         self.parameters = {
             "win": 2048,
             "step": 1024,
-            "n_mfcc": 30,
-            "rate": 2000
+            "n_components": 30,
+            "sampling_rate": 2000.0
         }
 
     def method_transform(self):
@@ -21,19 +21,16 @@ class MFCC(FeatureExtraction):
         :return: {numpy array} Mel frequency cepstral coefficients
         """
         data = self.parameters["data"]
-        # Commented until output has correct shape (1 column per sample, multiple rows)
-
         sfr = SpectralFrames()
         sfr.parameters["data"] = data
-        spectral_frames = sfr.transform()
-        melspect = librosa.feature.melspectrogram(S=spectral_frames.data.values.T)
+        spectral_frames = sfr.method_transform()
+        melspect = librosa.feature.melspectrogram(S=spectral_frames.T)
         mfcc = librosa.feature.mfcc(
             S=melspect,
-            sr=self.parameters["rate"],
-            n_mfcc=self.parameters["n_mfcc"]
-        )
-        # print(mfcc.shape)
+            sr=self.parameters["sampling_rate"],
+            n_mfcc=self.parameters["n_components"]
+        ).T
         return mfcc
 
 
-# PipelineMethod = MFCC
+PipelineMethod = MFCC
