@@ -7,15 +7,23 @@ class FeatureDataFile(DataFile):
     def __init__(self, data_file=None, logger=None):
         super().__init__(logger=logger)
         self.metadata["labels"] = None
+        self.label_name = {}
 
         if data_file is not None:
             self._data = data_file.data
             self.metadata = data_file.metadata
 
+    @property
+    def name_label(self):
+        return {b: a for a, b in self.label_name.items()}
+
     def concatenate(self, datafiles_list):
         new_df = self.__class__()
 
         data = [df.data for df in datafiles_list]
+        label_name = [df.label_name for df in datafiles_list]
+        for l in label_name:
+            new_df.label_name.update(l)
         data = pd.concat(data, axis=1)
         new_df.data = data
         return new_df

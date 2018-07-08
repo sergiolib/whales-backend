@@ -186,7 +186,6 @@ class TrainSupervisedWhalesDetectorLoaders(SupervisedWhalesDetectorLoaders):
             self.load_labels,
             self.load_pre_processing,
             self.load_features_extractors,
-            self.load_performance_indicators,
             self.load_method,
             self.load_build_data_set,
             self.load_train_methods,

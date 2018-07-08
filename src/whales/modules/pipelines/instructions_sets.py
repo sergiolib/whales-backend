@@ -185,6 +185,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         for dset in available_sets:
             predicted_labels = None
             target_labels = None
+            label_names = {}
             for i in range(ns):
                 this_run_params = params[f"{i + 1}/{ns}"]
                 df = this_run_params[dset]
@@ -198,10 +199,12 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                         target_labels = df.metadata["labels"]
                     else:
                         target_labels = target_labels.append(df.metadata["labels"])
+                    label_names.update(df.label_name)
             for i in pi:
                 i.parameters = {
-                    "target": target_labels,
-                    "prediction": predicted_labels,
+                    "target": list(map(lambda x: label_names[x], target_labels)),
+                    "prediction": list(map(lambda x: label_names[x], predicted_labels)),
+                    "classes": [i[1] for i in label_names.items()]
                 }
                 self.logger.info(f"Performance indicators {i.__class__.__name__} of results from {dset}")
                 res = i.compute()
@@ -306,14 +309,8 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             # Train machine learning method
             params.update(self.train_machine_learning_method(params))
 
-            # Train performance indicators
-            # params.update(self.train_performance_indicators(params))
-
             # Store results
             results["1/1"] = params.copy()
-
-        # Compute performance indicators
-        self.compute_performance_indicators({**results, **params})
 
         # Save ml_method
         params.update(self.save_trained_ml_method(params))

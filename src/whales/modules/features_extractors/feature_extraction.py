@@ -46,6 +46,7 @@ class FeatureExtraction(Module):
             raise RuntimeError(f"Feature {self} returned a NaN")
         res = FeatureDataFile()
         res.data = pd.DataFrame(out, columns=[f"{self.short_name.lower()}_{i}" for i in range(out.shape[1])])
+        res.label_name = data.label_name
         tf = time.time()
         self.logger.debug(f"Features extractor {self} transformation took {tf - t0} s")
         return res

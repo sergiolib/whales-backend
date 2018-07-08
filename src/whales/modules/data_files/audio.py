@@ -7,14 +7,15 @@ class AudioDataFile(TimeSeriesDataFile):
         super().__init__(logger)
         self.description = "Audio data files"
         self.parameters = {
-            "label_name": {
-                # Dictionary that maps actual label index to the label name
-                0: "unlabeled"
-            },
             "number_of_windows": 0,
             "start_time": [],
             "end_time": [],
             "labels_treatment": "max",
+        }
+
+        self.label_name = {
+            # Dictionary that maps actual label index to the label name
+            0: "unlabeled"
         }
 
         self.cache_labeled_data = None
@@ -30,7 +31,7 @@ class AudioDataFile(TimeSeriesDataFile):
     @property
     def name_label(self):
         """Inverse of self.label_name"""
-        label_name = self.parameters["label_name"]
+        label_name = self.label_name
         return {b: a for a, b in label_name.items()}
 
     @property
@@ -72,7 +73,7 @@ class AudioDataFile(TimeSeriesDataFile):
 
     def load_labels(self, file_name, labels_formatter, label="whale"):
         self.labeled_data_changed = True
-        label_name = self.parameters["label_name"]
+        label_name = self.label_name
         if label not in self.name_label:
             label_name[min(list(label_name.keys())) + 1] = label
         labels = labels_formatter.read(file_name)
@@ -148,6 +149,7 @@ class AudioDataFile(TimeSeriesDataFile):
         series_list = []
         for df in datafiles_list:
             series_list.append(df.data)
+            new_df.label_name.update(df.label_name)
         new_df.data = pd.concat(series_list)
         new_df.data.sort_index(inplace=True)
         new_df.metadata["starts_stops"] = [(i.index[0], i.index[-1]) for i in series_list]

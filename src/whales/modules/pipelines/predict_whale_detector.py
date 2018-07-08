@@ -1,6 +1,6 @@
 from whales.modules.pipelines.instructions_sets import SupervisedWhalesInstructionSet
 from whales.modules.pipelines.loaders import PredictSupervisedWhalesDetectorLoaders
-from whales.modules.pipelines.parsers import TrainWhalesPipelineParser
+from whales.modules.pipelines.parsers import PredictWhalesPipelineParser
 from whales.modules.pipelines.pipeline import Pipeline
 
 
@@ -12,7 +12,7 @@ class PredictWhaleDetector(Pipeline):
 
         self.loaders = PredictSupervisedWhalesDetectorLoaders(pipeline=self,
                                                               instructions_set=SupervisedWhalesInstructionSet())
-        self.parser = TrainWhalesPipelineParser()
+        self.parser = PredictWhalesPipelineParser()
 
         self.parameters = {}
 
