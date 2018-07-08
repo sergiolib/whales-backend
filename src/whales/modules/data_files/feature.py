@@ -14,6 +14,7 @@ class FeatureDataFile(DataFile):
 
     def concatenate(self, datafiles_list):
         new_df = self.__class__()
+
         data = [df.data for df in datafiles_list]
         data = pd.concat(data, axis=1)
         new_df.data = data
@@ -24,6 +25,9 @@ class AudioSegments(FeatureDataFile):
     def __init__(self, data_file=None, logger=None):
         super().__init__(data_file=data_file, logger=logger)
 
+        self.modified_data = False
+        self.cached_data = None
+        self.added_segments = []
         self.parameters = {}
 
     def __repr__(self):
@@ -33,11 +37,18 @@ class AudioSegments(FeatureDataFile):
         return self.__class__.__name__
 
     def add_segment(self, data, label):
+        self.modified_data = True
         labels = self.metadata["labels"]
+        self.added_segments.append(data.reset_index(drop=True))
         if labels is None:
-            self.data = pd.DataFrame(data).T
             labels = pd.Series({data.name: label})
         else:
-            self.data = self.data.append(data, sort=False)
             labels = labels.append(pd.Series({data.name: label}))
         self.metadata["labels"] = labels
+
+    @property
+    def data(self):
+        if self.modified_data:
+            self.cached_data = pd.concat(self.added_segments, axis=1).T
+            self.modified_data = False
+        return self.cached_data

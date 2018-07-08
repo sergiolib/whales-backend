@@ -27,7 +27,7 @@ class Pipeline(Module):
         self.logger.info(f"{self.__class__.__name__} pipeline started")
         # self.process = Process(target=self.instructions)
         # self.process.start()
-        return self.instructions()
+        self.instructions()
 
     def load_parameters(self, parameters_file: str):
         dictionary = json.loads(parameters_file)
@@ -42,10 +42,10 @@ class Pipeline(Module):
             fun, param = ins
             param.update(self.results)
             if fun is None:
-                raise RuntimeError(f"Instruction {ins} is not defined")
+                raise RuntimeError(f"Instruction {fun} is not defined")
             instruction_results = fun(param)
             if type(instruction_results) is not dict:
-                raise RuntimeError(f"Instruction {ins} should return a dictionary")
+                raise RuntimeError(f"Instruction {fun} should return a dictionary")
             self.results.update(instruction_results)
         return self.results
 

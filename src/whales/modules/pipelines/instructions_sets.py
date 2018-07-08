@@ -2,6 +2,7 @@
 
 import logging
 import pandas as pd
+from os.path import join
 
 from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.data_files.feature import FeatureDataFile
@@ -16,6 +17,9 @@ class InstructionSet:
 
 
 class SupervisedWhalesInstructionSet(InstructionSet):
+    def set_params(self, params: dict):
+        return params
+
     def build_data_file(self, params:  dict):
         """"""
         available_data_files = getters.get_available_data_files()
@@ -87,7 +91,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
     def train_performance_indicators(self, params: dict):
         pi = params["performance_indicators"]
-        df = params["current_training_set"]
+        df = params["training_set"]
         for p in pi:
             self.logger.info(f"Training performance indicator {p.__class__.__name__} with {len(df.data)} data points")
             p.fit(df)
@@ -95,7 +99,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
     def train_features(self, params: dict):
         feat = params["features_extractors"]
-        df = params["current_training_set"]
+        df = params["training_set"]
         for f in feat:
             f.parameters["data"] = df
             self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
@@ -106,8 +110,10 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         feat = params["features_extractors"]
         current_set = {}
         transformed_set = {}
-        for s in ["training", "testing", "validation"]:
-            df = current_set[s] = params[f"current_{s}_set"]
+        available_sets = [i for i in params if i.endswith("_set")]
+        ret = {}
+        for s in available_sets:
+            df = current_set[s] = params[s]
             transformed_set[s] = []
             for f in feat:
                 f.parameters["data"] = df
@@ -122,11 +128,8 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             labels = current_set[s].metadata["labels"]
             transformed_set[s].metadata["labels"] = labels
 
-        return {
-            "transformed_training_set": transformed_set["training"],
-            "transformed_testing_set": transformed_set["testing"],
-            "transformed_validation_set": transformed_set["validation"],
-        }
+            ret["transformed_" + s] = transformed_set[s]
+        return ret
 
     def transform_pre_processing(self, params: dict):
         pre_processing_methods = params["pre_processing_methods"]
@@ -136,8 +139,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             pp.parameters["data"] = data
             self.logger.info(f"Applying pre processing {pp.__class__.__name__} to {len(data.data)} data points")
             data = pp.transform()
-        output_data = data
-        return {"input_data": output_data}
+        return {"input_data": data}
 
     def predict_machine_learning_method(self, params: dict):
         ml_method = params["ml_method"]
@@ -155,26 +157,29 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         pi = params["performance_indicators"]
         ns = params["number_of_sets"]
         results = {}
-        for dset in ["testing", "validation"]:
+        available_sets = [i for i in params if i.endswith("_set") and not i.startswith("transformed_")]
+        for dset in available_sets:
             predicted_labels = None
             target_labels = None
             for i in range(ns):
                 this_run_params = params[f"{i + 1}/{ns}"]
-                df = this_run_params[f"transformed_{dset}_set"]
-                if predicted_labels is None:
-                    predicted_labels = pd.Series(this_run_params[f"prediction_{dset}"])
-                else:
-                    predicted_labels = predicted_labels.append(pd.Series(this_run_params[f"prediction_{dset}"]))
-                if target_labels is None:
-                    target_labels = df.metadata["labels"]
-                else:
-                    target_labels = target_labels.append(df.metadata["labels"])
+                df = this_run_params[f"transformed_" + dset]
+                if "prediction_" + dset in this_run_params:
+                    if predicted_labels is None:
+                        predicted_labels = pd.Series(this_run_params[f"prediction_" + dset])
+                    else:
+                        predicted_labels = predicted_labels.append(pd.Series(this_run_params[f"prediction_" + dset]))
+                if "labels" in df.metadata:
+                    if target_labels is None:
+                        target_labels = df.metadata["labels"]
+                    else:
+                        target_labels = target_labels.append(df.metadata["labels"])
             for i in pi:
                 i.parameters = {
                     "target": target_labels,
                     "prediction": predicted_labels,
                 }
-                self.logger.info(f"Performance indicators {i.__class__.__name__} of results from {dset} set")
+                self.logger.info(f"Performance indicators {i.__class__.__name__} of results from {dset}")
                 res = i.compute()
                 results[f"pi_{i.__class__.__name__}_{dset}"] = res
         return results
@@ -200,11 +205,13 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         results = {}
 
         # Iterate on sets
-        for iteration, (current_training, current_testing, current_validation) in enumerate(data_generator):
+        for iteration, data in enumerate(data_generator):
+            training, testing, validation = data
+
             # Set current sets
-            params["current_training_set"] = current_training
-            params["current_testing_set"] = current_testing
-            params["current_validation_set"] = current_validation
+            params["training_set"] = training
+            params["testing_set"] = testing
+            params["validation_set"] = validation
 
             # Train features extractors
             params.update(self.train_features(params))
@@ -226,5 +233,40 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
         # Compute performance indicators
         params.update(self.compute_performance_indicators({**results, **params}))
+
+        return results
+
+    def train_methods(self, params: dict):
+        data_generator = params["data_generator"]
+
+        results = dict()
+
+        # Iterate on single set
+        for iteration, training in enumerate(data_generator):
+            # Set current sets
+            params["training_set"] = training
+
+            # Train features extractors
+            params.update(self.train_features(params))
+
+            # Transform data
+            params.update(self.transform_features(params))
+
+            # Train machine learning method
+            params.update(self.train_machine_learning_method(params))
+
+            # Train performance indicators
+            # params.update(self.train_performance_indicators(params))
+
+            # Store results
+            results["1/1"] = params.copy()
+
+        # Compute performance indicators
+        self.compute_performance_indicators({**results, **params})
+
+        # Save ml_method
+        ml_method = params["ml_method"]
+        dir = params["trained_models_directory"]
+        ml_method.save(join(dir, "ml_model.mdl"))
 
         return results

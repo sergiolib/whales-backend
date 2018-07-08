@@ -31,6 +31,10 @@ class Loader:
         makedirs(trained_models_directory, exist_ok=True)
         makedirs(results_directory, exist_ok=True)
         self.logger.debug("Data, models and results directories created")
+        self.pipeline.add_instruction(self.instructions_set.set_params,
+                                      {"main_directory": main_directory,
+                                       "trained_models_directory": trained_models_directory,
+                                       "results_directory": results_directory})
 
     def __repr__(self):
         ret = []
@@ -41,7 +45,7 @@ class Loader:
 
 class SupervisedWhalesDetectorLoaders(Loader):
     def __init__(self, pipeline, instructions_set, logger=None):
-        super().__init__(pipeline, instructions_set, logger)
+        Loader.__init__(self, pipeline, instructions_set, logger)
 
         self.loaders_execution_order += [  # Order matters!
             self.load_input_data,
@@ -162,6 +166,25 @@ class SupervisedWhalesDetectorLoaders(Loader):
     def load_train_execute_methods(self):
         self.pipeline.add_instruction(self.instructions_set.train_execute_methods, {})
 
+    def load_train_methods(self):
+        self.pipeline.add_instruction(self.instructions_set.train_methods, {})
+
     def load_build_data_set(self):
-        data_set_options = self.pipeline.parameters["data_set_type"]
+        data_set_options = {"method": "no_split", "parameters": {}}
         self.pipeline.add_instruction(self.instructions_set.build_data_set, {"ds_options": data_set_options})
+
+
+class TrainSupervisedWhalesDetectorLoaders(SupervisedWhalesDetectorLoaders):
+    def __init__(self, pipeline, instructions_set, logger=None):
+        Loader.__init__(self, pipeline, instructions_set, logger)
+
+        self.loaders_execution_order += [
+            self.load_input_data,
+            self.load_labels,
+            self.load_pre_processing,
+            self.load_features_extractors,
+            self.load_performance_indicators,
+            self.load_method,
+            self.load_build_data_set,
+            self.load_train_methods,
+        ]

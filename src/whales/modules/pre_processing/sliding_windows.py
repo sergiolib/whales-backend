@@ -32,21 +32,24 @@ class SlidingWindows(PreProcessing):
         offset = self.parameters["window_width"]
         offset = pd.Timedelta(offset)
         overlap = offset * self.parameters["overlap"]
-        starting_times = [t0]
+        starting_times = []
         finishing_times = []
 
-        while True:  # Just to generate iteration
-            finishing_times.append(starting_times[-1] + offset)
-            if finishing_times[-1] > data_file.start_time + data_file.duration:
-                break
-            starting_times.append(finishing_times[-1] - overlap)
+        starts_stops = data_file.metadata["starts_stops"]
+        for s, e in starts_stops:
+            starting_times += [s]
+            while True:
+                finishing_times.append(starting_times[-1] + offset)
+                if finishing_times[-1] > e:
+                    break
+                starting_times.append(finishing_times[-1] - overlap)
+
         for a, b in zip(starting_times, finishing_times):
             if b > data_file.end_time:
                 b = data_file.end_time
 
             if data_file.data.loc[a:b].count() > 0:
                 data_file.add_window(a, b)
-                # self.logger.debug(f"Added window from {a} to {b}")
         return data_file
 
 

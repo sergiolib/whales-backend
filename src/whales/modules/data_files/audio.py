@@ -18,6 +18,7 @@ class AudioDataFile(TimeSeriesDataFile):
         }
 
         self.cache_labeled_data = None
+        self.labeled_data_changed = False
 
         self.metadata["labels"] = []
 
@@ -56,8 +57,8 @@ class AudioDataFile(TimeSeriesDataFile):
             raise RuntimeError("No end time in unloaded data")
         return end_time
 
-    def get_labeled_data(self, clean=False):
-        if not clean and self.cache_labeled_data is not None:
+    def get_labeled_data(self):
+        if not self.labeled_data_changed:
             return self.cache_labeled_data
         data = super().data.to_frame()
         labels_list = [self.name_label["unlabeled"]] * len(data)
@@ -66,9 +67,11 @@ class AudioDataFile(TimeSeriesDataFile):
             labels_series[a:b] = l
         data["labels"] = labels_series
         self.cache_labeled_data = data
+        self.labeled_data_changed = False
         return data
 
     def load_labels(self, file_name, labels_formatter, label="whale"):
+        self.labeled_data_changed = True
         label_name = self.parameters["label_name"]
         if label not in self.name_label:
             label_name[min(list(label_name.keys())) + 1] = label
@@ -117,7 +120,6 @@ class AudioDataFile(TimeSeriesDataFile):
             else:
                 raise ValueError(f"labels_treatment parameter value not understood: {labels_treatment}")
         window = data.loc[st:en]
-        window.name += f"_{ind + 1}_{n}"
         if return_label:
             return window, label
         else:
@@ -143,13 +145,20 @@ class AudioDataFile(TimeSeriesDataFile):
     def concatenate(self, datafiles_list):
         """Add data_files from datafiles_list to new datafile and return it"""
         new_df = self.__class__()
+        series_list = []
         for df in datafiles_list:
-            if new_df._data is None:
-                new_df.data = df.data.copy()
-            else:
-                new_df.data = new_df.data.append(df.data)
+            series_list.append(df.data)
+        new_df.data = pd.concat(series_list)
         new_df.data.sort_index(inplace=True)
+        new_df.metadata["starts_stops"] = [(i.index[0], i.index[-1]) for i in series_list]
+        new_df.labeled_data_changed = True
         return new_df
+
+    def load(self, file_name: str, formatter):
+        res = super().load(file_name=file_name, formatter=formatter)
+        self.metadata["starts_stops"] = [(self.data.index[0], self.data.index[-1])]
+        self.labeled_data_changed = True
+        return res
 
 
 PipelineDataFile = AudioDataFile

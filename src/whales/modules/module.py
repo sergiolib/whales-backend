@@ -3,6 +3,8 @@ from os.path import splitext, join
 import logging
 import json
 
+from whales.utilities.json import WhalesEncoder, WhalesDecoder
+
 
 class Module:
     """Generic module with inheritable methods"""
@@ -32,16 +34,21 @@ class Module:
 
     def save_parameters(self, location):
         """Save parameters to disk"""
-        json.dump(self.parameters, open(location, 'w'))
+        parameters = self.parameters.copy()
+        parameters["module_type"] = str(self)
+        json.dump(self.parameters, open(location, 'w'), cls=WhalesEncoder)
 
     def load_parameters(self, location):
         """Load parameters from disk"""
-        self.parameters = json.load(open(location, 'r'))
+        self.parameters = json.load(open(location, 'r'), cls=WhalesDecoder)
+        if not self.parameters["type"] == str(self):
+            raise ValueError(f"Impossible to load a {self.parameters['type']} into a {str(self)} module")
+        del self.parameters["module_type"]
 
     def save(self, location):
         """Save module and its parameters"""
         loc, ext = splitext(location)
-        params_location = join(loc, "_parameters.json")
+        params_location = loc + "_parameters.json"
         self.save_parameters(params_location)
         if self.needs_fitting and self.is_fitted:
             self.method_save(location)
