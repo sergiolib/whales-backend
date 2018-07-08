@@ -21,6 +21,10 @@ class Supervised(Module):
         self.method_fit()
         self.is_fitted = True
 
+        # Clean for saving model
+        self.parameters["data"] = None
+        self.parameters["target"] = None
+
     def method_fit(self):
         raise NotImplementedError
 

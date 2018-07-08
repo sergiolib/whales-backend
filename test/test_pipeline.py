@@ -141,18 +141,93 @@ class TestWhalesDetectorPipeline:
         assert len(p.results["performance_indicators"]) > 0
         assert type(p.results["ml_method"]) is SVM
 
-    def test_realistic_whales_pipeline(self):
+    def test_train_whales_pipeline(self):
         parameters = """{
             "pipeline_type": "train_whale_detector",
             "input_data": [
                 {
-                    "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/ballena_bw_ruido_*.aif",
+                    "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/ballena_bw_ruido_001_PU145_20120209_091500.aif",
+                    "data_file": "audio",
+                    "formatter": "aif"
+                },
+                {
+                    "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/ballena_bw_ruido_002_PU145_20120330_121500.aif",
                     "data_file": "audio",
                     "formatter": "aif"
                 }
             ],
             "input_labels": [{
-                "labels_file": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/csv/ballena_bw_ruido_*.csv",
+                "labels_file": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/csv/ballena_bw_ruido_00*.csv",
+                "labels_formatter": "csv"
+            }],
+            "features_extractors": [
+                {
+                    "method": "skewness"
+                },
+                {
+                    "method": "range"
+                },
+                {
+                    "method": "mfcc",
+                    "parameters": {
+                        "n_components": 25
+                    }
+                }
+            ],
+            "output_directory": "./demo",
+            "pre_processing": [
+                {
+                    "method": "scale"
+                },
+                {
+                    "method": "sliding_windows",
+                    "parameters": {
+                        "window_width": "60s",
+                        "overlap": 0.3,
+                        "labels_treatment": "mode"
+                    }
+                }
+            ],
+            "performance_indicators": [
+                {
+                    "method": "accuracy"
+                }
+            ],
+            "machine_learning": {
+                "method": "svm",
+                "type": "supervised"
+            }
+        }"""
+        js_parameters = json.loads(parameters)
+        available_pipelines = get_available_pipeline_types()
+        assert "pipeline_type" in js_parameters
+        p = available_pipelines[js_parameters["pipeline_type"]]()
+        p.load_parameters(parameters)
+        p.initialize()
+        p.start()
+        assert "features_extractors" in p.results
+        assert len(p.results["features_extractors"]) > 0
+        assert "performance_indicators" in p.results
+        assert len(p.results["performance_indicators"]) > 0
+        assert type(p.results["ml_method"]) is SVM
+
+    def test_predict_whales_pipeline(self):
+        parameters = """{
+            "pipeline_type": "predict_whale_detector",
+            "input_data": [
+                {
+                    "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/ballena_bw_ruido_003_PU145_20120502_213000.aif",
+                    "data_file": "audio",
+                    "formatter": "aif"
+                },
+                {
+                    "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/ballena_bw_ruido_004_PU145_20120502_221500.aif",
+                    "data_file": "audio",
+                    "formatter": "aif"
+                }
+            ],
+            "input_labels": [{
+                "labels_file": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/csv/ballena_bw_ruido_00*.csv",
                 "labels_formatter": "csv"
             }],
             "features_extractors": [

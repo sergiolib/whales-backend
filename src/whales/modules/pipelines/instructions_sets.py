@@ -72,21 +72,18 @@ class SupervisedWhalesInstructionSet(InstructionSet):
     def set_machine_learning_method(self, params:  dict):
         return {"ml_method": params["ml_method"]}
 
-    def set_data_iterators(self, params: dict):
-        ds = params["data_set"]
-        return {
-            "training_sets": ds.get_training(),
-            "testing_sets": ds.get_testing(),
-            "validation_sets": ds.get_validation(),
-            "number_of_sets": ds.iterations
-        }
-
     def train_machine_learning_method(self, params: dict):
         ml_method = params["ml_method"]
         df = params["transformed_training_set"]
         self.logger.info(f"Training method {params['ml_method'].__class__.__name__} with {len(df.data)} data points")
         ml_method.parameters["data"] = df
         ml_method.fit()
+        return {}
+
+    def save_trained_ml_method(self, params: dict):
+        ml_method = params["ml_method"]
+        dir = params["trained_models_directory"]
+        ml_method.save(join(dir, "ml_model.mdl"))
         return {}
 
     def train_performance_indicators(self, params: dict):
@@ -104,6 +101,24 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             f.parameters["data"] = df
             self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
             f.fit()
+        return {}
+
+    def save_trained_features_extractors(self, params: dict):
+        feat = params["features_extractors"]
+        location = params["trained_models_directory"]
+        for i, f in enumerate(feat):
+            cur_loc = join(location, f'feature_{i}.mdl')
+            self.logger.info(f"Saving features extractor {f.__class__.__name__} to {cur_loc}")
+            f.save(cur_loc)
+        return {}
+
+    def load_trained_features_extractors(self, params: dict):
+        feat = params["features_extractors"]
+        location = params["trained_models_directory"]
+        for i, f in enumerate(feat):
+            cur_loc = join(location, f'feature_{i}.mdl')
+            self.logger.info(f"Loading features extractor {f.__class__.__name__} from {cur_loc}")
+            f.load(cur_loc)
         return {}
 
     def transform_features(self, params: dict):
@@ -144,29 +159,38 @@ class SupervisedWhalesInstructionSet(InstructionSet):
     def predict_machine_learning_method(self, params: dict):
         ml_method = params["ml_method"]
         results = {}
-        for dset in ["training", "testing", "validation"]:
-            df = params[f"transformed_{dset}_set"]
+        available_sets = [i for i in params if i.endswith("_set") and i.startswith("transformed_")]
+        for dset in available_sets:
+            df = params[dset]
             ml_method.parameters["data"] = df
-            msg = f"Predicting method {ml_method.__class__.__name__} to {len(df.data)} data points of {dset} set"
+            msg = f"Predicting method {ml_method.__class__.__name__} to {len(df.data)} data points of {dset}"
             self.logger.info(msg)
             prediction = ml_method.predict()
-            results[f"prediction_{dset}"] = prediction
+            results["prediction_" + dset] = prediction
         return results
+
+    def load_trained_machine_learning_method(self, params: dict):
+        ml_method = params["ml_method"]
+        location = params["trained_models_directory"]
+        cur_loc = join(location, 'ml_model.mdl')
+        self.logger.info(f"Loading machine learning method {ml_method} from {cur_loc}")
+        ml_method.load(cur_loc)
+        return {}
 
     def compute_performance_indicators(self, params: dict):
         pi = params["performance_indicators"]
         ns = params["number_of_sets"]
         results = {}
-        available_sets = [i for i in params if i.endswith("_set") and not i.startswith("transformed_")]
+        available_sets = [i for i in params if i.endswith("_set") and i.startswith("transformed_")]
         for dset in available_sets:
             predicted_labels = None
             target_labels = None
             for i in range(ns):
                 this_run_params = params[f"{i + 1}/{ns}"]
-                df = this_run_params[f"transformed_" + dset]
+                df = this_run_params[dset]
                 if "prediction_" + dset in this_run_params:
                     if predicted_labels is None:
-                        predicted_labels = pd.Series(this_run_params[f"prediction_" + dset])
+                        predicted_labels = pd.Series(this_run_params[dset])
                     else:
                         predicted_labels = predicted_labels.append(pd.Series(this_run_params[f"prediction_" + dset]))
                 if "labels" in df.metadata:
@@ -249,6 +273,9 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             # Train features extractors
             params.update(self.train_features(params))
 
+            # Save trained features extractors
+            params.update(self.save_trained_features_extractors(params))
+
             # Transform data
             params.update(self.transform_features(params))
 
@@ -265,8 +292,39 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         self.compute_performance_indicators({**results, **params})
 
         # Save ml_method
-        ml_method = params["ml_method"]
-        dir = params["trained_models_directory"]
-        ml_method.save(join(dir, "ml_model.mdl"))
+        params.update(self.save_trained_ml_method(params))
+
+        return results
+
+    def predict_methods(self, params: dict):
+        data_generator = params["data_generator"]
+
+        results = dict()
+
+        # Iterate on single set
+        for iteration, predicting_set in enumerate(data_generator):
+            # Set current sets
+            params["predicting_set"] = predicting_set
+
+            # Load trained features extractors
+            params.update(self.load_trained_features_extractors(params))
+
+            # Load trained machine learning method
+            params.update(self.load_trained_machine_learning_method(params))
+
+            # Transform data
+            params.update(self.transform_features(params))
+
+            # Train machine learning method
+            params.update(self.predict_machine_learning_method(params))
+
+            # Train performance indicators
+            # params.update(self.train_performance_indicators(params))
+
+            # Store results
+            results["1/1"] = params.copy()
+
+        # Compute performance indicators
+        self.compute_performance_indicators({**results, **params})
 
         return results

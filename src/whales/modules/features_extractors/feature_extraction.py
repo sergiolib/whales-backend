@@ -15,19 +15,19 @@ class FeatureExtraction(Module):
         }
 
     def fit(self):
-        if self.needs_fitting is False:
-            return
-        data = self.parameters["data"]
-        if not issubclass(data.__clas__, DataFile):
-            raise AttributeError("Data parameter should be a proper data file")
-        if issubclass(data.__class__, DataFile):
-            self.parameters["data"] = data.data.values
-        if data.ndim == 1:
-            self.parameters["data"] = data.reshape(-1, 1)
-        t0 = time.time()
-        self.method_fit()
-        tf = time.time()
-        self.logger.debug(f"Features extractor {self} fitting took {tf - t0} s")
+        if self.needs_fitting:
+            data = self.parameters["data"]
+            if not issubclass(data.__clas__, DataFile):
+                raise AttributeError("Data parameter should be a proper data file")
+            if issubclass(data.__class__, DataFile):
+                self.parameters["data"] = data.data.values
+            if data.ndim == 1:
+                self.parameters["data"] = data.reshape(-1, 1)
+            t0 = time.time()
+            self.method_fit()
+            tf = time.time()
+            self.logger.debug(f"Features extractor {self} fitting took {tf - t0} s")
+        self.parameters["data"] = None
 
     def method_fit(self):
         raise NotImplementedError(f"Fitting method in {self} features extractor has not been implemented")

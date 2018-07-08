@@ -36,13 +36,13 @@ class Module:
         """Save parameters to disk"""
         parameters = self.parameters.copy()
         parameters["module_type"] = str(self)
-        json.dump(self.parameters, open(location, 'w'), cls=WhalesEncoder)
+        json.dump(parameters, open(location, 'w'), cls=WhalesEncoder)
 
     def load_parameters(self, location):
         """Load parameters from disk"""
         self.parameters = json.load(open(location, 'r'), cls=WhalesDecoder)
-        if not self.parameters["type"] == str(self):
-            raise ValueError(f"Impossible to load a {self.parameters['type']} into a {str(self)} module")
+        if not self.parameters["module_type"] == str(self):
+            raise ValueError(f"Impossible to load a {self.parameters['module_type']} into a {str(self)} module")
         del self.parameters["module_type"]
 
     def save(self, location):
@@ -56,7 +56,7 @@ class Module:
     def load(self, location):
         """Load module and its parameters"""
         loc, ext = splitext(location)
-        params_location = join(loc, "_parameters.json")
+        params_location = loc + "_parameters.json"
         self.load_parameters(params_location)
         if self.needs_fitting:
             self.method_load(location)
