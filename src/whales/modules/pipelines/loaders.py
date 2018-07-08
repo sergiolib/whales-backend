@@ -170,7 +170,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
         self.pipeline.add_instruction(self.instructions_set.train_methods, {})
 
     def load_build_data_set(self):
-        data_set_options = {"method": "no_split", "parameters": {}}
+        data_set_options = self.pipeline.parameters["data_set_type"]
         self.pipeline.add_instruction(self.instructions_set.build_data_set, {"ds_options": data_set_options})
 
 
@@ -188,3 +188,7 @@ class TrainSupervisedWhalesDetectorLoaders(SupervisedWhalesDetectorLoaders):
             self.load_build_data_set,
             self.load_train_methods,
         ]
+
+    def load_build_data_set(self):
+        data_set_options = {"method": "no_split", "parameters": {}}
+        self.pipeline.add_instruction(self.instructions_set.build_data_set, {"ds_options": data_set_options})
