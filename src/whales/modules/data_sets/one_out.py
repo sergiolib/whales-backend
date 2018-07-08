@@ -1,3 +1,4 @@
+from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.data_files.data_files import DataFile
 from whales.modules.data_files.feature import AudioSegments
 from whales.modules.data_sets.data_sets import DataSet
@@ -30,7 +31,7 @@ class OneDataFileOut(DataSet):
                 curr_datafiles.pop(i + 1)  # i + 1 is validation
             if self.parameters["testing"]:
                 curr_datafiles.pop(i)  # i is testing
-            yield AudioSegments().concatenate(curr_datafiles)
+            yield AudioDataFile().concatenate(curr_datafiles)
 
     def get_testing(self):
         if not self.parameters["testing"]:
@@ -38,7 +39,7 @@ class OneDataFileOut(DataSet):
         for i in range(len(self.datafiles)):
             curr_datafiles = self.datafiles.copy()
             testing = curr_datafiles.pop(i)
-            yield AudioSegments().__class__().concatenate([testing])
+            yield AudioDataFile().__class__().concatenate([testing])
 
     def get_validation(self):
         if not self.parameters["validation"]:
@@ -46,7 +47,7 @@ class OneDataFileOut(DataSet):
         for i in list(range(len(self.datafiles) - 1)) + [-1]:
             curr_datafiles = self.datafiles.copy()
             validation = curr_datafiles.pop(i + 1)
-            yield AudioSegments().__class__().concatenate([validation])
+            yield AudioDataFile().__class__().concatenate([validation])
 
     def get_data_sets(self):
         if self.parameters["training"] and self.parameters["testing"] and self.parameters["validation"]:
@@ -57,4 +58,4 @@ class OneDataFileOut(DataSet):
                 yield tr, te
 
 
-PipelineDataSet = OneDataFileOut
+# PipelineDataSet = OneDataFileOut  # Commented out because returns AudioDataFiles. To look at in the future

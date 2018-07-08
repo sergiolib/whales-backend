@@ -205,7 +205,7 @@ class TestWhalesDetectorPipeline:
         assert type(p.results["ml_method"]) is SVM
 
     def test_predict_whales_pipeline(self):
-        # self.test_train_whales_pipeline()
+        self.test_train_whales_pipeline()
         parameters = """{
             "pipeline_type": "predict_whale_detector",
             "input_data": [

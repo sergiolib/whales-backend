@@ -68,10 +68,12 @@ def test_get_available_datafiles():
 def test_get_available_pipeline_types():
     """Test that get_available_pipeline_types function works correctly"""
     cl = get_available_pipeline_types()
-    assert "whale_detector" in cl
+    assert "train_whale_detector" in cl
+    assert "predict_whale_detector" in cl
+    assert "whale_detector" not in cl  # Deprecated, only for testing
 
 
 def test_get_available_datasets():
     """Test that get_available_datasets function works correctly"""
     ds = get_available_data_sets()
-    assert "one_out" in ds
+    assert "no_split" in ds

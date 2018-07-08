@@ -21,7 +21,7 @@ class TestFilesFoldDataSet:
         file_names = get_5_file_names()
         for filename in file_names:
             ds.add_data_file(AudioDataFile().load(filename,
-                                                       formatter=AIFFormatter()))
+                                                  formatter=AIFFormatter()))
         assert len(ds.datafiles) == 5
         training = ds.get_training()
         testing = ds.get_testing()

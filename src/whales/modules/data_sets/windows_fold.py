@@ -61,6 +61,7 @@ class WindowsFold(DataSet):
                     window.index -= window.index[0]
                     window.name = f"{df_ind}_{window_ind}"
                     df.add_segment(window, label)
+                    df.label_name.update(self.datafiles[df_ind].label_name)
             yield tr, te, val
 
     def add_data_file(self, data_file):

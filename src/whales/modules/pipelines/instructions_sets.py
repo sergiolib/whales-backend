@@ -125,7 +125,8 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         feat = params["features_extractors"]
         current_set = {}
         transformed_set = {}
-        available_sets = [i for i in params if i.endswith("_set")]
+        available_sets = [i
+                          for i in params if i.endswith("_set") and not "prediction_" in i and not "transformed_" in i]
         ret = {}
         for s in available_sets:
             df = current_set[s] = params[s]
@@ -267,6 +268,9 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             # Train features extractors
             params.update(self.train_features(params))
 
+            # Save trained features extractors
+            params.update(self.save_trained_features_extractors(params))
+
             # Transform data
             params.update(self.transform_features(params))
 
@@ -282,9 +286,17 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             # Store results
             results[f"{iteration + 1}/{number_of_sets}"] = params.copy()
 
+        # Save ml_method
+        params.update(self.save_trained_ml_method(params))
+
         # Compute performance indicators
         params.update(self.compute_performance_indicators({**results, **params}))
 
+        # Save performance indicators to disk
+        params.update(self.save_computed_performance_indicators(params))
+
+        # Save performance indicators results to disk
+        params.update(self.save_performance_indicators_results(params))
         return results
 
     def train_methods(self, params: dict):
