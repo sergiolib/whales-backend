@@ -3,6 +3,8 @@ from os.path import splitext, join
 import logging
 import json
 
+import pickle
+
 from whales.utilities.json import WhalesEncoder, WhalesDecoder
 
 

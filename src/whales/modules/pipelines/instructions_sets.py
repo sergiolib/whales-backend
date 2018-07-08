@@ -190,7 +190,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                 df = this_run_params[dset]
                 if "prediction_" + dset in this_run_params:
                     if predicted_labels is None:
-                        predicted_labels = pd.Series(this_run_params[dset])
+                        predicted_labels = pd.Series(this_run_params["prediction_" + dset])
                     else:
                         predicted_labels = predicted_labels.append(pd.Series(this_run_params[f"prediction_" + dset]))
                 if "labels" in df.metadata:
@@ -205,8 +205,32 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                 }
                 self.logger.info(f"Performance indicators {i.__class__.__name__} of results from {dset}")
                 res = i.compute()
-                results[f"pi_{i.__class__.__name__}_{dset}"] = res
+                results[f"{i.__class__.__name__}_{dset}"] = res
         return results
+
+    def save_computed_performance_indicators(self, params: dict):
+        pi = params["performance_indicators"]
+
+        # Save methods and results
+        location = params["trained_models_directory"]
+        for i, p in enumerate(pi):
+            cur_loc = join(location, f'{p}')
+            self.logger.info(f"Saving performance indicator {p}")
+            p.save(cur_loc)
+
+        return {}
+
+    def save_performance_indicators_results(self, params: dict):
+        pi = params["performance_indicators"]
+
+        # Save methods and results
+        location = params["results_directory"]
+        for i, p in enumerate(pi):
+            cur_loc = join(location, f'{p}')
+            self.logger.info(f"Saving performance indicator {p}")
+            p.save_results(cur_loc)
+
+        return {}
 
     def build_data_set(self, params: dict):
         self.logger.info("Building data set")
@@ -326,5 +350,11 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
         # Compute performance indicators
         self.compute_performance_indicators({**results, **params})
+
+        # Save performance indicators to disk
+        params.update(self.save_computed_performance_indicators(params))
+
+        # Save performance indicators results to disk
+        params.update(self.save_performance_indicators_results(params))
 
         return results
