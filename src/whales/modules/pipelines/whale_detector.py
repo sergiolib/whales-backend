@@ -4,11 +4,11 @@ from whales.modules.pipelines.parsers import WhalesPipelineParser
 from whales.modules.pipelines.pipeline import Pipeline
 
 
-class WhaleDetector(Pipeline):
+class WhaleDetectorForTests(Pipeline):
     def __init__(self, logger=None):
         super().__init__(logger)
 
-        self.description = "Whale Detector Pipeline"
+        self.description = "Whale Detector Pipeline that trains and predicts"
 
         self.loaders = SupervisedWhalesDetectorLoaders(pipeline=self, instructions_set=SupervisedWhalesInstructionSet())
         self.parser = WhalesPipelineParser()
@@ -16,4 +16,4 @@ class WhaleDetector(Pipeline):
         self.parameters = {}
 
 
-PipelineType = WhaleDetector
+# PipelineType = WhaleDetectorForTests

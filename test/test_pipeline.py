@@ -12,12 +12,12 @@ sys.path.insert(0, myPath + '/../')
 
 from glob import glob
 from whales.utilities.testing import get_5_file_names, get_labeled
-from whales.modules.pipelines.whale_detector import WhaleDetector
+from whales.modules.pipelines.whale_detector import WhaleDetectorForTests
 
 
 class TestWhalesDetectorPipeline:
     def test_missing_necessary_parameters(self):
-        p = WhaleDetector()
+        p = WhaleDetectorForTests()
 
         missing_parameters = """
     {
@@ -36,7 +36,7 @@ class TestWhalesDetectorPipeline:
             p.load_parameters(missing_parameters)
 
     def test_extra_parameters(self):
-        p = WhaleDetector()
+        p = WhaleDetectorForTests()
 
         extra_parameters = """
     {
@@ -57,7 +57,7 @@ class TestWhalesDetectorPipeline:
             p.load_parameters(extra_parameters)
 
     def test_wrong_parameters(self):
-        p = WhaleDetector()
+        p = WhaleDetectorForTests()
 
         wrong_format_parameters = """
     {
@@ -75,7 +75,7 @@ class TestWhalesDetectorPipeline:
 
     def test_whales_pipeline(self):
         _ = get_5_file_names()
-        p = WhaleDetector()
+        p = WhaleDetectorForTests()
         [os.remove(file) for file in glob("*.aif")]
         get_labeled()
         parameters = """{
