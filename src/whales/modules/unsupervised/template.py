@@ -2,38 +2,39 @@ from whales.modules.unsupervised.unsupervised import Unsupervised
 
 
 class Demo(Unsupervised):
-    def __init__(self, logger=None):  # There should be no parameters here
-        super().__init__(logger)
+    def __init__(self, logger=None):  # There should be no parameters here other that logger
+        super().__init__(logger)  # This is necessary
 
-        self.needs_fitting = True  # If True, the method can't be used without fitting it.
-        # Also, if set, Demo().fit() will be callable. Else, it won't.
+        self.needs_fitting = False  # # If True, the method can't be used without fitting it
+        # Also, if set, self.method_fit() is mandatory
 
-        self.description = "This is a demo"
+        self.description = "This is a template"
 
         # Class attributes go here
         # Eg.:
-        # self._model = sklearn.DBScan
+        # self._model = DARR()
 
         self.parameters = {
-            # Add parameters here
+            # Add parameters with default values here, as well as the inputs for training/predicting
         }
 
-    def method_fit(self, data):
-        # Here goes the training. Unsupervised takes only data input for training. Works only if needs_fitting is True
+    def method_fit(self):
+        # Here goes the training, depending on the method. Unupervised methods usually take in data
+        # for training. Works if needs_fitting is True.
         pass
 
-    def method_predict(self, data):
-        # Here goes the training. Unsupervised takes only data input for predicting
+    def method_predict(self):
+        # Here goes the prediction method. Unsupervised methods usually take in data input for predicting
         return None
 
     def method_load(self, location):
-        # Here go the methods for loading models. Parameters are always already loaded to a file ending with
-        # *_parameters.json. Works if needs_fitting is True.
+        # Here go the methods for loading models. Works if needs_fitting is True. Parameters are always already loaded
+        # to a file ending with _parameters.json.
         pass
 
     def method_save(self, location):
-        # Here go the methods for saving models. Parameters are always already saved to a file ending with
-        # *_parameters.json. Works if needs_fitting is True.
+        # Here go the methods for saving models. Works if needs_fitting is True. Parameters are always already saved to
+        # a file ending with _parameters.json.
         pass
 
 

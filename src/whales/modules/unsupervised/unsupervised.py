@@ -19,10 +19,10 @@ class Unsupervised(Module):
             self.parameters["data"] = data.data.loc[inds].values
         self.method_fit()
 
-    def method_fit(self, data):
+    def method_fit(self):
         raise NotImplementedError
 
-    def method_predict(self, data):
+    def method_predict(self):
         raise NotImplementedError
 
     def predict(self):

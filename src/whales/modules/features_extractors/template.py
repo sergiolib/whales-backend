@@ -2,31 +2,41 @@ from whales.modules.features_extractors.feature_extraction import FeatureExtract
 
 
 class Demo(FeatureExtraction):
-    def __init__(self, logger=None):  # There should be no parameters here
-        super().__init__(logger)
+    def __init__(self, logger=None):  # There should be no parameters here other than logger
+        super().__init__(logger)  # Always call super().__init__(logger) like this
 
         self.needs_fitting = True  # If True, the method can't be used without fitting it
-        # Also, if set, Demo().fit() will be callable. Else, it won't.
+        # Also, if set, self.method_fit() is mandatory
 
-        self.description = "This is a demo"
+        self.description = "This is a template"
 
-        # Class attributes go here
+        # Attributes go here
         # Eg.:
-        # self._model = MFCC()
+        # self._model = Model()
 
         self.parameters = {
-            # Add parameters here
+            # Add parameters and default values
         }
 
     def method_fit(self):
-        data = self.parameters["data"]
-        # Here goes the training, if needed. Features always use data, and sometimes other inputs
+        data = self.parameters["data"]  # Get data and maybe other parameters
+        # Here goes the training, if needed
         pass
 
     def method_transform(self):
-        data = self.parameters["data"]
-        # Here goes the training
+        data = self.parameters["data"]  # Get data and maybe other parameters
+        # Here goes the transforms
         return None
+
+    def method_load(self, location):
+        # Here goes the method for loading models. Works if needs_fitting is True. Parameters are always already loaded
+        # to a file ending with _parameters.json
+        pass
+
+    def method_save(self, location):
+        # Here goes the method for saving models. Works if needs_fitting is True. Parameters are always already saved to
+        # a file ending with _parameters.json
+        pass
 
 
 # PipelineMethod = Demo  # This line is mandatory to make the method loadable by the pipeline
