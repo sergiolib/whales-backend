@@ -29,10 +29,19 @@ class Pipeline(Module):
         # self.process.start()
         self.instructions()
 
-    def load_parameters(self, parameters_file: str):
-        dictionary = json.loads(parameters_file)
+    def load_parameters_from_json(self, json_string: str):
+        dictionary = json.loads(json_string)
+        self.load_parameters_from_dict(dictionary)
+
+    def load_parameters_from_dict(self, dictionary):
         self.parameters = self.parser.parse(dictionary)
         self.logger.debug("Parameters set")
+
+    def load_parameters(self, arg):
+        if type(arg) is str:
+            self.load_parameters_from_json(arg)
+        elif type(arg) is dict:
+            self.load_parameters_from_dict(arg)
 
     def instructions(self):
         while True:

@@ -4,7 +4,7 @@ sets"""
 import logging
 from glob import glob
 from os import makedirs
-from os.path import join
+from os.path import join, basename
 
 from whales.modules.pipelines.getters import get_available_features_extractors, get_available_performance_indicators, \
     get_available_pre_processing, get_available_supervised_methods, get_available_unsupervised_methods, \
@@ -94,10 +94,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
                 } for a, b in zip(labels_files, labels_formatters)]
                 real_labels += new_elems
             else:
-                real_labels.append({
-                    elem["labels_file"],
-                    elem["labels_formatter"]
-                })
+                real_labels.append(elem)
         self.pipeline.add_instruction(self.instructions_set.set_labels, {"input_labels": real_labels})
 
     def load_features_extractors(self):
@@ -109,7 +106,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
             feat_cls = available_features.get(method, None)
             if feat_cls is None:
                 raise ValueError(f"{method} is not a correct feature")
-            feat_fun = feat_cls()
+            feat_fun = feat_cls() # feat_fun.transform() -> datos
             feat_fun.parameters = parameters
             self.pipeline.add_instruction(self.instructions_set.add_features_extractor,
                                           {"features_extractor": feat_fun})
@@ -202,14 +199,28 @@ class PredictSupervisedWhalesDetectorLoaders(SupervisedWhalesDetectorLoaders):
 
         self.loaders_execution_order += [
             self.load_input_data,
+            self.load_labels,
             self.load_pre_processing,
             self.load_features_extractors,
             self.load_performance_indicators,
             self.load_method,
             self.load_build_data_set,
             self.load_predict_methods,
+            self.check_trained_models_exist,
         ]
 
     def load_build_data_set(self):
         data_set_options = {"method": "no_split", "parameters": {}}
         self.pipeline.add_instruction(self.instructions_set.build_data_set, {"ds_options": data_set_options})
+
+    def check_trained_models_exist(self):
+        output_directory = self.pipeline.parameters["output_directory"]
+        trained_models_directory = join(output_directory, "trained_models")
+        trained_models = glob(join(trained_models_directory, "*.mdl"))
+        trained_models = [basename(i) for i in trained_models]
+
+        # Check machine learning model
+        if "ml_model.mdl" not in trained_models:
+            self.logger.error(f"Could not find a machine learning trained model in {output_directory}. "
+                              f"You specify a trained model.")
+            raise ValueError("Prediction without a trained model")

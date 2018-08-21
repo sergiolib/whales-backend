@@ -8,13 +8,24 @@ class PredictWhaleDetector(Pipeline):
     def __init__(self, logger=None):
         super().__init__(logger)
 
-        self.description = "Pipeline for training a whale detector"
+        self.description = "Predictions pipeline"
 
         self.loaders = PredictSupervisedWhalesDetectorLoaders(pipeline=self,
                                                               instructions_set=SupervisedWhalesInstructionSet())
         self.parser = PredictWhalesPipelineParser()
 
-        self.parameters = {}
+        self.parameters = {
+            "output_directory": "",
+            "input_data": [],
+            "input_labels": [],
+            "pre_processing": [],
+            "features_extractors": [],
+            "performance_indicators": [],
+            "machine_learning": {},
+            "active": True,
+            "verbose": False,
+            "seed": 0,
+        }  # Default parameters for the API to serve
 
 
 PipelineType = PredictWhaleDetector

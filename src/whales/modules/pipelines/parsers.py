@@ -79,7 +79,6 @@ class WhalesPipelineParser(Parser):
         super().__init__(logger)
         self.expected_fields_types = {  # Ground truth for a good pipeline configuration
             "output_directory": str,
-            "pipeline_type": str,
             "input_data": [({
                                 "file_name": str,
                                 "data_file": str,
@@ -102,7 +101,6 @@ class TrainWhalesPipelineParser(Parser):
         super().__init__(logger)
         self.expected_fields_types = {  # Ground truth for a good pipeline configuration
             "output_directory": str,
-            "pipeline_type": str,
             "input_data": [({
                                 "file_name": str,
                                 "data_file": str,
@@ -117,12 +115,12 @@ class TrainWhalesPipelineParser(Parser):
             "seed": (int, "optional"),
         }
 
+
 class PredictWhalesPipelineParser(Parser):
     def __init__(self, logger=None):
         super().__init__(logger)
         self.expected_fields_types = {  # Ground truth for a good pipeline configuration
             "output_directory": str,
-            "pipeline_type": str,
             "input_data": [({
                                 "file_name": str,
                                 "data_file": str,
@@ -131,7 +129,7 @@ class PredictWhalesPipelineParser(Parser):
             "input_labels": [({"labels_file": str, "labels_formatter": str}, "optional")],
             "pre_processing": [({"method": str, "parameters": (dict, "optional")}, "optional")],
             "features_extractors": [({"method": str, "parameters": (dict, "optional")}, "optional")],
-            "performance_indicators": [({"method": str, "parameters": (dict, "optional")}, "optional")],
+            "performance_indicators": [{"method": str, "parameters": (dict, "optional")}],
             "machine_learning": {"type": str, "method": str, "parameters": (dict, "optional")},
             "active": (bool, "optional"),
             "verbose": (bool, "optional"),

@@ -10,6 +10,8 @@ class ConfusionMatrix(PerformanceIndicator):
     def __init__(self, logger=None):
         super().__init__(logger)
 
+        self.description = "Confusion matrix"
+
         self.parameters = {
             "target": None,
             "prediction": None,

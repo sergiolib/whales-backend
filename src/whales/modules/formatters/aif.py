@@ -13,6 +13,8 @@ class AIFFormatter(Formatter):
             "byteswapped": True,
             "dtype": np.short,
         }
+
+        self.description = "AIF files formatter"
     
     def read(self, filename: str):
         """Read the AIF file for the data and return a pandas Series"""

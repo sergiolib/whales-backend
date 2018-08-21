@@ -20,7 +20,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
     def set_params(self, params: dict):
         return params
 
-    def build_data_file(self, params:  dict):
+    def build_data_file(self, params: dict):
         """"""
         available_data_files = getters.get_available_data_files()
         available_formatters = getters.get_available_formatters()

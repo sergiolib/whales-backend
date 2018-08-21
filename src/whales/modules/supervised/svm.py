@@ -31,6 +31,11 @@ class SVM(SKLearnSaveLoadMixin, Supervised):
             "random_state": None,
         }
 
+        self.parameters_options = {
+            "decision_function_shape": ["ovr", "ovo"],
+            "kernel": ["linear", "poly", "rbf", "sigmoid"]
+        }
+
     def method_fit(self):
         data = self.parameters["data"]
         target = self.parameters["target"]

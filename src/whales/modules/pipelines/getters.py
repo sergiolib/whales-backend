@@ -313,7 +313,7 @@ def get_available_data_files():
     return res
 
 
-def get_available_pipeline_types():
+def get_available_pipelines():
     """Return the available pipelines types classes.
     :return: dict whose keys are pipelines types and whose values are the
     methods classes"""

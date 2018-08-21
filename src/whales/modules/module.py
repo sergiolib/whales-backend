@@ -17,6 +17,7 @@ class Module:
         self.needs_fitting = False  # Default
         self.is_fitted = False  # Default
         self._parameters = {}
+        self._parameters_options = {}
 
     @property
     def parameters(self):
@@ -25,6 +26,14 @@ class Module:
     @parameters.setter
     def parameters(self, parameters: dict):
         self._parameters.update(parameters)
+
+    @property
+    def parameters_options(self):
+        return self._parameters_options
+
+    @parameters_options.setter
+    def parameters_options(self, options: dict):
+        self._parameters_options.update(options)
 
     @property
     def short_name(self):

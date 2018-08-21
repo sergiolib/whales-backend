@@ -2,9 +2,11 @@ import sys, os
 import pytest
 from pandas._libs import json
 
-from whales.modules.pipelines.getters import get_available_pipeline_types
+from whales.modules.pipelines.getters import get_available_pipelines
 from whales.modules.pipelines.parsers import NecessaryParameterAbsentError, UnexpectedParameterError, \
     UnexpectedTypeError
+from whales.modules.pipelines.predict_whale_detector import PredictWhaleDetector
+from whales.modules.pipelines.train_whale_detector import TrainWhaleDetector
 from whales.modules.supervised.svm import SVM
 
 myPath = os.path.dirname(os.path.abspath(__file__))
@@ -19,18 +21,16 @@ class TestWhalesDetectorPipeline:
     def test_missing_necessary_parameters(self):
         p = WhaleDetectorForTests()
 
-        missing_parameters = """
-    {
-        "input_data": [
-            {
-                "file_name": "demo_data.h5",
-                "data_file": "time_series",
-                "formatter": "hdf5"
-            }
-        ],
-        "output_directory": "./demo"
-    }
-        """
+        missing_parameters = {
+            "input_data": [
+                {
+                    "file_name": "demo_data.h5",
+                    "data_file": "time_series",
+                    "formatter": "hdf5"
+                }
+            ],
+            "output_directory": "./demo"
+        }
 
         with pytest.raises(NecessaryParameterAbsentError):
             p.load_parameters(missing_parameters)
@@ -38,20 +38,17 @@ class TestWhalesDetectorPipeline:
     def test_extra_parameters(self):
         p = WhaleDetectorForTests()
 
-        extra_parameters = """
-    {
-        "pipeline_type": "whale_detector",
-        "input_data": [
-            {
-                "file_name": "demo_data.h5",
-                "data_file": "time_series",
-                "formatter": "hdf5"
-            }
-        ],
-        "output_directory": "./demo",
-        "temperature": 100.0
-    }
-        """
+        extra_parameters = {
+            "input_data": [
+                {
+                    "file_name": "demo_data.h5",
+                    "data_file": "time_series",
+                    "formatter": "hdf5"
+                }
+            ],
+            "output_directory": "./demo",
+            "temperature": 100.0
+        }
 
         with pytest.raises(UnexpectedParameterError):
             p.load_parameters(extra_parameters)
@@ -59,16 +56,13 @@ class TestWhalesDetectorPipeline:
     def test_wrong_parameters(self):
         p = WhaleDetectorForTests()
 
-        wrong_format_parameters = """
-    {
-        "pipeline_type": "whale_detector",
-        "output_directory": "./demo",
-        "input_data": [
-            "demo_data.hdf5",
-            "demo_data.aiff"
-        ]
-    }
-        """
+        wrong_format_parameters = {
+            "output_directory": "./demo",
+            "input_data": [
+                "demo_data.hdf5",
+                "demo_data.aiff"
+            ]
+        }
 
         with pytest.raises(UnexpectedTypeError):
             p.load_parameters(wrong_format_parameters)
@@ -78,8 +72,7 @@ class TestWhalesDetectorPipeline:
         p = WhaleDetectorForTests()
         [os.remove(file) for file in glob("*.aif")]
         get_labeled()
-        parameters = """{
-            "pipeline_type": "whale_detector",
+        parameters = {
             "input_data": [
                 {
                     "file_name": "*.aif",
@@ -131,7 +124,7 @@ class TestWhalesDetectorPipeline:
                 "method": "svm",
                 "type": "supervised"
             }
-        }"""
+        }
         p.load_parameters(parameters)
         p.initialize()
         p.start()
@@ -142,8 +135,7 @@ class TestWhalesDetectorPipeline:
         assert type(p.results["ml_method"]) is SVM
 
     def test_train_whales_pipeline(self):
-        parameters = """{
-            "pipeline_type": "train_whale_detector",
+        parameters = {
             "input_data": [
                 {
                     "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/ballena_bw_ruido_001_PU145_20120209_091500.aif",
@@ -192,11 +184,8 @@ class TestWhalesDetectorPipeline:
                 "method": "svm",
                 "type": "supervised"
             }
-        }"""
-        js_parameters = json.loads(parameters)
-        available_pipelines = get_available_pipeline_types()
-        assert "pipeline_type" in js_parameters
-        p = available_pipelines[js_parameters["pipeline_type"]]()
+        }
+        p = TrainWhaleDetector()
         p.load_parameters(parameters)
         p.initialize()
         p.start()
@@ -206,8 +195,7 @@ class TestWhalesDetectorPipeline:
 
     def test_predict_whales_pipeline(self):
         self.test_train_whales_pipeline()
-        parameters = """{
-            "pipeline_type": "predict_whale_detector",
+        parameters = {
             "input_data": [
                 {
                     "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/ballena_bw_ruido_003_PU145_20120502_213000.aif",
@@ -259,7 +247,7 @@ class TestWhalesDetectorPipeline:
                 {
                     "method": "confusion_matrix",
                     "parameters": {
-                        "plot": true
+                        "plot": True
                     }
                 }
             ],
@@ -267,11 +255,8 @@ class TestWhalesDetectorPipeline:
                 "method": "svm",
                 "type": "supervised"
             }
-        }"""
-        js_parameters = json.loads(parameters)
-        available_pipelines = get_available_pipeline_types()
-        assert "pipeline_type" in js_parameters
-        p = available_pipelines[js_parameters["pipeline_type"]]()
+        }
+        p = PredictWhaleDetector()
         p.load_parameters(parameters)
         p.initialize()
         p.start()
@@ -280,3 +265,70 @@ class TestWhalesDetectorPipeline:
         assert "performance_indicators" in p.results
         assert len(p.results["performance_indicators"]) > 0
         assert type(p.results["ml_method"]) is SVM
+
+    def test_predict_without_trained_model(self):
+        parameters = {
+            "input_data": [
+                {
+                    "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/ballena_bw_ruido_003_PU145_20120502_213000.aif",
+                    "data_file": "audio",
+                    "formatter": "aif"
+                },
+                {
+                    "file_name": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/audios/ballena_bw_ruido_004_PU145_20120502_221500.aif",
+                    "data_file": "audio",
+                    "formatter": "aif"
+                }
+            ],
+            "input_labels": [{
+                "labels_file": "/Volumes/HDD/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/csv/ballena_bw_ruido_00*.csv",
+                "labels_formatter": "csv"
+            }],
+            "features_extractors": [
+                {
+                    "method": "skewness"
+                },
+                {
+                    "method": "range"
+                },
+                {
+                    "method": "mfcc",
+                    "parameters": {
+                        "n_components": 25
+                    }
+                }
+            ],
+            "output_directory": "./demo_somewhere_new",
+            "pre_processing": [
+                {
+                    "method": "scale"
+                },
+                {
+                    "method": "sliding_windows",
+                    "parameters": {
+                        "window_width": "60s",
+                        "overlap": 0.3,
+                        "labels_treatment": "mode"
+                    }
+                }
+            ],
+            "performance_indicators": [
+                {
+                    "method": "accuracy"
+                },
+                {
+                    "method": "confusion_matrix",
+                    "parameters": {
+                        "plot": True
+                    }
+                }
+            ],
+            "machine_learning": {
+                "method": "svm",
+                "type": "supervised"
+            }
+        }
+        p = PredictWhaleDetector()
+        p.load_parameters(parameters)
+        with pytest.raises(ValueError):
+            p.initialize()

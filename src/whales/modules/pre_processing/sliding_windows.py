@@ -19,6 +19,11 @@ class SlidingWindows(PreProcessing):
             "labels_treatment": "max"
         }
 
+        self.parameters_options = {
+            "labels_treatment": ["max", "mode"],
+            "window_width": ["60s", "1000ms", "100ms"]
+        }
+
     def method_transform(self):
         data_file = self.parameters["data"]
         if type(data_file) not in [AudioDataFile]:
