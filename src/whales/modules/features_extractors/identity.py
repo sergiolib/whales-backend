@@ -9,7 +9,7 @@ class Identity(FeatureExtraction):
         self.parameters = {}
 
     def method_transform(self):
-        data = self.parameters["data"]
+        data = self.all_parameters["data"]
         # Caution with nan values as they cannot go into the classifiers
         return data
 

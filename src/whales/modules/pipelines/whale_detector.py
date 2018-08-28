@@ -10,8 +10,9 @@ class WhaleDetectorForTests(Pipeline):
 
         self.description = "Whale Detector Pipeline that trains and predicts"
 
-        self.loaders = SupervisedWhalesDetectorLoaders(pipeline=self, instructions_set=SupervisedWhalesInstructionSet())
-        self.parser = WhalesPipelineParser()
+        self.loaders = SupervisedWhalesDetectorLoaders(pipeline=self, instructions_set=SupervisedWhalesInstructionSet(),
+                                                       logger=self.logger)
+        self.parser = WhalesPipelineParser(logger=self.logger)
 
         self.parameters = {}
 

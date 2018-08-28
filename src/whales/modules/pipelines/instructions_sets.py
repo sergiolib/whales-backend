@@ -32,11 +32,11 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             file_name = elem["file_name"]
             data_file_name = elem["data_file"]
             formatter_name = elem["formatter"]
-            df = available_data_files[data_file_name]()
-            fmt = available_formatters[formatter_name]()
+            df = available_data_files[data_file_name](logger=self.logger)
+            fmt = available_formatters[formatter_name](logger=self.logger)
             df.load(file_name=file_name, formatter=fmt)
             dfs.append(df)
-        big_df = AudioDataFile().concatenate(dfs)
+        big_df = AudioDataFile(logger=self.logger).concatenate(dfs)
 
         return {"input_data": big_df}
 
@@ -49,7 +49,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         for p in labels_params:
             self.logger.info(f"Setting labels in file {p['labels_file']}")
             file_name = p["labels_file"]
-            labels_formatter = lf[p["labels_formatter"]]()
+            labels_formatter = lf[p["labels_formatter"]](logger=self.logger)
             input_data.load_labels(file_name, labels_formatter, label="whale")
 
         return {}
@@ -74,7 +74,10 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
     def train_machine_learning_method(self, params: dict):
         ml_method = params["ml_method"]
-        df = params["transformed_training_set"]
+        if "transformed_training_set" in params:
+            df = params["transformed_training_set"]
+        else:
+            df = params["input_data"]
         self.logger.info(f"Training method {params['ml_method'].__class__.__name__} with {len(df.data)} data points")
         ml_method.parameters["data"] = df
         ml_method.fit()
@@ -82,7 +85,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
     def save_trained_ml_method(self, params: dict):
         ml_method = params["ml_method"]
-        dir = params["trained_models_directory"]
+        dir = params["models_directory"]
         ml_method.save(join(dir, "ml_model.mdl"))
         return {}
 
@@ -95,26 +98,28 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         return {}
 
     def train_features(self, params: dict):
-        feat = params["features_extractors"]
-        df = params["training_set"]
-        for f in feat:
-            f.parameters["data"] = df
-            self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
-            f.fit()
+        if "features_extractors" in params:
+            feat = params["features_extractors"]
+            df = params["training_set"]
+            for f in feat:
+                f.parameters["data"] = df
+                self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
+                f.fit()
         return {}
 
     def save_trained_features_extractors(self, params: dict):
-        feat = params["features_extractors"]
-        location = params["trained_models_directory"]
-        for i, f in enumerate(feat):
-            cur_loc = join(location, f'feature_{i}.mdl')
-            self.logger.info(f"Saving features extractor {f.__class__.__name__} to {cur_loc}")
-            f.save(cur_loc)
+        if "features_extractors" in params:
+            feat = params["features_extractors"]
+            location = params["models_directory"]
+            for i, f in enumerate(feat):
+                cur_loc = join(location, f'feature_{i}.mdl')
+                self.logger.info(f"Saving features extractor {f.__class__.__name__} to {cur_loc}")
+                f.save(cur_loc)
         return {}
 
     def load_trained_features_extractors(self, params: dict):
         feat = params["features_extractors"]
-        location = params["trained_models_directory"]
+        location = params["models_directory"]
         for i, f in enumerate(feat):
             cur_loc = join(location, f'feature_{i}.mdl')
             self.logger.info(f"Loading features extractor {f.__class__.__name__} from {cur_loc}")
@@ -122,40 +127,45 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         return {}
 
     def transform_features(self, params: dict):
-        feat = params["features_extractors"]
-        current_set = {}
-        transformed_set = {}
-        available_sets = [i
-                          for i in params if i.endswith("_set") and not "prediction_" in i and not "transformed_" in i]
-        ret = {}
-        for s in available_sets:
-            df = current_set[s] = params[s]
-            transformed_set[s] = []
-            for f in feat:
-                f.parameters["data"] = df
-                msg = f"Transforming features extractor {f.__class__.__name__} with {len(df.data)} data points " \
-                      f"for {s} set"
-                self.logger.info(msg)
-                res = f.transform()
-                transformed_set[s].append(res)
+        if "features_extractors" in params:
+            feat = params["features_extractors"]
+            current_set = {}
+            transformed_set = {}
+            available_sets = [i
+                              for i in params if i.endswith("_set") and not "prediction_" in i and not "transformed_" in i]
+            ret = {}
+            for s in available_sets:
+                df = current_set[s] = params[s]
+                transformed_set[s] = []
+                for f in feat:
+                    f.parameters["data"] = df
+                    msg = f"Transforming features extractor {f.__class__.__name__} with {len(df.data)} data points " \
+                          f"for {s} set"
+                    self.logger.info(msg)
+                    res = f.transform()
+                    transformed_set[s].append(res)
 
-            transformed_set[s] = FeatureDataFile().concatenate(transformed_set[s])
-            transformed_set[s].data.index = current_set[s].data.index
-            labels = current_set[s].metadata["labels"]
-            transformed_set[s].metadata["labels"] = labels
+                transformed_set[s] = FeatureDataFile(logger=self.logger).concatenate(transformed_set[s])
+                transformed_set[s].data.index = current_set[s].data.index
+                labels = current_set[s].metadata["labels"]
+                transformed_set[s].metadata["labels"] = labels
 
-            ret["transformed_" + s] = transformed_set[s]
-        return ret
+                ret["transformed_" + s] = transformed_set[s]
+            return ret
+        return {}
 
     def transform_pre_processing(self, params: dict):
-        pre_processing_methods = params["pre_processing_methods"]
-        input_data = params["input_data"]
-        data = input_data
-        for pp in pre_processing_methods:
-            pp.parameters["data"] = data
-            self.logger.info(f"Applying pre processing {pp.__class__.__name__} to {len(data.data)} data points")
-            data = pp.transform()
-        return {"input_data": data}
+        if "pre_processing_methods" in params:
+            pre_processing_methods = params["pre_processing_methods"]
+            input_data = params["input_data"]
+            data = input_data
+            for pp in pre_processing_methods:
+                pp.parameters["data"] = data
+                self.logger.info(f"Applying pre processing {pp.__class__.__name__} to {len(data.data)} data points")
+                data = pp.transform()
+            return {"input_data": data}
+        else:
+            return {"input_data": params["input_data"]}
 
     def predict_machine_learning_method(self, params: dict):
         ml_method = params["ml_method"]
@@ -172,7 +182,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
     def load_trained_machine_learning_method(self, params: dict):
         ml_method = params["ml_method"]
-        location = params["trained_models_directory"]
+        location = params["models_directory"]
         cur_loc = join(location, 'ml_model.mdl')
         self.logger.info(f"Loading machine learning method {ml_method} from {cur_loc}")
         ml_method.load(cur_loc)
@@ -216,7 +226,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         pi = params["performance_indicators"]
 
         # Save methods and results
-        location = params["trained_models_directory"]
+        location = params["models_directory"]
         for i, p in enumerate(pi):
             cur_loc = join(location, f'{p}')
             self.logger.info(f"Saving performance indicator {p}")
@@ -241,7 +251,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         available_data_sets = getters.get_available_data_sets()
         method = params["ds_options"]["method"]
         ds_cls = available_data_sets[method]
-        ds = ds_cls()
+        ds = ds_cls(logger=self.logger)
         data_file = params["input_data"]
         ds.add_data_file(data_file)
         data_generator = ds.get_data_sets()

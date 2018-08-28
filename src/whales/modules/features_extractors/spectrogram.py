@@ -1,4 +1,3 @@
-import librosa
 import numpy as np
 
 from .feature_extraction import FeatureExtraction
@@ -20,7 +19,7 @@ class SpectralFrames(FeatureExtraction):
         :param data: {numpy array} with audio signal (waveform)
         :return: {numpy array} Contains the short-time fourier transform in [0] axis and frame index in [1] axis
         """
-        data = self.parameters["data"]
+        data = self.all_parameters["data"]
         f = self.parameters["sampling_rate"]
 
         data[np.isnan(data)] = 0

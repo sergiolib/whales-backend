@@ -6,11 +6,12 @@ class AudioDataFile(TimeSeriesDataFile):
     def __init__(self, data_file=None, logger=None):
         super().__init__(logger)
         self.description = "Audio data files"
-        self.parameters = {
-            "number_of_windows": 0,
+        self.parameters = {}
+        self.private_parameters = {
             "start_time": [],
             "end_time": [],
             "labels_treatment": "max",
+            "number_of_windows": 0,
         }
 
         self.label_name = {
@@ -27,6 +28,7 @@ class AudioDataFile(TimeSeriesDataFile):
             self._data = data_file.data.copy()
             self.metadata = data_file.metadata.copy()
             self.parameters = data_file.parameters
+            self.private_parameters = data_file.private_parameters
 
     @property
     def name_label(self):
@@ -93,7 +95,7 @@ class AudioDataFile(TimeSeriesDataFile):
 
     def get_windows_data_frame(self):
         sw = []
-        for i in range(self.parameters["number_of_windows"]):
+        for i in range(self.all_parameters["number_of_windows"]):
             window = self.get_window(i, return_label=False)
             window.index -= window.index[0]
             sw.append(window)
@@ -101,17 +103,17 @@ class AudioDataFile(TimeSeriesDataFile):
 
     def get_window(self, ind, return_label=True):
         data = super().data
-        if self.parameters["number_of_windows"] == 0:
+        if self.all_parameters["number_of_windows"] == 0:
             return data
-        n = len(self.parameters["start_time"])
+        n = len(self.all_parameters["start_time"])
         if ind > n:
             return None
-        st = self.parameters["start_time"][ind]
-        en = self.parameters["end_time"][ind]
+        st = self.all_parameters["start_time"][ind]
+        en = self.all_parameters["end_time"][ind]
         label = 0
         if return_label:
             labeled_data = self.get_labeled_data()
-            labels_treatment = self.parameters["labels_treatment"]
+            labels_treatment = self.all_parameters["labels_treatment"]
             if labels_treatment == "max":
                 label = int(labeled_data.loc[st:en].labels.max())
             elif labels_treatment == "mode":
@@ -130,13 +132,13 @@ class AudioDataFile(TimeSeriesDataFile):
         if not self.start_time <= start_time < end_time <= self.end_time:
             raise AttributeError("Times are not in a correct range")
 
-        self.parameters["number_of_windows"] += 1
-        self.parameters["start_time"].append(start_time)
-        self.parameters["end_time"].append(end_time)
+        self.all_parameters["number_of_windows"] += 1
+        self.all_parameters["start_time"].append(start_time)
+        self.all_parameters["end_time"].append(end_time)
 
     def __repr__(self):
         if hasattr(self, "data") and self.data is not None:
-            n_windows = self.parameters["number_of_windows"]
+            n_windows = self.all_parameters["number_of_windows"]
             if n_windows > 0:
                 return f"{self.__class__.__name__} ({n_windows} windows)"
             else:

@@ -16,16 +16,29 @@ class Module:
         self.logger = logger or logging.getLogger(str(self))
         self.needs_fitting = False  # Default
         self.is_fitted = False  # Default
-        self._parameters = {}
+        self._public_parameters = {}
+        self._private_parameters = {}
         self._parameters_options = {}
 
     @property
     def parameters(self):
-        return self._parameters
+        return self._public_parameters
 
     @parameters.setter
     def parameters(self, parameters: dict):
-        self._parameters.update(parameters)
+        self._public_parameters.update(parameters)
+
+    @property
+    def private_parameters(self):
+        return self._private_parameters
+
+    @private_parameters.setter
+    def private_parameters(self, parameters: dict):
+        self._private_parameters.update(parameters)
+
+    @property
+    def all_parameters(self):
+        return {**self.private_parameters, **self.parameters}
 
     @property
     def parameters_options(self):

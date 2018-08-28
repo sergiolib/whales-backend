@@ -3,6 +3,9 @@
 import json
 import logging
 from multiprocessing import Process
+from os import makedirs
+from os.path import join
+
 from whales.modules.module import Module
 import pprint
 
@@ -43,6 +46,24 @@ class Pipeline(Module):
         elif type(arg) is dict:
             self.load_parameters_from_dict(arg)
 
+        # Set up logger
+        if "logs_directory" in self.all_parameters:
+            makedirs(self.all_parameters["logs_directory"], exist_ok=True)
+            logger_path = join(self.all_parameters["logs_directory"], "messages.log")
+            hdlr = logging.FileHandler(logger_path, mode="a")
+            fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+            hdlr.setFormatter(fmt)
+            self.logger = logging.Logger(name=str(self))
+            self.logger.addHandler(hdlr)
+            if self.all_parameters.get("verbose", False):
+                self.logger.setLevel(logging.DEBUG)
+            else:
+                self.logger.setLevel(logging.INFO)
+
+            self.loaders.logger = self.logger
+
+        self.logger.info("Parameters loaded correctly")
+
     def instructions(self):
         while True:
             ins = self.next_instruction()
@@ -73,6 +94,7 @@ class Pipeline(Module):
     def initialize(self):
         for loader in self.loaders.loaders_execution_order:
             loader()
+        self.logger.info("Pipeline initialized")
 
     def __repr__(self):
         ret = []

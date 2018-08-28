@@ -38,8 +38,7 @@ class Parser:
                                                                        f"obtained {e.obtained} ",
                                                                        f"while expecting {e.expected}"))
                 except NecessaryParameterAbsentError as e:
-                    raise NecessaryParameterAbsentError(e.expected, f"Expecting parameter {e.expected} in "
-                                                                    f"{key} but couldn't find it")
+                    raise NecessaryParameterAbsentError(f"Expecting parameter {e} in {key} but couldn't find it")
             expected_types_keys = set(expected_types.keys())
             parameters_keys = set(parameters.keys())
             expected_types_not_in_parameters = expected_types_keys - parameters_keys
@@ -63,9 +62,8 @@ class UnexpectedTypeError(Exception):
 
 
 class NecessaryParameterAbsentError(Exception):
-    def __init__(self, expected, message=None):
+    def __init__(self, message=None):
         super().__init__(message)
-        self.expected = expected
 
 
 class UnexpectedParameterError(Exception):
@@ -78,7 +76,9 @@ class WhalesPipelineParser(Parser):
     def __init__(self, logger=None):
         super().__init__(logger)
         self.expected_fields_types = {  # Ground truth for a good pipeline configuration
-            "output_directory": str,
+            "results_directory": str,
+            "logs_directory": str,
+            "models_directory": str,
             "input_data": [({
                                 "file_name": str,
                                 "data_file": str,
@@ -100,7 +100,9 @@ class TrainWhalesPipelineParser(Parser):
     def __init__(self, logger=None):
         super().__init__(logger)
         self.expected_fields_types = {  # Ground truth for a good pipeline configuration
-            "output_directory": str,
+            "results_directory": str,
+            "logs_directory": str,
+            "models_directory": str,
             "input_data": [({
                                 "file_name": str,
                                 "data_file": str,
@@ -120,7 +122,9 @@ class PredictWhalesPipelineParser(Parser):
     def __init__(self, logger=None):
         super().__init__(logger)
         self.expected_fields_types = {  # Ground truth for a good pipeline configuration
-            "output_directory": str,
+            "results_directory": str,
+            "logs_directory": str,
+            "models_directory": str,
             "input_data": [({
                                 "file_name": str,
                                 "data_file": str,

@@ -7,18 +7,20 @@ from whales.modules.module import Module
 class SemiSupervised(Module):
     def __init__(self, logger=None):
         super().__init__(logger)
-        self.parameters = {
+        self.parameters = {}
+        self.private_parameters = {
             "unlabeled_placeholder": -1,
             "data": [],
             "target": []
         }
+        self.type = "semi_supervised"
 
     def fit(self):
-        data = self.parameters["data"]
+        data = self.all_parameters["data"]
         if issubclass(data.__class__, DataFile):
-            inds = data.data.index
-            self.parameters["data"] = data.data.loc[inds].values
-            self.parameters["target"] = data.metadata["labels"].loc[inds].values
+            labeled_data = data.get_labeled_data()
+            self.all_parameters["target"] = labeled_data["labels"]
+            self.all_parameters["data"] = labeled_data[labeled_data.columns.drop("labels")]
         self.method_fit()
 
     def method_fit(self):
@@ -28,11 +30,11 @@ class SemiSupervised(Module):
         raise NotImplementedError
 
     def predict(self):
-        data = self.parameters["data"]
+        data = self.all_parameters["data"]
         if issubclass(data.__class__, DataFile):
             inds = data.data.index
-            self.parameters["data"] = data.data.loc[inds].values
-            self.parameters["target"] = data.metadata["labels"].loc[inds].values
+            self.all_parameters["data"] = data.data.loc[inds].values
+            self.all_parameters["target"] = data.metadata["labels"].loc[inds].values
         else:
             raise ValueError("Data input should be a Data File")
         res = self.method_predict()

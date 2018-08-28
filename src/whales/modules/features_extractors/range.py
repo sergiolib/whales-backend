@@ -10,7 +10,7 @@ class Range(FeatureExtraction):
         self.parameters = {}
 
     def method_transform(self):
-        data = self.parameters["data"]
+        data = self.all_parameters["data"]
         min_value = np.nanmin(data, axis=1)
         max_value = np.nanmax(data, axis=1)
         range_value = max_value - min_value

@@ -10,7 +10,7 @@ class ZeroCrossingRate(FeatureExtraction):
         self.parameters = {}
 
     def method_transform(self):
-        data = self.parameters["data"]
+        data = self.all_parameters["data"]
         signs = np.sign(data)
         sign_change = np.array(signs[:, 1:] != signs[:, :-1]).astype(int)
         res = np.nansum(sign_change, axis=1) / data.shape[1]

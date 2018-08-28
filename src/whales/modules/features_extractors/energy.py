@@ -10,7 +10,7 @@ class Energy(FeatureExtraction):
         self.parameters = {}
 
     def method_transform(self):
-        data = self.parameters["data"]
+        data = self.all_parameters["data"]
         return np.nansum(data * data, axis=1).reshape(-1, 1)
 
 

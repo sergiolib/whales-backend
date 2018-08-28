@@ -9,7 +9,7 @@ class Scale(PreProcessing):
         self.parameters = {}
 
     def method_transform(self):
-        data_file = self.parameters["data"]
+        data_file = self.all_parameters["data"]
         if issubclass(data_file.__class__, AudioDataFile):
             out = data_file.data
             out -= out.mean()

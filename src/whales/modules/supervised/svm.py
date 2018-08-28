@@ -28,7 +28,6 @@ class SVM(SKLearnSaveLoadMixin, Supervised):
             "verbose": False,
             "max_iter": -1,
             "decision_function_shape": "ovr",
-            "random_state": None,
         }
 
         self.parameters_options = {
@@ -36,13 +35,21 @@ class SVM(SKLearnSaveLoadMixin, Supervised):
             "kernel": ["linear", "poly", "rbf", "sigmoid"]
         }
 
+        self.private_parameters = {
+            "random_state": None,
+        }
+
     def method_fit(self):
-        data = self.parameters["data"]
-        target = self.parameters["target"]
-        self._model.fit(data, target)
+        data = self.all_parameters["data"]
+        target = self.all_parameters["target"]
+        try:
+            self._model.fit(data, target)
+        except ValueError as e:
+            self.logger.error(e)
+            raise e
 
     def method_predict(self):
-        data = self.parameters["data"]
+        data = self.all_parameters["data"]
         return self._model.predict(data)
 
 

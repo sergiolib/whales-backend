@@ -13,18 +13,20 @@ class ConfusionMatrix(PerformanceIndicator):
         self.description = "Confusion matrix"
 
         self.parameters = {
-            "target": None,
-            "prediction": None,
             "normalized": False,
             "classes": None,
             "plot": False,
             "title": "Confusion matrix",
             "cmap": "Blues"
         }
+        self.private_parameters = {
+            "target": None,
+            "prediction": None,
+        }
 
     def method_compute(self):
-        target = np.array(self.parameters["target"])
-        prediction = np.array(self.parameters["prediction"])
+        target = np.array(self.all_parameters["target"])
+        prediction = np.array(self.all_parameters["prediction"])
         classes = self.parameters["classes"]
         if classes is None:
             classes = np.unique(target.tolist() + prediction.tolist())

@@ -28,6 +28,10 @@ class FeatureDataFile(DataFile):
         new_df.data = data
         return new_df
 
+    def get_labeled_data(self):
+        inds = self.data.index
+        return pd.concat({"data": self.data.loc[inds], "labels": self.metadata["labels"].loc[inds]}, axis=1)
+
 
 class AudioSegments(FeatureDataFile):
     def __init__(self, data_file=None, logger=None):

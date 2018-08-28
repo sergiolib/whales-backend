@@ -20,7 +20,7 @@ class MFCC(FeatureExtraction):
         :param data: {numpy array} audio recording
         :return: {numpy array} Mel frequency cepstral coefficients
         """
-        data = self.parameters["data"]
+        data = self.all_parameters["data"]
         sfr = SpectralFrames()
         sfr.parameters["data"] = data
         spectral_frames = sfr.method_transform()

@@ -17,24 +17,23 @@ class Loader:
         if self.logger is None:
             self.logger = logging.getLogger(self.__class__.__name__)
 
-        self.loaders_execution_order = [self.load_create_output_directory]
+        self.loaders_execution_order = [self.load_create_directories]
         self.pipeline = pipeline
         self.instructions_set = instructions_set
 
-    def load_create_output_directory(self):
-        """Initial loading output directory for saving logs, partial data files and results"""
-        main_directory = self.pipeline.parameters["output_directory"]
-        data_directory = join(main_directory, "data")
-        trained_models_directory = join(main_directory, "trained_models")
-        results_directory = join(main_directory, "results")
-        makedirs(data_directory, exist_ok=True)
-        makedirs(trained_models_directory, exist_ok=True)
+    def load_create_directories(self):
+        """Initial creation of output directories for saving logs, models and results"""
+        results_directory = self.pipeline.all_parameters["results_directory"]
+        logs_directory = self.pipeline.all_parameters["logs_directory"]
+        models_directory = self.pipeline.all_parameters["models_directory"]
         makedirs(results_directory, exist_ok=True)
+        makedirs(models_directory, exist_ok=True)
+        makedirs(logs_directory, exist_ok=True)
         self.logger.debug("Data, models and results directories created")
         self.pipeline.add_instruction(self.instructions_set.set_params,
-                                      {"main_directory": main_directory,
-                                       "trained_models_directory": trained_models_directory,
-                                       "results_directory": results_directory})
+                                      {"results_directory": results_directory,
+                                       "models_directory": models_directory,
+                                       "logs_directory": logs_directory})
 
     def __repr__(self):
         ret = []
@@ -61,7 +60,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
     def load_input_data(self):
         """Add instructions to load the input data. Also, use glob where stars are detected"""
         real_input_data = []
-        for elem in self.pipeline.parameters["input_data"]:
+        for elem in self.pipeline.all_parameters["input_data"]:
             if "file_name" in elem:
                 if "*" in elem["file_name"]:
                     # Glob detected
@@ -84,7 +83,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
     def load_labels(self):
         """Add instructions to load the labels. Also, use glob where stars are detected"""
         real_labels = []
-        for elem in self.pipeline.parameters["input_labels"]:
+        for elem in self.pipeline.all_parameters["input_labels"]:
             if "*" in elem["labels_file"]:
                 labels_files = glob(elem["labels_file"])
                 labels_formatters = [elem["labels_formatter"]] * len(labels_files)
@@ -100,13 +99,13 @@ class SupervisedWhalesDetectorLoaders(Loader):
     def load_features_extractors(self):
         """Add instructions to load the features extractors"""
         available_features = get_available_features_extractors()
-        for feat in self.pipeline.parameters["features_extractors"]:
+        for feat in self.pipeline.all_parameters["features_extractors"]:
             method = feat["method"]
             parameters = feat.get("parameters", {})
             feat_cls = available_features.get(method, None)
             if feat_cls is None:
                 raise ValueError(f"{method} is not a correct feature")
-            feat_fun = feat_cls() # feat_fun.transform() -> datos
+            feat_fun = feat_cls(logger=self.logger)  # feat_fun.transform() -> datos
             feat_fun.parameters = parameters
             self.pipeline.add_instruction(self.instructions_set.add_features_extractor,
                                           {"features_extractor": feat_fun})
@@ -114,13 +113,13 @@ class SupervisedWhalesDetectorLoaders(Loader):
     def load_pre_processing(self):
         """Add instructions to load the pre processing methods"""
         available_pre_processing = get_available_pre_processing()
-        for pp in self.pipeline.parameters["pre_processing"]:
+        for pp in self.pipeline.all_parameters["pre_processing"]:
             method = pp["method"]
             parameters = pp.get("parameters", {})
             feat_cls = available_pre_processing.get(method, None)
             if feat_cls is None:
                 raise ValueError(f"{method} is not a correct pre processing method")
-            feat_fun = feat_cls()
+            feat_fun = feat_cls(logger=self.logger)
             feat_fun.parameters = parameters
             self.pipeline.add_instruction(self.instructions_set.add_pre_processing_method, {"pp_method": feat_fun})
         self.pipeline.add_instruction(self.instructions_set.transform_pre_processing, {})
@@ -128,22 +127,22 @@ class SupervisedWhalesDetectorLoaders(Loader):
     def load_performance_indicators(self):
         """Add instructions to load the performance indicators"""
         available_pi = get_available_performance_indicators()
-        for pi in self.pipeline.parameters["performance_indicators"]:
+        for pi in self.pipeline.all_parameters["performance_indicators"]:
             method = pi["method"]
             parameters = pi.get("parameters", {})
             pi_cls = available_pi.get(method, None)
             if pi_cls is None:
                 raise ValueError(f"{method} is not a correct performance indicator")
-            pi_fun = pi_cls()
+            pi_fun = pi_cls(logger=self.logger)
             pi_fun.parameters = parameters
             self.pipeline.add_instruction(self.instructions_set.add_performance_indicator,
                                           {"performance_indicator": pi_fun})
 
     def load_method(self):
         """Add instructions to load the machine learning method"""
-        method_name = self.pipeline.parameters["machine_learning"]["method"]
-        method_type = self.pipeline.parameters["machine_learning"]["type"]
-        method_params = self.pipeline.parameters["machine_learning"].get("parameters", {})
+        method_name = self.pipeline.all_parameters["machine_learning"]["method"]
+        method_type = self.pipeline.all_parameters["machine_learning"]["type"]
+        method_params = self.pipeline.all_parameters["machine_learning"].get("parameters", {})
         if method_type == "supervised":
             available_methods = get_available_supervised_methods()
         elif method_type == "unsupervised":
@@ -155,7 +154,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
         ml_cls = available_methods.get(method_name, None)
         if ml_cls is None:
             raise ValueError(f"Machine learning method {method_name} not understood")
-        ml_fun = ml_cls()
+        ml_fun = ml_cls(logger=self.logger)
         ml_fun.parameters = method_params
         self.pipeline.add_instruction(self.instructions_set.set_machine_learning_method,
                                       {"ml_method": ml_fun})
@@ -170,7 +169,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
         self.pipeline.add_instruction(self.instructions_set.predict_methods, {})
 
     def load_build_data_set(self):
-        data_set_options = self.pipeline.parameters["data_set_type"]
+        data_set_options = self.pipeline.all_parameters["data_set_type"]
         self.pipeline.add_instruction(self.instructions_set.build_data_set, {"ds_options": data_set_options})
 
 
@@ -214,13 +213,12 @@ class PredictSupervisedWhalesDetectorLoaders(SupervisedWhalesDetectorLoaders):
         self.pipeline.add_instruction(self.instructions_set.build_data_set, {"ds_options": data_set_options})
 
     def check_trained_models_exist(self):
-        output_directory = self.pipeline.parameters["output_directory"]
-        trained_models_directory = join(output_directory, "trained_models")
-        trained_models = glob(join(trained_models_directory, "*.mdl"))
+        models_directory = self.pipeline.all_parameters["models_directory"]
+        trained_models = glob(join(models_directory, "*.mdl"))
         trained_models = [basename(i) for i in trained_models]
 
         # Check machine learning model
         if "ml_model.mdl" not in trained_models:
-            self.logger.error(f"Could not find a machine learning trained model in {output_directory}. "
+            self.logger.error(f"Could not find a machine learning trained model in {models_directory}. "
                               f"You specify a trained model.")
             raise ValueError("Prediction without a trained model")

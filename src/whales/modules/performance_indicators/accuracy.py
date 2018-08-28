@@ -8,14 +8,15 @@ class Accuracy(PerformanceIndicator):
 
         self.description = "Number of correct predictions divided in the total of predicted values"
 
-        self.parameters = {
+        self.private_parameters = {
             "target": None,
             "prediction": None,
         }
+        self.parameters = {}
 
     def method_compute(self):
-        target = np.array(self.parameters["target"])
-        prediction = np.array(self.parameters["prediction"])
+        target = np.array(self.all_parameters["target"])
+        prediction = np.array(self.all_parameters["prediction"])
         return np.count_nonzero(target == prediction) / len(target)
 
 

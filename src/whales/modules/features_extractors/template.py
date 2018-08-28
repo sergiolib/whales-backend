@@ -19,12 +19,12 @@ class Demo(FeatureExtraction):
         }
 
     def method_fit(self):
-        data = self.parameters["data"]  # Get data and maybe other parameters
+        data = self.all_parameters["data"]  # Get data and maybe other parameters
         # Here goes the training, if needed
         pass
 
     def method_transform(self):
-        data = self.parameters["data"]  # Get data and maybe other parameters
+        data = self.all_parameters["data"]  # Get data and maybe other parameters
         # Here goes the transforms
         return None
 

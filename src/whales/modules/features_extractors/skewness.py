@@ -11,7 +11,7 @@ class Skewness(FeatureExtraction):
         self.parameters = {}
 
     def method_transform(self):
-        data = self.parameters["data"]
+        data = self.all_parameters["data"]
         return scipy.stats.skew(data, axis=1, nan_policy="omit").reshape(-1, 1)
 
 
