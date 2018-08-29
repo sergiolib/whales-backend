@@ -19,8 +19,8 @@ class SemiSupervised(Module):
         data = self.all_parameters["data"]
         if issubclass(data.__class__, DataFile):
             labeled_data = data.get_labeled_data()
-            self.all_parameters["target"] = labeled_data["labels"]
-            self.all_parameters["data"] = labeled_data[labeled_data.columns.drop("labels")]
+            self.private_parameters["target"] = labeled_data["labels"]
+            self.private_parameters["data"] = labeled_data[labeled_data.columns.drop("labels")]
         self.method_fit()
 
     def method_fit(self):
@@ -33,8 +33,8 @@ class SemiSupervised(Module):
         data = self.all_parameters["data"]
         if issubclass(data.__class__, DataFile):
             inds = data.data.index
-            self.all_parameters["data"] = data.data.loc[inds].values
-            self.all_parameters["target"] = data.metadata["labels"].loc[inds].values
+            self.private_parameters["data"] = data.data.loc[inds].values
+            self.private_parameters["target"] = data.metadata["labels"].loc[inds].values
         else:
             raise ValueError("Data input should be a Data File")
         res = self.method_predict()

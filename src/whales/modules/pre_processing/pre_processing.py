@@ -11,9 +11,9 @@ class PreProcessing(Module):
     def transform(self):
         if self.needs_fitting and not self.is_fitted:
             raise RuntimeError(f"Pre processing {self} has not been fitted")
-        data = self.parameters["data"]
+        data = self.private_parameters["data"]
         if issubclass(data.__class__, DataFile):
-            self.parameters["data"] = data
+            self.private_parameters["data"] = data
         t0 = time.time()
         res = self.method_transform()
         tf = time.time()

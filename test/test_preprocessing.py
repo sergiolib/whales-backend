@@ -16,7 +16,7 @@ def test_scale():
     df = AudioDataFile().load(file_name,
                                    formatter=AIFFormatter())
     p = Scale()
-    p.parameters["data"] = df
+    p.private_parameters["data"] = df
     result = p.transform()
     assert p.description != ""
     assert type(result) is df.__class__
@@ -30,7 +30,7 @@ def test_sliding_windows():
     df = AudioDataFile()
     df.load(filename,
                  formatter=AIFFormatter())
-    p.parameters["data"] = df
+    p.private_parameters["data"] = df
     new_df = p.transform()
     new_df.get_windows_data_frame()
     assert p.description != ""

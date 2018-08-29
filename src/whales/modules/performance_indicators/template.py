@@ -21,12 +21,12 @@ class Demo(PerformanceIndicator):
         }
 
     def method_fit(self):
-        data = self.parameters["data"]  # Be sure to include the data in the parameters so you pass it to training
+        data = self.private_parameters["data"]  # Be sure to include the data in the parameters so you pass it to training
         # Here goes the training, if needed. Performance indicators usually don't get trained
         pass
 
     def method_compute(self):
-        data = self.parameters["data"]  # Be sure to include the data in the parameters so you pass it to training.
+        data = self.private_parameters["data"]  # Be sure to include the data in the parameters so you pass it to training.
         # Here goes the method computation.
         return None
 

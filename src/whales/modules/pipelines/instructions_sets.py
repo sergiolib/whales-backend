@@ -79,7 +79,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         else:
             df = params["input_data"]
         self.logger.info(f"Training method {params['ml_method'].__class__.__name__} with {len(df.data)} data points")
-        ml_method.parameters["data"] = df
+        ml_method.private_parameters["data"] = df
         ml_method.fit()
         return {}
 
@@ -102,7 +102,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             feat = params["features_extractors"]
             df = params["training_set"]
             for f in feat:
-                f.parameters["data"] = df
+                f.private_parameters["data"] = df
                 self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
                 f.fit()
         return {}
@@ -138,7 +138,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                 df = current_set[s] = params[s]
                 transformed_set[s] = []
                 for f in feat:
-                    f.parameters["data"] = df
+                    f.private_parameters["data"] = df
                     msg = f"Transforming features extractor {f.__class__.__name__} with {len(df.data)} data points " \
                           f"for {s} set"
                     self.logger.info(msg)
@@ -160,7 +160,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             input_data = params["input_data"]
             data = input_data
             for pp in pre_processing_methods:
-                pp.parameters["data"] = data
+                pp.private_parameters["data"] = data
                 self.logger.info(f"Applying pre processing {pp.__class__.__name__} to {len(data.data)} data points")
                 data = pp.transform()
             return {"input_data": data}
@@ -173,7 +173,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         available_sets = [i for i in params if i.endswith("_set") and i.startswith("transformed_")]
         for dset in available_sets:
             df = params[dset]
-            ml_method.parameters["data"] = df
+            ml_method.private_parameters["data"] = df
             msg = f"Predicting method {ml_method.__class__.__name__} to {len(df.data)} data points of {dset}"
             self.logger.info(msg)
             prediction = ml_method.predict()
@@ -212,7 +212,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                         target_labels = target_labels.append(df.metadata["labels"])
                     label_names.update(df.label_name)
             for i in pi:
-                i.parameters = {
+                i.private_parameters = {
                     "target": list(map(lambda x: label_names[x], target_labels)),
                     "prediction": list(map(lambda x: label_names[x], predicted_labels)),
                     "classes": [i[1] for i in label_names.items()]

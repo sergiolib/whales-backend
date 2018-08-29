@@ -19,7 +19,7 @@ class NoSplit(DataSet):
     def get_data_sets(self):
         tr = AudioSegments()
         for i, vi in enumerate(self.datafiles):
-            for j in range(vi.parameters["number_of_windows"]):
+            for j in range(vi.all_parameters["number_of_windows"]):
                 tr.label_name.update(vi.label_name)
                 window, label = vi.get_window(j)
                 window.name = f"{i}_{j}"

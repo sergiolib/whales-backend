@@ -22,7 +22,7 @@ class MFCC(FeatureExtraction):
         """
         data = self.all_parameters["data"]
         sfr = SpectralFrames()
-        sfr.parameters["data"] = data
+        sfr.private_parameters["data"] = data
         spectral_frames = sfr.method_transform()
         melspect = librosa.feature.melspectrogram(S=spectral_frames.T)
         mfcc = librosa.feature.mfcc(

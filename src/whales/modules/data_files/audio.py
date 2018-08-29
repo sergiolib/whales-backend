@@ -132,9 +132,9 @@ class AudioDataFile(TimeSeriesDataFile):
         if not self.start_time <= start_time < end_time <= self.end_time:
             raise AttributeError("Times are not in a correct range")
 
-        self.all_parameters["number_of_windows"] += 1
-        self.all_parameters["start_time"].append(start_time)
-        self.all_parameters["end_time"].append(end_time)
+        self.private_parameters["number_of_windows"] += 1
+        self.private_parameters["start_time"].append(start_time)
+        self.private_parameters["end_time"].append(end_time)
 
     def __repr__(self):
         if hasattr(self, "data") and self.data is not None:

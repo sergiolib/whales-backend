@@ -65,9 +65,9 @@ class Module:
     def load_parameters(self, location):
         """Load parameters from disk"""
         self.parameters = json.load(open(location, 'r'), cls=WhalesDecoder)
-        if not self.parameters["module_type"] == str(self):
-            raise ValueError(f"Impossible to load a {self.parameters['module_type']} into a {str(self)} module")
-        del self.parameters["module_type"]
+        if not self.all_parameters["module_type"] == str(self):
+            raise ValueError(f"Impossible to load a {self.all_parameters['module_type']} into a {str(self)} module")
+        del self.all_parameters["module_type"]
 
     def save(self, location):
         """Save module and its parameters"""

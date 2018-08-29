@@ -18,7 +18,7 @@ class Unsupervised(Module):
         data = self.all_parameters["data"]
         if issubclass(data.__class__, DataFile):
             inds = data.data.index
-            self.all_parameters["data"] = data.data.loc[inds].values
+            self.private_parameters["data"] = data.data.loc[inds].values
         self.method_fit()
 
     def method_fit(self):
@@ -31,7 +31,7 @@ class Unsupervised(Module):
         data = self.all_parameters["data"]
         if issubclass(data.__class__, DataFile):
             inds = data.data.index
-            self.all_parameters["data"] = data.data.loc[inds].values
+            self.private_parameters["data"] = data.data.loc[inds].values
         else:
             raise ValueError("Data input should be a Data File")
         res = self.method_predict()

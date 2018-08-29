@@ -21,14 +21,14 @@ class FeatureExtraction(Module):
             if not issubclass(data.__clas__, DataFile):
                 raise AttributeError("Data parameter should be a proper data file")
             if issubclass(data.__class__, DataFile):
-                self.all_parameters["data"] = data.data.values
+                self.private_parameters["data"] = data.data.values
             if data.ndim == 1:
-                self.all_parameters["data"] = data.reshape(-1, 1)
+                self.private_parameters["data"] = data.reshape(-1, 1)
             t0 = time.time()
             self.method_fit()
             tf = time.time()
             self.logger.debug(f"Features extractor {self} fitting took {tf - t0} s")
-        self.all_parameters["data"] = None
+        self.private_parameters["data"] = None
 
     def method_fit(self):
         raise NotImplementedError(f"Fitting method in {self} features extractor has not been implemented")
@@ -38,9 +38,9 @@ class FeatureExtraction(Module):
             raise RuntimeError(f"Features extractor {self} has not been fitted")
         data = self.all_parameters["data"]
         if issubclass(data.__class__, DataFile):
-            self.all_parameters["data"] = data.data.values
+            self.private_parameters["data"] = data.data.values
         if self.all_parameters["data"].ndim == 1:
-            self.all_parameters["data"] = self.all_parameters["data"].reshape(1, -1)
+            self.private_parameters["data"] = self.all_parameters["data"].reshape(1, -1)
         t0 = time.time()
         out = self.method_transform()
         if np.isnan(out).any():

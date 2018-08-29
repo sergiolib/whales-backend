@@ -19,14 +19,14 @@ class Supervised(Module):
         data = self.all_parameters["data"]
         if issubclass(data.__class__, DataFile):
             labeled_data = data.get_labeled_data()
-            self.all_parameters["target"] = labeled_data["labels"]
-            self.all_parameters["data"] = labeled_data[labeled_data.columns.drop("labels")]
+            self.private_parameters["target"] = labeled_data["labels"]
+            self.private_parameters["data"] = labeled_data[labeled_data.columns.drop("labels")]
         self.method_fit()
         self.is_fitted = True
 
         # Clean for saving model
-        self.all_parameters["data"] = None
-        self.all_parameters["target"] = None
+        self.private_parameters["data"] = None
+        self.private_parameters["target"] = None
 
     def method_fit(self):
         raise NotImplementedError
@@ -38,7 +38,7 @@ class Supervised(Module):
         data = self.all_parameters["data"]
         if issubclass(data.__class__, DataFile):
             inds = data.data.index
-            self.all_parameters["data"] = data.data.loc[inds].values
+            self.private_parameters["data"] = data.data.loc[inds].values
         else:
             raise ValueError("Data input should be a Data File")
         res = self.method_predict()

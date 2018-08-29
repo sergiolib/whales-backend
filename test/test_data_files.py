@@ -76,7 +76,7 @@ class TestAudioDataFiles:
         en2 = st2 + 4
 
         # No windows added yet
-        assert df.parameters["number_of_windows"] == 0
+        assert df.all_parameters["number_of_windows"] == 0
         d = df.get_window(0)
         assert all(d == df.data)
 
@@ -87,7 +87,7 @@ class TestAudioDataFiles:
 
         df.add_window(st1, en1)  # Length 6
         df.add_window(st2, en2)  # Length 4
-        assert df.parameters["number_of_windows"] == 2
+        assert df.all_parameters["number_of_windows"] == 2
         assert str(df) == "AudioDataFile (2 windows)"
 
     def test_get_window(self):
@@ -171,9 +171,9 @@ class TestFeatureDataFiles:
 
         # Get features
         f1 = Energy()
-        f1.parameters["data"] = df
+        f1.private_parameters["data"] = df
         f2 = Kurtosis()
-        f2.parameters["data"] = df
+        f2.private_parameters["data"] = df
         f1 = f1.transform()
         f2 = f2.transform()
 
