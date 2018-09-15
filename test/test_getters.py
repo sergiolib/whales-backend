@@ -1,6 +1,6 @@
 from whales.modules.pipelines.getters import get_available_features_extractors
 from whales.modules.pipelines.getters import get_available_pre_processing
-from whales.modules.pipelines.getters import get_available_pipeline_types
+from whales.modules.pipelines.getters import get_available_pipelines
 from whales.modules.pipelines.getters import get_available_formatters
 from whales.modules.pipelines.getters import get_available_labels_formatters
 from whales.modules.pipelines.getters import get_available_data_files
@@ -65,9 +65,9 @@ def test_get_available_datafiles():
     assert "audio" in cl
 
 
-def test_get_available_pipeline_types():
-    """Test that get_available_pipeline_types function works correctly"""
-    cl = get_available_pipeline_types()
+def test_get_available_pipelines():
+    """Test that get_available_pipelines function works correctly"""
+    cl = get_available_pipelines()
     assert "train_whale_detector" in cl
     assert "predict_whale_detector" in cl
     assert "whale_detector" not in cl  # Deprecated, only for testing
