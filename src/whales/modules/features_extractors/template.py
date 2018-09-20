@@ -1,3 +1,4 @@
+from whales.modules.data_files.feature import FeatureDataFile
 from whales.modules.features_extractors.feature_extraction import FeatureExtraction
 
 
@@ -26,7 +27,7 @@ class Demo(FeatureExtraction):
     def method_transform(self):
         data = self.all_parameters["data"]  # Get data and maybe other parameters
         # Here goes the transforms
-        return None
+        return FeatureDataFile()
 
     def method_load(self, location):
         # Here goes the method for loading models. Works if needs_fitting is True. Parameters are always already loaded

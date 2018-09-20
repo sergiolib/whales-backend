@@ -24,6 +24,10 @@ class FeatureDataFile(DataFile):
         label_name = [df.label_name for df in datafiles_list]
         for l in label_name:
             new_df.label_name.update(l)
+        ind = data[0].index
+        for d in data[1:]:
+            ind = ind.intersection(d.index)
+        data = [d.loc[ind] for d in data]
         data = pd.concat(data, axis=1)
         new_df.data = data
         return new_df

@@ -102,7 +102,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
             feat = params["features_extractors"]
             df = params["training_set"]
             for f in feat:
-                f.private_parameters["data"] = df
+                f.private_parameters["data_file"] = df
                 self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
                 f.fit()
         return {}
@@ -138,7 +138,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                 df = current_set[s] = params[s]
                 transformed_set[s] = []
                 for f in feat:
-                    f.private_parameters["data"] = df
+                    f.private_parameters["data_file"] = df
                     msg = f"Transforming features extractor {f.__class__.__name__} with {len(df.data)} data points " \
                           f"for {s} set"
                     self.logger.info(msg)
@@ -146,9 +146,8 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                     transformed_set[s].append(res)
 
                 transformed_set[s] = FeatureDataFile(logger=self.logger).concatenate(transformed_set[s])
-                transformed_set[s].data.index = current_set[s].data.index
                 labels = current_set[s].metadata["labels"]
-                transformed_set[s].metadata["labels"] = labels
+                transformed_set[s].metadata["labels"] = labels[transformed_set[s].data.index]
 
                 ret["transformed_" + s] = transformed_set[s]
             return ret
@@ -215,7 +214,8 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                 i.private_parameters = {
                     "target": list(map(lambda x: label_names[x], target_labels)),
                     "prediction": list(map(lambda x: label_names[x], predicted_labels)),
-                    "classes": [i[1] for i in label_names.items()]
+                    "classes": [i[1] for i in label_names.items()],
+                    "data_file": None
                 }
                 self.logger.info(f"Performance indicators {i.__class__.__name__} of results from {dset}")
                 res = i.compute()

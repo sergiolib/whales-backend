@@ -1,5 +1,7 @@
 import scipy.stats
+import pandas as pd
 
+from whales.modules.data_files.feature import FeatureDataFile
 from whales.modules.features_extractors.feature_extraction import FeatureExtraction
 
 
@@ -11,8 +13,12 @@ class Kurtosis(FeatureExtraction):
         self.parameters = {}
 
     def method_transform(self):
-        data = self.all_parameters["data"]
-        return scipy.stats.kurtosis(data, axis=1, nan_policy="omit").reshape(-1, 1)
+        data_file = self.all_parameters["data_file"]
+        data = data_file.data.values
+        res = scipy.stats.kurtosis(data, axis=1, nan_policy="omit").reshape(-1, 1)
+        f = FeatureDataFile()
+        f.data = pd.DataFrame(res, columns=["kurtosis"], index=data_file.data.index)
+        return f
 
 
 PipelineMethod = Kurtosis
