@@ -40,8 +40,9 @@ class SVM(SKLearnSaveLoadMixin, Supervised):
         }
 
     def method_fit(self):
-        data = self.all_parameters["data"]
-        target = self.all_parameters["target"]
+        data = self.all_parameters["data"].values
+        target = self.all_parameters["target"].values.ravel()
+
         try:
             self._model.fit(data, target)
         except ValueError as e:

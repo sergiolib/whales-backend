@@ -1,6 +1,5 @@
 from whales.utilities.testing import get_file_name, get_5_file_names
 from whales.modules.data_files.audio import AudioDataFile
-from whales.modules.data_sets.one_out import OneDataFileOut
 from whales.modules.formatters.aif import AIFFormatter
 
 

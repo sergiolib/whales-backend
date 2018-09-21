@@ -74,10 +74,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
     def train_machine_learning_method(self, params: dict):
         ml_method = params["ml_method"]
-        if "transformed_training_set" in params:
-            df = params["transformed_training_set"]
-        else:
-            df = params["input_data"]
+        df = params["training_set"]
         self.logger.info(f"Training method {params['ml_method'].__class__.__name__} with {len(df.data)} data points")
         ml_method.private_parameters["data"] = df
         ml_method.fit()
@@ -100,7 +97,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
     def train_features(self, params: dict):
         if "features_extractors" in params:
             feat = params["features_extractors"]
-            df = params["training_set"]
+            df = params["input_data"]
             for f in feat:
                 f.private_parameters["data_file"] = df
                 self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
@@ -129,28 +126,19 @@ class SupervisedWhalesInstructionSet(InstructionSet):
     def transform_features(self, params: dict):
         if "features_extractors" in params:
             feat = params["features_extractors"]
-            current_set = {}
-            transformed_set = {}
-            available_sets = [i
-                              for i in params if i.endswith("_set") and not "prediction_" in i and not "transformed_" in i]
+            transformed = []
             ret = {}
-            for s in available_sets:
-                df = current_set[s] = params[s]
-                transformed_set[s] = []
-                for f in feat:
-                    f.private_parameters["data_file"] = df
-                    msg = f"Transforming features extractor {f.__class__.__name__} with {len(df.data)} data points " \
-                          f"for {s} set"
-                    self.logger.info(msg)
-                    res = f.transform()
-                    transformed_set[s].append(res)
+            df = params["input_data"]
+            for f in feat:
+                f.private_parameters["data_file"] = df
+                msg = f"Transforming features extractor {f.__class__.__name__} with {len(df.data)} data points "
+                self.logger.info(msg)
+                res = f.transform()
+                transformed.append(res)
 
-                transformed_set[s] = FeatureDataFile(logger=self.logger).concatenate(transformed_set[s])
-                labels = current_set[s].metadata["labels"]
-                transformed_set[s].metadata["labels"] = labels[transformed_set[s].data.index]
-
-                ret["transformed_" + s] = transformed_set[s]
-            return ret
+            transformed = FeatureDataFile("all_features", logger=self.logger).concatenate(transformed)
+            transformed.metadata["labels"] = df.metadata["labels"]
+            return {params["data_set_name"]: transformed}
         return {}
 
     def transform_pre_processing(self, params: dict):
@@ -169,7 +157,7 @@ class SupervisedWhalesInstructionSet(InstructionSet):
     def predict_machine_learning_method(self, params: dict):
         ml_method = params["ml_method"]
         results = {}
-        available_sets = [i for i in params if i.endswith("_set") and i.startswith("transformed_")]
+        available_sets = [i for i in params if i.endswith("_set")]
         for dset in available_sets:
             df = params[dset]
             ml_method.private_parameters["data"] = df
@@ -189,191 +177,88 @@ class SupervisedWhalesInstructionSet(InstructionSet):
 
     def compute_performance_indicators(self, params: dict):
         pi = params["performance_indicators"]
-        ns = params["number_of_sets"]
         results = {}
-        available_sets = [i for i in params if i.endswith("_set") and i.startswith("transformed_")]
+        available_sets = [i for i in params if i.endswith("_set") and not i.startswith("prediction_")]
         for dset in available_sets:
-            predicted_labels = None
-            target_labels = None
             label_names = {}
-            for i in range(ns):
-                this_run_params = params[f"{i + 1}/{ns}"]
-                df = this_run_params[dset]
-                if "prediction_" + dset in this_run_params:
-                    if predicted_labels is None:
-                        predicted_labels = pd.Series(this_run_params["prediction_" + dset])
-                    else:
-                        predicted_labels = predicted_labels.append(pd.Series(this_run_params[f"prediction_" + dset]))
-                if "labels" in df.metadata:
-                    if target_labels is None:
-                        target_labels = df.metadata["labels"]
-                    else:
-                        target_labels = target_labels.append(df.metadata["labels"])
-                    label_names.update(df.label_name)
+            df = params[dset]
+            predicted_labels = pd.Series(params["prediction_" + dset])
+            target_labels = df.get_labeled_data()["labels"]
+            label_names.update(df.label_name)
             for i in pi:
                 i.private_parameters = {
-                    "target": target_labels,
-                    "prediction": predicted_labels,
+                    "target": target_labels.values.ravel(),
+                    "prediction": predicted_labels.values.ravel(),
                     "classes": [i[1] for i in label_names.items()],
                     "data_file": params["input_data"]
                 }
                 self.logger.info(f"Performance indicators {i.__class__.__name__} of results from {dset}")
-                res = i.compute()
-                results[f"{i.__class__.__name__}_{dset}"] = res
+                self.save_performance_indicators_results(f"{i.__class__.__name__}_{dset}", i, params)
         return results
 
-    def save_computed_performance_indicators(self, params: dict):
-        pi = params["performance_indicators"]
+    # def save_computed_performance_indicators(self, params: dict):
+    #     pi = params["performance_indicators"]
+    #
+    #     # Save methods and results
+    #     location = params["models_directory"]
+    #     for i, p in enumerate(pi):
+    #         cur_loc = join(location, f'{p}')
+    #         self.logger.info(f"Saving performance indicator {p}")
+    #         p.save(cur_loc)
+    #
+    #     return {}
 
-        # Save methods and results
-        location = params["models_directory"]
-        for i, p in enumerate(pi):
-            cur_loc = join(location, f'{p}')
-            self.logger.info(f"Saving performance indicator {p}")
-            p.save(cur_loc)
-
-        return {}
-
-    def save_performance_indicators_results(self, params: dict):
-        pi = params["performance_indicators"]
-
+    def save_performance_indicators_results(self, file_name, performance_indicator, params: dict):
         # Save methods and results
         location = params["results_directory"]
-        for i, p in enumerate(pi):
-            cur_loc = join(location, f'{p}')
-            self.logger.info(f"Saving performance indicator {p}")
-            p.save_results(cur_loc)
+        cur_loc = join(location, file_name)
+        self.logger.info(f"Saving performance indicator {performance_indicator}")
+        performance_indicator.save_results(cur_loc)
 
         return {}
 
-    def build_data_set(self, params: dict):
-        self.logger.info("Building data set")
-        available_data_sets = getters.get_available_data_sets()
-        method = params["ds_options"]["method"]
-        ds_cls = available_data_sets[method]
-        ds = ds_cls(logger=self.logger)
-        data_file = params["input_data"]
-        ds.add_data_file(data_file)
-        data_generator = ds.get_data_sets()
-        number_of_sets = ds.iterations
-        return {"data_generator": data_generator, "number_of_sets": number_of_sets}
+    def train_methods(self, params: dict):
+        params["data_set_name"] = "training_set"
 
-    def train_execute_methods(self, params: dict):
-        data_generator = params["data_generator"]
+        # Train features extractors
+        params.update(self.train_features(params))
 
-        number_of_sets = params["number_of_sets"]
+        # Save trained features extractors
+        params.update(self.save_trained_features_extractors(params))
 
-        # All iterations results dictionary
-        results = {}
+        # Transform data
+        params.update(self.transform_features(params))
 
-        # Iterate on sets
-        for iteration, data in enumerate(data_generator):
-            training, testing, validation = data
+        # Train machine learning method
+        params.update(self.train_machine_learning_method(params))
 
-            # Set current sets
-            params["training_set"] = training
-            params["testing_set"] = testing
-            params["validation_set"] = validation
-
-            # Train features extractors
-            params.update(self.train_features(params))
-
-            # Save trained features extractors
-            params.update(self.save_trained_features_extractors(params))
-
-            # Transform data
-            params.update(self.transform_features(params))
-
-            # Train machine learning method
-            params.update(self.train_machine_learning_method(params))
-
-            # Train performance indicators
-            # params.update(self.train_performance_indicators(params))
-
-            # Predict with machine learning method
-            params.update(self.predict_machine_learning_method(params))
-
-            # Store results
-            results[f"{iteration + 1}/{number_of_sets}"] = params.copy()
-
-        # Save ml_method
-        params.update(self.save_trained_ml_method(params))
+        # Predict using the training set for training score
+        params.update(self.predict_machine_learning_method(params))
 
         # Compute performance indicators
-        params.update(self.compute_performance_indicators({**results, **params}))
-
-        # Save performance indicators to disk
-        params.update(self.save_computed_performance_indicators(params))
-
-        # Save performance indicators results to disk
-        params.update(self.save_performance_indicators_results(params))
-        return results
-
-    def train_methods(self, params: dict):
-        data_generator = params["data_generator"]
-
-        results = dict()
-
-        # Iterate on single set
-        for iteration, training in enumerate(data_generator):
-            # Set current sets
-            params["training_set"] = training
-
-            # Train features extractors
-            params.update(self.train_features(params))
-
-            # Save trained features extractors
-            params.update(self.save_trained_features_extractors(params))
-
-            # Transform data
-            params.update(self.transform_features(params))
-
-            # Train machine learning method
-            params.update(self.train_machine_learning_method(params))
-
-            # Store results
-            results["1/1"] = params.copy()
+        params.update(self.compute_performance_indicators(params))
 
         # Save ml_method
         params.update(self.save_trained_ml_method(params))
 
-        return results
+        return {}
 
     def predict_methods(self, params: dict):
-        data_generator = params["data_generator"]
+        params["data_set_name"] = "testing_set"
 
-        results = dict()
+        # Load pretrained features
+        params.update(self.load_trained_features_extractors(params))
 
-        # Iterate on single set
-        for iteration, predicting_set in enumerate(data_generator):
-            # Set current sets
-            params["predicting_set"] = predicting_set
+        # Transform data
+        params.update(self.transform_features(params))
 
-            # Load trained features extractors
-            params.update(self.load_trained_features_extractors(params))
+        # Load pretrained model
+        params.update(self.load_trained_machine_learning_method(params))
 
-            # Load trained machine learning method
-            params.update(self.load_trained_machine_learning_method(params))
-
-            # Transform data
-            params.update(self.transform_features(params))
-
-            # Train machine learning method
-            params.update(self.predict_machine_learning_method(params))
-
-            # Train performance indicators
-            # params.update(self.train_performance_indicators(params))
-
-            # Store results
-            results["1/1"] = params.copy()
+        # Predict using the training set for training score
+        params.update(self.predict_machine_learning_method(params))
 
         # Compute performance indicators
-        self.compute_performance_indicators({**results, **params})
+        params.update(self.compute_performance_indicators(params))
 
-        # Save performance indicators to disk
-        params.update(self.save_computed_performance_indicators(params))
-
-        # Save performance indicators results to disk
-        params.update(self.save_performance_indicators_results(params))
-
-        return results
+        return {}

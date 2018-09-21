@@ -1,7 +1,8 @@
 from whales.modules.data_files.feature import FeatureDataFile
 from whales.modules.features_extractors.feature_extraction import FeatureExtraction
-from whales.modules.features_extractors.spectrogram import SpectralFrames
+import numpy as np
 import librosa
+from librosa.feature import mfcc
 import pandas as pd
 
 
@@ -12,6 +13,8 @@ class MFCC(FeatureExtraction):
         self.description = """Mel Frequency Cepstral Coefficients"""
         self.parameters = {
             "n_components": 30,
+            "window_size": 2000,
+            "overlap": 0.3
         }
 
     def method_transform(self):
@@ -20,17 +23,18 @@ class MFCC(FeatureExtraction):
         :return: {numpy array} Mel frequency cepstral coefficients
         """
         data_file = self.all_parameters["data_file"]
-        sfr = SpectralFrames()
-        sfr.private_parameters["data_file"] = data_file
-        spectral_frames = sfr.method_transform()
-        melspect = librosa.feature.melspectrogram(S=spectral_frames.data.values.T)
-        mfcc = librosa.feature.mfcc(
-            S=melspect,
-            sr=list(data_file.metadata["sampling_rate"].items())[0][1],
-            n_mfcc=self.parameters["n_components"]
-        ).T
-        fdf = FeatureDataFile()
-        fdf._data = pd.DataFrame(mfcc, index=spectral_frames.data.index, columns=[f"mfcc_{i}" for i in range(mfcc.shape[1])])
+        signal = data_file.data.values.astype(float)
+        win = self.parameters["window_size"]
+        step = int(win * (1.0 - self.parameters["overlap"]))
+        fs = data_file.sampling_rate
+        d = librosa.stft(signal, win, hop_length=step, center=False)
+        indexes = pd.date_range(data_file.data.index[0], data_file.data.index[-1], periods=len(signal)//step)
+        melspec = librosa.feature.melspectrogram(S=np.abs(d) ** 2)
+        n_coef = self.parameters["n_components"]
+        mfccf = mfcc(S=melspec, sr=fs, n_mfcc=n_coef)
+        fdf = FeatureDataFile("mfcc")
+        fdf.data = mfccf.T
+        fdf._data.index = indexes
         return fdf
 
 

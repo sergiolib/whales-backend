@@ -112,6 +112,7 @@ class TrainWhalesPipelineParser(Parser):
             "pre_processing": [({"method": str, "parameters": (dict, "optional")}, "optional")],
             "features_extractors": [({"method": str, "parameters": (dict, "optional")}, "optional")],
             "machine_learning": {"type": str, "method": str, "parameters": (dict, "optional")},
+            "performance_indicators": [{"method": str, "parameters": (dict, "optional")}],
             "active": (bool, "optional"),
             "verbose": (bool, "optional"),
             "seed": (int, "optional"),

@@ -50,3 +50,6 @@ def test_confusion_matrix():
     pi.save_results("./tmp")
     assert isfile("./tmp.png")
 
+    
+def test_labeled_spectrogram():
+    pass

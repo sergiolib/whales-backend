@@ -1,5 +1,3 @@
-import datetime
-
 import pandas as pd
 
 import librosa
@@ -8,7 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from matplotlib import dates
-from whales.modules.data_sets.no_split import NoSplit
 from whales.modules.performance_indicators.performance_indicator import PerformanceIndicator
 
 
@@ -35,28 +32,24 @@ class LabeledSpectrogram(PerformanceIndicator):
     def method_compute(self):
         df = self.private_parameters["data_file"]
         labels = self.private_parameters["prediction"]
-        ns = NoSplit()
-        ns.add_data_file(df)
-        ds = list(ns.get_data_sets())[0]
-        start_times = df.private_parameters["start_time"]
-        end_times = df.private_parameters["end_time"]
-        win_index_to_times = {index: (t0, tf) for index, t0, tf in zip(labels.index, start_times, end_times)}
-        trimmed_ds = ds.data.dropna()
-        ds = ds.data
-        deleted_ind = ds.index.difference(trimmed_ds.index).values
-        data = df.data.values.ravel().astype(float)
+        data = df.data.values.astype(float)
         D = librosa.amplitude_to_db(np.abs(librosa.stft(data)), ref=np.max)
         plt.figure()
-        axes = librosa.display.specshow(D, x_axis='time', y_axis='log', sr=df.sampling_rate, x_coords=pd.date_range(start_times[0], end_times[-1], periods=D.shape[1]))
+        inds = df.data.index
+        lab_inds = inds[np.linspace(0, len(inds), len(labels), dtype=int, endpoint=False)]
+        inds = inds[np.linspace(0, len(inds), D.shape[1], dtype=int, endpoint=False)]
+        axes = librosa.display.specshow(D, x_axis='time', y_axis='log', sr=df.sampling_rate, x_coords=inds)
         plt.colorbar(format='%+2.0f dB', ticks=np.linspace(-80, 0, 5))
         axes.set_title('Labeled spectrogram')
         axes.set_xlabel('Time')
         axes.set_ylabel('Frequency [Hz]')
         opacity = float(self.parameters["opacity"])
         labels_color = self.parameters["labels_color"]
-        for lv, l in win_index_to_times.items():
-            if lv not in deleted_ind and labels[lv] == 1:
-                axes.add_patch(Rectangle((l[0], 0), l[1] - l[0], 1000, zorder=10, facecolor=labels_color, alpha=opacity))
+        labels = pd.Series(labels, index=lab_inds)
+        width = lab_inds[1] - lab_inds[0]
+        for i, l in enumerate(labels):
+            if l is True:
+                axes.add_patch(Rectangle((lab_inds[i], 0), width, 1000, zorder=10, facecolor=labels_color, alpha=opacity))
         formatter = dates.DateFormatter('%Y-%m-%d %H:%M:%S')
         axes.xaxis.set_major_formatter(formatter)
         for label in axes.get_xmajorticklabels():

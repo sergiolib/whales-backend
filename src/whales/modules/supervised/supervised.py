@@ -17,10 +17,9 @@ class Supervised(Module):
 
     def fit(self):
         data = self.all_parameters["data"]
-        if issubclass(data.__class__, DataFile):
-            labeled_data = data.get_labeled_data()
-            self.private_parameters["target"] = labeled_data["labels"]
-            self.private_parameters["data"] = labeled_data[labeled_data.columns.drop("labels")]
+        labeled_data = data.get_labeled_data()
+        self.private_parameters["target"] = labeled_data["labels"]
+        self.private_parameters["data"] = labeled_data["data"]
         self.method_fit()
         self.is_fitted = True
 

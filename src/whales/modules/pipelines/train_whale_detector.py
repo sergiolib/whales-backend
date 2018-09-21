@@ -21,6 +21,7 @@ class TrainWhaleDetector(Pipeline):
             "pre_processing": [],
             "features_extractors": [],
             "machine_learning": {},
+            "performance_indicators": [],
             "verbose": True,
         }  # Default parameters for the API to serve
 

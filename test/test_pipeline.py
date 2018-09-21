@@ -29,7 +29,9 @@ class TestWhalesDetectorPipeline:
                     "formatter": "hdf5"
                 }
             ],
-            "output_directory": "./demo"
+            "results_directory": "./demo",
+            "models_directory": "./demo",
+            "models_directory": "./demo"
         }
 
         with pytest.raises(NecessaryParameterAbsentError):

@@ -168,10 +168,6 @@ class SupervisedWhalesDetectorLoaders(Loader):
     def load_predict_methods(self):
         self.pipeline.add_instruction(self.instructions_set.predict_methods, {})
 
-    def load_build_data_set(self):
-        data_set_options = self.pipeline.all_parameters["data_set_type"]
-        self.pipeline.add_instruction(self.instructions_set.build_data_set, {"ds_options": data_set_options})
-
 
 class TrainSupervisedWhalesDetectorLoaders(SupervisedWhalesDetectorLoaders):
     def __init__(self, pipeline, instructions_set, logger=None):
@@ -182,14 +178,10 @@ class TrainSupervisedWhalesDetectorLoaders(SupervisedWhalesDetectorLoaders):
             self.load_labels,
             self.load_pre_processing,
             self.load_features_extractors,
+            self.load_performance_indicators,
             self.load_method,
-            self.load_build_data_set,
             self.load_train_methods,
         ]
-
-    def load_build_data_set(self):
-        data_set_options = {"method": "no_split", "parameters": {}}
-        self.pipeline.add_instruction(self.instructions_set.build_data_set, {"ds_options": data_set_options})
 
 
 class PredictSupervisedWhalesDetectorLoaders(SupervisedWhalesDetectorLoaders):
@@ -203,7 +195,6 @@ class PredictSupervisedWhalesDetectorLoaders(SupervisedWhalesDetectorLoaders):
             self.load_features_extractors,
             self.load_performance_indicators,
             self.load_method,
-            self.load_build_data_set,
             self.load_predict_methods,
             self.check_trained_models_exist,
         ]

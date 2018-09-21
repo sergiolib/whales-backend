@@ -93,49 +93,6 @@ class AudioDataFile(TimeSeriesDataFile):
             b = first + from_first + delta
             self.metadata["labels"].append((a, b, self.name_label[label]))
 
-    def get_windows_data_frame(self):
-        sw = []
-        for i in range(self.all_parameters["number_of_windows"]):
-            window = self.get_window(i, return_label=False)
-            window.index -= window.index[0]
-            sw.append(window)
-        return pd.concat(sw, axis=1, sort=False).T
-
-    def get_window(self, ind, return_label=True):
-        data = super().data
-        if self.all_parameters["number_of_windows"] == 0:
-            return data
-        n = len(self.all_parameters["start_time"])
-        if ind > n:
-            return None
-        st = self.all_parameters["start_time"][ind]
-        en = self.all_parameters["end_time"][ind]
-        label = 0
-        if return_label:
-            labeled_data = self.get_labeled_data()
-            labels_treatment = self.all_parameters["labels_treatment"]
-            if labels_treatment == "max":
-                label = int(labeled_data.loc[st:en].labels.max())
-            elif labels_treatment == "mode":
-                label = int(labeled_data.loc[st:en].labels.mode())
-            elif labels_treatment == "mean":
-                label = float(labeled_data.loc[st:en].labels.mean())
-            else:
-                raise ValueError(f"labels_treatment parameter value not understood: {labels_treatment}")
-        window = data.loc[st:en]
-        if return_label:
-            return window, label
-        else:
-            return window
-
-    def add_window(self, start_time, end_time):
-        if not self.start_time <= start_time < end_time <= self.end_time:
-            raise AttributeError("Times are not in a correct range")
-
-        self.private_parameters["number_of_windows"] += 1
-        self.private_parameters["start_time"].append(start_time)
-        self.private_parameters["end_time"].append(end_time)
-
     def __repr__(self):
         if hasattr(self, "data") and self.data is not None:
             n_windows = self.all_parameters["number_of_windows"]
