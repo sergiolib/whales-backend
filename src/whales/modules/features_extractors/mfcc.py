@@ -12,9 +12,7 @@ class MFCC(FeatureExtraction):
         self.needs_fitting = False
         self.description = """Mel Frequency Cepstral Coefficients"""
         self.parameters = {
-            "n_components": 30,
-            "window_size": 2000,
-            "overlap": 0.3
+            "n_components": 30
         }
 
     def method_transform(self):
@@ -23,10 +21,16 @@ class MFCC(FeatureExtraction):
         :return: {numpy array} Mel frequency cepstral coefficients
         """
         data_file = self.all_parameters["data_file"]
+        if "window_width" not in data_file.metadata:
+            self.logger.error("Window width was not specified")
+            raise AttributeError
+        if "overlap" not in data_file.metadata:
+            self.logger.error("Overlap was not specified")
+            raise AttributeError
         signal = data_file.data.values.astype(float)
-        win = self.parameters["window_size"]
-        step = int(win * (1.0 - self.parameters["overlap"]))
         fs = data_file.sampling_rate
+        win = int(data_file.metadata["window_width"] * fs)
+        step = int(win * (1.0 - data_file.metadata["overlap"]))
         d = librosa.stft(signal, win, hop_length=step, center=False)
         indexes = pd.date_range(data_file.data.index[0], data_file.data.index[-1], periods=len(signal)//step)
         melspec = librosa.feature.melspectrogram(S=np.abs(d) ** 2)
