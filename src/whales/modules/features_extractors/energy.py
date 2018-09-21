@@ -31,7 +31,7 @@ class Energy(FeatureExtraction):
         while True:
             if en > len(data):
                 en = len(data)
-            res.append((data.iloc[st:en]**2).sum())
+            res.append((data.iloc[st:en]**2).mean())
             st = en
             if en == len(data):
                 break
