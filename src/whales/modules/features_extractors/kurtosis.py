@@ -33,7 +33,7 @@ class Kurtosis(FeatureExtraction):
         while True:
             if en > len(data):
                 en = len(data)
-            res.append(scipy.stats.kurtosis(data.iloc[st:en]**2))
+            res.append(scipy.stats.kurtosis(data.iloc[st:en]))
             st = en
             if en == len(data):
                 break
