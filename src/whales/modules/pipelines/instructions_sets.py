@@ -212,10 +212,10 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                     label_names.update(df.label_name)
             for i in pi:
                 i.private_parameters = {
-                    "target": list(map(lambda x: label_names[x], target_labels)),
-                    "prediction": list(map(lambda x: label_names[x], predicted_labels)),
+                    "target": target_labels,
+                    "prediction": predicted_labels,
                     "classes": [i[1] for i in label_names.items()],
-                    "data_file": None
+                    "data_file": params["input_data"]
                 }
                 self.logger.info(f"Performance indicators {i.__class__.__name__} of results from {dset}")
                 res = i.compute()
