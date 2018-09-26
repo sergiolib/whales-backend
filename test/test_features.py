@@ -3,6 +3,7 @@ import sys, os
 import pytest
 
 from whales.modules.features_extractors.feature_extraction import FeatureExtraction
+from whales.modules.pre_processing.sliding_windows import SlidingWindows
 
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
@@ -29,7 +30,7 @@ def test_spectral_frames():
     df.data -= df.data.mean()
     f = SpectralFrames()
     f.parameters["sampling_rate"] = df.sampling_rate
-    f.private_parameters["data"] = df
+    f.private_parameters["data_file"] = df
     t = f.transform()
     assert t.data.values.shape[0] == 1
     assert f.description != ""
@@ -44,7 +45,7 @@ def test_mfcc():
     f = MFCC()
     f.parameters["sampling_rate"] = df.sampling_rate
     f.parameters["n_components"] = 25
-    f.private_parameters["data"] = df
+    f.private_parameters["data_file"] = df
     t = f.transform()
     assert t.data.values.shape[1] == 25
     assert f.description != ""
@@ -56,7 +57,7 @@ def test_identity():
     df = AudioDataFile().load(file_name,
                                    formatter=AIFFormatter())
     f = Identity()
-    f.private_parameters["data"] = df
+    f.private_parameters["data_file"] = df
     t = f.transform()
     np.testing.assert_allclose(df.data.values.ravel(), t.data.values.ravel())
     assert f.description != ""
@@ -64,12 +65,16 @@ def test_identity():
 
 
 def test_zero_crossing_rate():
-    file_name = get_file_name()
+    # file_name = get_file_name()
+    file_name = "/home/sliberman/Dropbox/Detector ballena azul/supervised_version/database/validation-ballenas/ballenas-S06_PU145_20120514_143000.aif"
     df = AudioDataFile().load(file_name,
-                                   formatter=AIFFormatter())
+                              formatter=AIFFormatter())
+    sw = SlidingWindows()
+    sw.private_parameters["data_file"] = df
+    sw.transform()
     df.data -= df.data.mean()
     f = ZeroCrossingRate()
-    f.private_parameters["data"] = df
+    f.private_parameters["data_file"] = df
     t = f.transform()
     assert t.data.values.shape[1] == 1
     assert f.description != ""
@@ -82,7 +87,7 @@ def test_min():
                                    formatter=AIFFormatter())
     df.data -= df.data.mean()
     f = Min()
-    f.private_parameters["data"] = df
+    f.private_parameters["data_file"] = df
     t = f.transform()
     assert t.data.values.shape[1] == 1
     assert f.description != ""
@@ -95,7 +100,7 @@ def test_range():
                                    formatter=AIFFormatter())
     df.data -= df.data.mean()
     f = Range()
-    f.private_parameters["data"] = df
+    f.private_parameters["data_file"] = df
     t = f.transform()
     assert t.data.values.shape[1] == 1
     assert f.description != ""
@@ -108,7 +113,7 @@ def test_skewness():
                                    formatter=AIFFormatter())
     df.data -= df.data.mean()
     f = Skewness()
-    f.private_parameters["data"] = df
+    f.private_parameters["data_file"] = df
     t = f.transform()
     assert t.data.values.shape[1] == 1
     assert f.description != ""
@@ -121,7 +126,7 @@ def test_kurtosis():
                               formatter=AIFFormatter())
     df.data -= df.data.mean()
     f = Kurtosis()
-    f.private_parameters["data"] = df
+    f.private_parameters["data_file"] = df
     t = f.transform()
     assert t.data.values.shape[1] == 1
     assert f.description != ""
@@ -134,7 +139,7 @@ def test_energy():
                                    formatter=AIFFormatter())
     df.data -= df.data.mean()
     f = Energy()
-    f.private_parameters["data"] = df
+    f.private_parameters["data_file"] = df
     t = f.transform()
     assert t.data.values.shape[1] == 1
     assert f.description != ""
@@ -159,6 +164,6 @@ def test_unimplemented():
 def test_incorrect_data_type():
     f = FeatureExtraction()
     f.needs_fitting = True
-    f.private_parameters["data"] = np.random.rand(10, 10)
+    f.private_parameters["data_file"] = np.random.rand(10, 10)
     with pytest.raises(AttributeError):
         f.fit()

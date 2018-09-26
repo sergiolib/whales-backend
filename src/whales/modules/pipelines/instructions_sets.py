@@ -127,7 +127,6 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         if "features_extractors" in params:
             feat = params["features_extractors"]
             transformed = []
-            ret = {}
             df = params["input_data"]
             for f in feat:
                 f.private_parameters["data_file"] = df
@@ -145,12 +144,12 @@ class SupervisedWhalesInstructionSet(InstructionSet):
         if "pre_processing_methods" in params:
             pre_processing_methods = params["pre_processing_methods"]
             input_data = params["input_data"]
-            data = input_data
+            data_file = input_data
             for pp in pre_processing_methods:
-                pp.private_parameters["data"] = data
-                self.logger.info(f"Applying pre processing {pp.__class__.__name__} to {len(data.data)} data points")
-                data = pp.transform()
-            return {"input_data": data}
+                pp.private_parameters["data_file"] = data_file
+                self.logger.info(f"Applying pre processing {pp.__class__.__name__} to {len(data_file.data)} data points")
+                data_file = pp.transform()
+            return {"input_data": data_file}
         else:
             return {"input_data": params["input_data"]}
 

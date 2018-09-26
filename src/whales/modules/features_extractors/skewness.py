@@ -2,6 +2,7 @@ import scipy.stats
 import pandas as pd
 from whales.modules.data_files.feature import FeatureDataFile
 from whales.modules.features_extractors.feature_extraction import FeatureExtraction
+import numpy as np
 
 
 class Skewness(FeatureExtraction):
@@ -13,12 +14,35 @@ class Skewness(FeatureExtraction):
 
     def method_transform(self):
         data_file = self.all_parameters["data_file"]
-        data = data_file.data.values
-        res = scipy.stats.skew(data, axis=1, nan_policy="omit").reshape(-1, 1)
-        data = pd.DataFrame(res, index=data_file.data.index, columns=["skewness"])
-        fdf = FeatureDataFile()
-        fdf._data = data
-        return fdf
+        # Disable using this in settings without sliding windows for now
+        if "window_width" not in data_file.metadata:
+            self.logger.error("Window width was not specified")
+            raise AttributeError
+        if "overlap" not in data_file.metadata:
+            self.logger.error("Overlap was not specified")
+            raise AttributeError
+
+        fs = data_file.sampling_rate
+        win = int(data_file.metadata.get("window_width", data_file.duration.seconds) * fs)
+        step = int(win * (1.0 - data_file.metadata.get("overlap", 0.0)))
+        data = data_file.data.astype(float)
+        st = 0
+        en = st + step
+        res = []
+        while True:
+            if en > len(data):
+                en = len(data)
+            res.append(scipy.stats.skew(data.iloc[st:en]))
+            st = en
+            if en == len(data):
+                break
+            en = en + step
+        f = FeatureDataFile("skewness")
+        f.data = np.array(res).reshape(-1, 1)
+        inds = pd.date_range(data.index[0], data.index[-1], len(res))
+        f.data.index = inds
+        f.data = f.data.dropna()
+        return f
 
 
 PipelineMethod = Skewness

@@ -38,7 +38,7 @@ class Range(FeatureExtraction):
             if en == len(data):
                 break
             en = en + step
-        f = FeatureDataFile("min")
+        f = FeatureDataFile("range")
         f.data = np.array(res).reshape(-1, 1)
         inds = pd.date_range(data.index[0], data.index[-1], len(res))
         f.data.index = inds

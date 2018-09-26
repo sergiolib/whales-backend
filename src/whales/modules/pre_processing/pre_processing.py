@@ -1,6 +1,5 @@
 import time
 
-from whales.modules.data_files.data_files import DataFile
 from whales.modules.module import Module
 
 
@@ -11,9 +10,8 @@ class PreProcessing(Module):
     def transform(self):
         if self.needs_fitting and not self.is_fitted:
             raise RuntimeError(f"Pre processing {self} has not been fitted")
-        data = self.private_parameters["data"]
-        if issubclass(data.__class__, DataFile):
-            self.private_parameters["data"] = data
+        data_file = self.private_parameters["data_file"]
+        self.private_parameters["data_file"] = data_file
         t0 = time.time()
         res = self.method_transform()
         tf = time.time()
