@@ -19,6 +19,7 @@ class Unsupervised(Module):
             df = self.all_parameters["data"]
             self.private_parameters["data"] = df
             self.method_fit()
+            self.is_fitted = True
         self.private_parameters["data"] = None
 
     def method_fit(self):

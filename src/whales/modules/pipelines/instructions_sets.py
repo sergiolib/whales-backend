@@ -102,6 +102,7 @@ class WhalesInstructionSet(InstructionSet):
                 f.private_parameters["data_file"] = df
                 self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
                 f.fit()
+        self.save_trained_features_extractors(params)
         return {}
 
     def save_trained_features_extractors(self, params: dict):
@@ -231,6 +232,9 @@ class WhalesInstructionSet(InstructionSet):
 
         # Train machine learning method
         params.update(self.train_machine_learning_method(params))
+
+        # Save ML method
+        params.update(self.save_trained_ml_method(params))
 
         # Predict using the training set for training score
         params.update(self.predict_machine_learning_method(params))

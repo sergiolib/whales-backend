@@ -12,13 +12,11 @@ class TSNE(PerformanceIndicator):
 
         self.parameters = {
             "opacity": "0.3",
-            "labels_color": "cyan",
             "labels": "predictions"
         }
 
         self.parameters_options = {
             "opacity": ["{:.2}".format((i+1)/10.0) for i in range(10)],
-            "labels_color": ["blue", "red", "green", "yellow", "magenta", "cyan", "black", "white"],
             "labels": ["predictions", "true_labels", "None"]
         }
 
@@ -32,19 +30,22 @@ class TSNE(PerformanceIndicator):
         tsne = SKTSNE()
         D = tsne.fit_transform(data)
         fig, axes = plt.subplots(1, 1)
+        colors = ["b", "r", "g", "y", "c", "m", "k"]
         if self.parameters["labels"] == "predictions":
             labels = self.private_parameters["prediction"]
-            for l in np.unique(labels):
+            for i, l in enumerate(np.unique(labels)):
+                c = colors[i]
                 curr = D[labels == l]
                 if len(curr) > 0:
-                    axes.scatter(curr[:, 0], curr[:, 1], c="b", label=f"Label {l}")
+                    axes.scatter(curr[:, 0], curr[:, 1], c=c, label=f"Label {l}")
             axes.set_title("T-SNE map of predicted labels")
         elif self.parameters["labels"] == "true_labels":
             labels = self.private_parameters["target"].astype(int)
-            for l in np.unique(labels):
+            for i, l in enumerate(np.unique(labels)):
+                c = colors[i]
                 curr = D[labels == l]
                 if len(curr) > 0:
-                    axes.scatter(curr[:, 0], curr[:, 1], c="b", label=f"Label {l}")
+                    axes.scatter(curr[:, 0], curr[:, 1], c=c, label=f"Label {l}")
             axes.set_title("T-SNE map of original labels")
         else:
             axes.scatter(D[:, 0], D[:, 1])

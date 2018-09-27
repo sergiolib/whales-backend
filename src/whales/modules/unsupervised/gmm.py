@@ -14,8 +14,8 @@ class GMM(SKLearnSaveLoadMixin, Unsupervised):
         self._model = GaussianMixture()
 
         self.parameters = {
-            "n_components": 6,
-            "covariance_type": "full"
+            "n_components": 2,
+            "covariance_type": "full",
         }
 
         self.parameters_options = {
@@ -26,7 +26,7 @@ class GMM(SKLearnSaveLoadMixin, Unsupervised):
 
     def method_fit(self):
         data = self.all_parameters["data"].data.values
-        self._model = GaussianMixture(n_components=self.parameters["n_components"])
+        self._model = GaussianMixture(n_components=self.parameters["n_components"], covariance_type=self.parameters["covariance_type"], n_init=10)
 
         try:
             self._model.fit(data)
