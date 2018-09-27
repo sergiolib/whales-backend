@@ -108,7 +108,7 @@ class TrainWhalesPipelineParser(Parser):
                                 "data_file": str,
                                 "formatter": str
                             }, "optional")],
-            "input_labels": [({"labels_file": str, "labels_formatter": str}, "optional")],
+            "input_labels": ([({"labels_file": str, "labels_formatter": str}, "optional")], "optional"),
             "pre_processing": [({"method": str, "parameters": (dict, "optional")}, "optional")],
             "features_extractors": [({"method": str, "parameters": (dict, "optional")}, "optional")],
             "machine_learning": {"type": str, "method": str, "parameters": (dict, "optional")},
@@ -131,7 +131,7 @@ class PredictWhalesPipelineParser(Parser):
                                 "data_file": str,
                                 "formatter": str
                             }, "optional")],
-            "input_labels": [({"labels_file": str, "labels_formatter": str}, "optional")],
+            "input_labels": ([({"labels_file": str, "labels_formatter": str}, "optional")], "optional"),
             "pre_processing": [({"method": str, "parameters": (dict, "optional")}, "optional")],
             "features_extractors": [({"method": str, "parameters": (dict, "optional")}, "optional")],
             "performance_indicators": [{"method": str, "parameters": (dict, "optional")}],

@@ -16,7 +16,7 @@ class InstructionSet:
             self.logger = logging.getLogger(self.__class__.__name__)
 
 
-class SupervisedWhalesInstructionSet(InstructionSet):
+class WhalesInstructionSet(InstructionSet):
     def set_params(self, params: dict):
         return params
 

@@ -1,5 +1,5 @@
 import pandas as pd
-
+import numpy as np
 from whales.modules.data_files.data_files import DataFile
 from whales.modules.module import Module
 
@@ -15,11 +15,13 @@ class Unsupervised(Module):
         self.type = "unsupervised"
 
     def fit(self):
-        data = self.all_parameters["data"]
-        if issubclass(data.__class__, DataFile):
-            inds = data.data.index
-            self.private_parameters["data"] = data.data.loc[inds].values
-        self.method_fit()
+        if self.needs_fitting is True:
+            data = self.all_parameters["data"]
+            if issubclass(data.__class__, DataFile):
+                inds = data.data.index
+                self.private_parameters["data"] = data.data.loc[inds].values
+            self.method_fit()
+        self.private_parameters["data"] = None
 
     def method_fit(self):
         raise NotImplementedError
@@ -28,11 +30,8 @@ class Unsupervised(Module):
         raise NotImplementedError
 
     def predict(self):
-        data = self.all_parameters["data"]
-        if issubclass(data.__class__, DataFile):
-            inds = data.data.index
-            self.private_parameters["data"] = data.data.loc[inds].values
-        else:
-            raise ValueError("Data input should be a Data File")
+        df = self.all_parameters["data"]
+        self.private_parameters["data"] = df
         res = self.method_predict()
-        return pd.Series(res, index=data.data.index)
+        res = (res - res.min()) > 0
+        return pd.Series(res, index=df.data.index)
