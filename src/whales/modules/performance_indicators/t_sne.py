@@ -11,12 +11,10 @@ class TSNE(PerformanceIndicator):
         self.description = "T-SNE"
 
         self.parameters = {
-            "opacity": "0.3",
             "labels": "predictions"
         }
 
         self.parameters_options = {
-            "opacity": ["{:.2}".format((i+1)/10.0) for i in range(10)],
             "labels": ["predictions", "true_labels", "None"]
         }
 
