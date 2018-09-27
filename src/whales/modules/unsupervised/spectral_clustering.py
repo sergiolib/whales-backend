@@ -9,7 +9,7 @@ class SpectralClustering(SKLearnSaveLoadMixin, Unsupervised):
 
         self.needs_fitting = False
 
-        self.description = "Spectral clustering of projection to normalized laplacian"
+        self.description = "Spectral Clustering of Projection to Normalized Laplacian"
 
         self._model = SKSpectralClustering()
 

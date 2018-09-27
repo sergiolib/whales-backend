@@ -10,7 +10,7 @@ class DBSCAN(SKLearnSaveLoadMixin, Unsupervised):
 
         self.needs_fitting = False
 
-        self.description = "Density Based Spatial Clustering od Applications and Noise"
+        self.description = "Density Based Spatial Clustering of Applications and Noise"
 
         self._model = SKDBSCAN()
 
