@@ -16,10 +16,8 @@ class Unsupervised(Module):
 
     def fit(self):
         if self.needs_fitting is True:
-            data = self.all_parameters["data"]
-            if issubclass(data.__class__, DataFile):
-                inds = data.data.index
-                self.private_parameters["data"] = data.data.loc[inds].values
+            df = self.all_parameters["data"]
+            self.private_parameters["data"] = df
             self.method_fit()
         self.private_parameters["data"] = None
 
@@ -32,6 +30,6 @@ class Unsupervised(Module):
     def predict(self):
         df = self.all_parameters["data"]
         self.private_parameters["data"] = df
-        res = self.method_predict()
-        res = (res - res.min()) > 0
+        res = self.method_predict().astype(int)
+        res = res - res.min()
         return pd.Series(res, index=df.data.index)

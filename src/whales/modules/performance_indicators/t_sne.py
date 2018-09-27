@@ -34,18 +34,18 @@ class TSNE(PerformanceIndicator):
         fig, axes = plt.subplots(1, 1)
         if self.parameters["labels"] == "predictions":
             labels = self.private_parameters["prediction"]
-            D_true = D[labels]
-            D_false = D[~labels]
-            axes.scatter(D_true[:, 0], D_true[:, 1], c="b", label="Whale songs")
-            axes.scatter(D_false[:, 0], D_false[:, 1], c="r", label="Not whale songs")
-            axes.set_title("T-SNE map of labeled data frames")
+            for l in np.unique(labels):
+                curr = D[labels == l]
+                if len(curr) > 0:
+                    axes.scatter(curr[:, 0], curr[:, 1], c="b", label=f"Label {l}")
+            axes.set_title("T-SNE map of predicted labels")
         elif self.parameters["labels"] == "true_labels":
-            labels = self.private_parameters["target"]
-            D_true = D[labels]
-            D_false = D[~labels]
-            axes.scatter(D_true[:, 0], D_true[:, 1], c="b", label="Whale songs")
-            axes.scatter(D_false[:, 0], D_false[:, 1], c="r", label="Not whale songs")
-            axes.set_title("T-SNE map of labeled data frames")
+            labels = self.private_parameters["target"].astype(int)
+            for l in np.unique(labels):
+                curr = D[labels == l]
+                if len(curr) > 0:
+                    axes.scatter(curr[:, 0], curr[:, 1], c="b", label=f"Label {l}")
+            axes.set_title("T-SNE map of original labels")
         else:
             axes.scatter(D[:, 0], D[:, 1])
             axes.set_title("T-SNE map of unlabeled data frames")
