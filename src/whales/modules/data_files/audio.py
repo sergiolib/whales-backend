@@ -64,11 +64,12 @@ class AudioDataFile(TimeSeriesDataFile):
         if not self.labeled_data_changed:
             return self.cache_labeled_data
         data = super().data.to_frame()
-        labels_list = [self.name_label["unlabeled"]] * len(data)
-        labels_series = pd.Series(labels_list, index=data.index)
-        for a, b, l in self.metadata["labels"]:
-            labels_series[a:b] = l
-        data["labels"] = labels_series
+        data["labels"] = self.name_label["unlabeled"]
+        inds = []
+        for i, (a, b, l) in enumerate(self.metadata["labels"]):
+            inds.append(data[a:b].index)
+        inds = inds[0].append(inds[1:])
+        data.loc[inds, "labels"] = l
         self.cache_labeled_data = data
         self.labeled_data_changed = False
         return data
