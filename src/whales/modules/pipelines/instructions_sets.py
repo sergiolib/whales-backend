@@ -189,7 +189,8 @@ class SupervisedWhalesInstructionSet(InstructionSet):
                     "target": target_labels.values.ravel(),
                     "prediction": predicted_labels.values.ravel(),
                     "classes": [i[1] for i in label_names.items()],
-                    "data_file": params["input_data"]
+                    "data_file": params["input_data"],
+                    "features_file": params[dset]
                 }
                 self.logger.info(f"Performance indicators {i.__class__.__name__} of results from {dset}")
                 self.save_performance_indicators_results(f"{i.__class__.__name__}_{dset}", i, params)
