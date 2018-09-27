@@ -1,7 +1,5 @@
 import pandas as pd
 
-import librosa
-import librosa.display
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
@@ -13,7 +11,7 @@ class LabeledTimeSeries(PerformanceIndicator):
     def __init__(self, logger=None):
         super().__init__(logger)
 
-        self.description = "Labeled Spectrogram"
+        self.description = "Labeled Audio Signal"
 
         self.parameters = {
             "opacity": "0.3",
