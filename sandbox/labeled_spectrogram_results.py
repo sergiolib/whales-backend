@@ -11,17 +11,21 @@ params = {
         "data_file": "audio",
         "formatter": "aif"
     }],
+    "input_labels": [{
+        "labels_file": "/home/sliberman/Dropbox/Detector ballena azul/supervised_version/database/etiquetas/csv/Chile01_002K_S06_PU145_20120514_143000-Labels.csv",
+        "labels_formatter": "csv"
+    }],
     "logs_directory": ".",
     "models_directory": ".",
     "results_directory": ".",
     "machine_learning": {
-        "type": "unsupervised",
-        "method": "dbscan"
+        "type": "supervised",
+        "method": "svm"
     },
     "features_extractors": [
         {
-            "method": "mfcc"
-        },
+            "method": "zero_crossing_rate"
+        }
     ],
     "pre_processing": [
         {
@@ -37,10 +41,7 @@ params = {
             "method": "accuracy"
         },
         {
-            "method": "t_sne",
-            "parameters": {
-                "labels": "true_labels"
-            }
+            "method": "labeled_spectrogram"
         }
     ]
 }
@@ -53,10 +54,7 @@ p.start()
 params.update({
     "performance_indicators": [
         {
-            "method": "t_sne",
-            "parameters": {
-                "labels": "predictions"
-            }
+            "method": "labeled_spectrogram"
         }
     ],
     "input_data": [{
