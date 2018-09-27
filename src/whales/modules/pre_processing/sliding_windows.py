@@ -10,7 +10,7 @@ class SlidingWindows(PreProcessing):
         self.description = "Sliding windows from time frames"
 
         self.parameters = {
-            "window_width": 1.0,  # In seconds
+            "window_width_seconds": 1.0,  # In seconds
             "overlap": 0.3,
         }
 
@@ -20,7 +20,7 @@ class SlidingWindows(PreProcessing):
 
     def method_transform(self):
         data_file = self.all_parameters["data_file"]
-        data_file.metadata["window_width"] = self.parameters["window_width"]
+        data_file.metadata["window_width"] = self.parameters["window_width_seconds"]
         data_file.metadata["overlap"] = self.parameters["overlap"]
         return data_file
 
