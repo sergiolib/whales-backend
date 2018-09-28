@@ -32,13 +32,12 @@ class MFCC(FeatureExtraction):
         win = int(data_file.metadata["window_width"] * fs)
         step = int(win * (1.0 - data_file.metadata["overlap"]))
         d = librosa.stft(signal, win, hop_length=step, center=False)
-        indexes = pd.date_range(data_file.data.index[0], data_file.data.index[-1], periods=len(signal)//step)
         melspec = librosa.feature.melspectrogram(S=np.abs(d) ** 2)
         n_coef = self.parameters["n_components"]
         mfccf = mfcc(S=melspec, sr=fs, n_mfcc=n_coef)
+        indexes = data_file.data.index[np.arange(0, mfccf.shape[1] * step, step)]
         fdf = FeatureDataFile("mfcc")
-        fdf.data = mfccf.T
-        fdf._data.index = indexes
+        fdf._data = pd.DataFrame(mfccf.T, columns=[f"mfcc_{i}" for i in range(n_coef)], index=indexes)
         return fdf
 
 

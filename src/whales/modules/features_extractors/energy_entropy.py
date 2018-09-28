@@ -32,16 +32,16 @@ class Energy(FeatureExtraction):
         en = st + step
         frames = []
         l = len(data)
+        inds = []
         while True:
             if en > l:
                 en = l
             frames.append(data[st:en])
+            inds.append(data_file.data.index[st])
             st = en
             if en == l:
                 break
             en = en + step
-
-        n_frames = len(frames)
 
         total_frame_energy = np.array([(i**2).sum() for i in frames])
 
@@ -61,10 +61,7 @@ class Energy(FeatureExtraction):
         entropy = -np.sum(sub_frame_energy * np.log2(sub_frame_energy + eps), axis=1)
 
         f = FeatureDataFile("entropy_energy")
-        f.data = entropy.reshape(-1, 1)
-        inds = pd.date_range(data_file.data.index[0], data_file.data.index[-1], n_frames)
-        f.data.index = inds
-        f.data = f.data.dropna()
+        f._data = pd.DataFrame({"entropy_energy": entropy}, index=inds)
         return f
 
 

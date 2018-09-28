@@ -2,6 +2,7 @@ import time
 import pandas as pd
 import numpy as np
 
+from whales.modules.data_files.audio import AudioDataFile
 from whales.modules.data_files.data_files import DataFile
 from whales.modules.data_files.feature import FeatureDataFile
 from whales.modules.module import Module
@@ -36,7 +37,14 @@ class FeatureExtraction(Module):
         if self.needs_fitting and not self.is_fitted:
             raise RuntimeError(f"Features extractor {self} has not been fitted")
         t0 = time.time()
-        res = self.method_transform()
+        df = self.private_parameters["data_file"]
+        res = []
+        for st, en in df.metadata["starts_stops"]:
+            local_df = AudioDataFile(df)
+            local_df._data = local_df._data[st:en]
+            self.private_parameters["data_file"] = local_df
+            res.append(self.method_transform())
+        res = FeatureDataFile(res[0].metadata["feature_name"]).concatenate(res, axis=0)
         res.label_name = self.all_parameters["data_file"].label_name
         tf = time.time()
         self.logger.debug(f"Features extractor {self} transformation took {tf - t0} s")

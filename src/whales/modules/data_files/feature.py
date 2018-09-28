@@ -18,16 +18,15 @@ class FeatureDataFile(DataFile):
     def name_label(self):
         return {b: a for a, b in self.label_name.items()}
 
-    def concatenate(self, datafiles_list):
+    def concatenate(self, datafiles_list, axis=1):
         new_df = self.__class__(self.metadata["feature_name"])
 
         data = [df.data for df in datafiles_list]
         label_name = [df.label_name for df in datafiles_list]
         for l in label_name:
             new_df.label_name.update(l)
-        ind = data[0].index
-        data = [d.loc[ind] for d in data]
-        data = pd.concat(data, axis=1)
+        data = pd.concat(data, axis=axis)
+        data = data.dropna()
         new_df._data = data
         return new_df
 
@@ -43,9 +42,3 @@ class FeatureDataFile(DataFile):
     @property
     def data(self):
         return self._data
-
-    @data.setter
-    def data(self, new_data):
-        shape = new_data.shape
-        feature_name = self.metadata["feature_name"]
-        self._data = pd.DataFrame(new_data, columns=[feature_name + f"_{i}" for i in range(shape[1])])
