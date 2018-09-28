@@ -38,12 +38,10 @@ class Range(FeatureExtraction):
             if en == len(data):
                 break
             en = en + step
-        f = FeatureDataFile("range")
-        f.data = np.array(res).reshape(-1, 1)
-        inds = pd.date_range(data.index[0], data.index[-1], len(res))
-        f.data.index = inds
-        f.data = f.data.dropna()
-        return f
+        fdf = FeatureDataFile("range")
+        inds = data_file.data.index[np.arange(0, len(res) * step, step)]
+        fdf._data = pd.DataFrame({"range": res}, index=inds)
+        return fdf
 
 
 PipelineMethod = Range

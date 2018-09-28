@@ -32,10 +32,9 @@ class Identity(FeatureExtraction):
             res.append(data.iloc[st:en].values)
             st = en
             en = en + step
-        fdf = FeatureDataFile("mfcc")
-        fdf.data = np.vstack(res)
-        indexes = pd.date_range(data_file.data.index[0], data_file.data.index[-1], periods=len(data_file.data)//step)
-        fdf._data.index = indexes
+        fdf = FeatureDataFile("identity")
+        inds = data_file.data.index[np.arange(0, len(res) * step, step)]
+        fdf._data = pd.DataFrame(res, index=inds, columns=[f"identity_{i}" for i in range(step)])
         return fdf
 
 

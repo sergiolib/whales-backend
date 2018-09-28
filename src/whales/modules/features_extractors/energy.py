@@ -37,10 +37,8 @@ class Energy(FeatureExtraction):
                 break
             en = en + step
         f = FeatureDataFile("energy")
-        f.data = np.array(res).reshape(-1, 1)
-        inds = pd.date_range(data.index[0], data.index[-1], len(res))
-        f.data.index = inds
-        f.data = f.data.dropna()
+        inds = data_file.data.index[np.arange(0, len(res) * step, step)]
+        f._data = pd.DataFrame({"energy": res}, index=inds)
         return f
 
 
