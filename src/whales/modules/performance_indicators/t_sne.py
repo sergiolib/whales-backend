@@ -42,22 +42,23 @@ class TSNE(PerformanceIndicator):
                 c = self.colors(i / luniq)
                 curr = D[labels == l]
                 if len(curr) > 0:
-                    axes.scatter(curr[:, 0], curr[:, 1], c=c, label=f"Label {l}")
+                    axes.scatter(curr[:, 0], curr[:, 1], c=np.array(c).reshape(1, -1), label=f"Label {l}")
             axes.set_title("T-SNE map of predicted labels")
+            plt.legend()
         elif self.parameters["labels"] == "true_labels":
             labels = self.private_parameters["target"].astype(int)
             for i, l in enumerate(np.unique(labels)):
                 c = self.colors(i)
                 curr = D[labels == l]
                 if len(curr) > 0:
-                    axes.scatter(curr[:, 0], curr[:, 1], c=c, label=f"Label {l}")
+                    axes.scatter(curr[:, 0], curr[:, 1], c=np.array(c).reshape(1, -1), label=f"Label {l}")
             axes.set_title("T-SNE map of original labels")
+            plt.legend()
         else:
             axes.scatter(D[:, 0], D[:, 1])
             axes.set_title("T-SNE map of unlabeled data frames")
         axes.set_xlabel('D1')
         axes.set_ylabel('D2')
-        plt.legend()
         plt.tight_layout()
         return fig
 
