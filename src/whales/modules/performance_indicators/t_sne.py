@@ -11,16 +11,22 @@ class TSNE(PerformanceIndicator):
         self.description = "T-SNE"
 
         self.parameters = {
-            "labels": "predictions"
+            "labels": "predictions",
+            "colormap": "viridis"
         }
 
         self.parameters_options = {
-            "labels": ["predictions", "true_labels", "None"]
+            "labels": ["predictions", "true_labels", "None"],
+            "colormap": ['viridis', 'plasma', 'inferno', 'magma']
         }
 
         self.private_parameters = {
             "data_file": None,
         }
+
+    def colors(self, x):
+        cmap = plt.get_cmap(self.parameters["colormap"])
+        return cmap(x)
 
     def method_compute(self):
         df = self.private_parameters["features_file"]
@@ -28,11 +34,12 @@ class TSNE(PerformanceIndicator):
         tsne = SKTSNE()
         D = tsne.fit_transform(data)
         fig, axes = plt.subplots(1, 1)
-        colors = ["b", "r", "g", "y", "c", "m", "k"]
         if self.parameters["labels"] == "predictions":
             labels = self.private_parameters["prediction"]
-            for i, l in enumerate(np.unique(labels)):
-                c = colors[i]
+            uniq = np.unique(labels)
+            luniq = len(uniq)
+            for i, l in enumerate(uniq):
+                c = self.colors(i / luniq)
                 curr = D[labels == l]
                 if len(curr) > 0:
                     axes.scatter(curr[:, 0], curr[:, 1], c=c, label=f"Label {l}")
@@ -40,7 +47,7 @@ class TSNE(PerformanceIndicator):
         elif self.parameters["labels"] == "true_labels":
             labels = self.private_parameters["target"].astype(int)
             for i, l in enumerate(np.unique(labels)):
-                c = colors[i]
+                c = self.colors(i)
                 curr = D[labels == l]
                 if len(curr) > 0:
                     axes.scatter(curr[:, 0], curr[:, 1], c=c, label=f"Label {l}")
