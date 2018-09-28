@@ -2,7 +2,6 @@ from whales.modules.data_files.feature import FeatureDataFile
 from whales.modules.features_extractors.feature_extraction import FeatureExtraction
 import numpy as np
 import librosa
-from librosa.feature import mfcc
 import pandas as pd
 
 
