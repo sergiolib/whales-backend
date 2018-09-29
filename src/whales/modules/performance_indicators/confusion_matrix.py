@@ -13,11 +13,9 @@ class ConfusionMatrix(PerformanceIndicator):
         self.description = "Confusion matrix"
 
         self.parameters = {
-            "normalized": False,
             "classes": None,
             "plot": False,
-            "title": "Confusion matrix",
-            "cmap": "Blues"
+            "colormap": "Blues"
         }
         self.private_parameters = {
             "target": None,
@@ -31,12 +29,10 @@ class ConfusionMatrix(PerformanceIndicator):
         if classes is None:
             classes = np.unique(target.tolist() + prediction.tolist())
         res = confusion_matrix(target, prediction)
-        if self.parameters["normalized"]:
-            res = res / len(target)
+        res = res / len(target)
         if self.parameters["plot"]:
             res = plot_confusion_matrix(cm=res, classes=classes,
-                                        title=self.parameters["title"],
-                                        cmap=plt.get_cmap(self.parameters["cmap"]))
+                                        cmap=plt.get_cmap(self.parameters["colormap"]))
         return res
 
 
