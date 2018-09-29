@@ -104,7 +104,6 @@ class WhalesInstructionSet(InstructionSet):
                 f.private_parameters["data_file"] = df
                 self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
                 f.fit()
-        self.save_trained_features_extractors(params)
         return {}
 
     def save_trained_features_extractors(self, params: dict):
