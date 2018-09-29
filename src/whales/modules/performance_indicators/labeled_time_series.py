@@ -15,19 +15,24 @@ class LabeledTimeSeries(PerformanceIndicator):
 
         self.parameters = {
             "opacity": "0.3",
-            "labels_color": "orange",
             "line_color": "blue",
+            "colormap": "viridis"
         }
 
         self.parameters_options = {
             "opacity": ["{:.2}".format((i+1)/10.0) for i in range(10)],
             "labels_color": ["blue", "red", "green", "yellow", "magenta", "cyan", "black", "white", "orange"],
-            "line_color": ["blue", "red", "green", "yellow", "magenta", "cyan", "black", "white", "orange"]
+            "line_color": ["blue", "red", "green", "yellow", "magenta", "cyan", "black", "white", "orange"],
+            "colormap": ['viridis', 'plasma', 'inferno', 'magma']
         }
 
         self.private_parameters = {
             "data_file": None,
         }
+
+    def colors(self, x):
+        cmap = plt.get_cmap(self.parameters["colormap"])
+        return cmap(x)
 
     def method_compute(self):
         df = self.private_parameters["data_file"]
@@ -41,14 +46,14 @@ class LabeledTimeSeries(PerformanceIndicator):
         axes.set_ylabel('Amplitude')
         axes.set_xlabel('Time')
         opacity = float(self.parameters["opacity"])
-        labels_color = self.parameters["labels_color"]
         labels = pd.Series(labels, index=lab_inds)
         width = lab_inds[1] - lab_inds[0]
         h = (df.data.min(), df.data.max())
         for i, l in enumerate(labels):
             if l is True:
                 axes.add_patch(
-                    Rectangle((lab_inds[i], h[0]), width, h[1] - h[0], zorder=10, facecolor=labels_color, alpha=opacity))
+                    Rectangle((lab_inds[i], h[0]), width, h[1] - h[0], zorder=10,
+                              facecolor=self.colors(i / len(labels)), alpha=opacity))
         formatter = dates.DateFormatter('%Y-%m-%d %H:%M:%S')
         axes.xaxis.set_major_formatter(formatter)
         for label in axes.get_xmajorticklabels():
