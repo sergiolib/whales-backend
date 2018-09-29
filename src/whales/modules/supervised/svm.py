@@ -55,6 +55,8 @@ class SVM(SKLearnSaveLoadMixin, Supervised):
 
     def method_predict(self):
         data = self.all_parameters["data"]
+        data = scale(data) if self.parameters["scale"] else data
+
         return self._model.predict(data)
 
 

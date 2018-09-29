@@ -36,9 +36,9 @@ class Supervised(Module):
     def predict(self):
         data = self.all_parameters["data"]
         if issubclass(data.__class__, DataFile):
-            inds = data.data.index
-            self.private_parameters["data"] = data.data.loc[inds].values
+            self.private_parameters["data"] = data.data.values
         else:
             raise ValueError("Data input should be a Data File")
         res = self.method_predict()
-        return pd.Series(res, index=data.data.index)
+        inds = data.data.index
+        return pd.Series(res, index=inds)

@@ -41,6 +41,8 @@ class GMM(SKLearnSaveLoadMixin, Unsupervised):
 
     def method_predict(self):
         data = self.all_parameters["data"].data.values
+        data = scale(data) if self.parameters["scale"] else data
+
         return self._model.predict(data)
 
 

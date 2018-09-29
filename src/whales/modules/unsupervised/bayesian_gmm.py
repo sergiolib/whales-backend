@@ -45,7 +45,7 @@ class BayesianGMM(SKLearnSaveLoadMixin, Unsupervised):
 
     def method_predict(self):
         data = self.all_parameters["data"].data.values
-        data = scale(data)
+        data = scale(data) if self.parameters["scale"] else data
         predicted = self._model.predict(data)
         return predicted
 
