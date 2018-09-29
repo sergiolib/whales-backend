@@ -32,7 +32,7 @@ class SpectralFlux(FeatureExtraction):
         res = np.sum((norm_d[1:] - norm_d[:-1]) ** 2, axis=1)
 
         indexes = data_file.data.index[np.arange(0, len(norm_d) * step, step)][1:]
-        fdf = FeatureDataFile("centroid_spread")
+        fdf = FeatureDataFile("flux")
         fdf._data = pd.DataFrame({"flux": res}, index=indexes)
         return fdf
 

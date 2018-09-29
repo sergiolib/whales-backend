@@ -49,8 +49,8 @@ class SpectralRollOut(FeatureExtraction):
         res[b > 0] = np.array(first_nonzero) / fft_len
 
         indexes = data_file.data.index[np.arange(0, len(res) * step, step)]
-        fdf = FeatureDataFile("centroid_spread")
-        fdf._data = pd.DataFrame({"flux": res}, index=indexes)
+        fdf = FeatureDataFile("roll_out")
+        fdf._data = pd.DataFrame({"roll_out": res}, index=indexes)
         return fdf
 
 
