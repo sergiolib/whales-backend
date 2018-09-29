@@ -23,6 +23,7 @@ class FeatureDataFile(DataFile):
         new_df = self.__class__(self.metadata["feature_name"])
 
         data = [df.data for df in datafiles_list]
+        data = [d[~d.index.duplicated(keep="first")] for d in data]
         label_name = [df.label_name for df in datafiles_list]
         for l in label_name:
             new_df.label_name.update(l)
