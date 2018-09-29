@@ -33,10 +33,10 @@ class ZeroCrossingRate(FeatureExtraction):
         while True:
             if en > len(data):
                 en = len(data)
-            row = data.iloc[st:en].values.astype(float)
+            row = data.iloc[st:en].values
             signs = np.sign(row)
-            sign_change = np.array(signs[1:] != signs[:-1]).astype(int)
-            s = np.sum(sign_change).mean()
+            sign_change = np.diff(signs) != 0
+            s = np.mean(sign_change)
             res.append(s)
             st = en
             if en == len(data):
