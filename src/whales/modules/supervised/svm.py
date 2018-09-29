@@ -1,3 +1,4 @@
+from sklearn.preprocessing import scale
 from sklearn.svm import SVC
 
 from whales.modules.sklearn_models import SKLearnSaveLoadMixin
@@ -28,6 +29,7 @@ class SVM(SKLearnSaveLoadMixin, Supervised):
             "verbose": False,
             "max_iter": -1,
             "decision_function_shape": "ovr",
+            "scale": True
         }
 
         self.parameters_options = {
@@ -41,6 +43,8 @@ class SVM(SKLearnSaveLoadMixin, Supervised):
 
     def method_fit(self):
         data = self.all_parameters["data"].values
+        data = scale(data) if self.parameters["scale"] else data
+
         target = self.all_parameters["target"].values.ravel()
 
         try:

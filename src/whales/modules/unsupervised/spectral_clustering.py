@@ -1,4 +1,6 @@
 from sklearn.cluster import SpectralClustering as SKSpectralClustering
+from sklearn.preprocessing import scale
+
 from whales.modules.sklearn_models import SKLearnSaveLoadMixin
 from whales.modules.unsupervised.unsupervised import Unsupervised
 
@@ -15,7 +17,9 @@ class SpectralClustering(SKLearnSaveLoadMixin, Unsupervised):
 
         self.parameters = {
             "n_components": 6,
-            "affinity": "nearest_neighbors"
+            "affinity": "nearest_neighbors",
+            "scale": True
+
         }
 
         self.parameters_options = {
@@ -26,6 +30,7 @@ class SpectralClustering(SKLearnSaveLoadMixin, Unsupervised):
 
     def method_predict(self):
         data = self.all_parameters["data"].data.values
+        data = scale(data) if self.parameters["scale"] else data
         n_clust = self.all_parameters["n_components"]
         self._model = SKSpectralClustering(n_clust,
                                            eigen_solver='arpack',

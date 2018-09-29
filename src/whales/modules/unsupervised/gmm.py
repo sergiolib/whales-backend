@@ -1,4 +1,6 @@
 from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import scale
+
 from whales.modules.sklearn_models import SKLearnSaveLoadMixin
 from whales.modules.unsupervised.unsupervised import Unsupervised
 
@@ -16,6 +18,7 @@ class GMM(SKLearnSaveLoadMixin, Unsupervised):
         self.parameters = {
             "n_components": 2,
             "covariance_type": "full",
+            "scale": True
         }
 
         self.parameters_options = {
@@ -26,6 +29,8 @@ class GMM(SKLearnSaveLoadMixin, Unsupervised):
 
     def method_fit(self):
         data = self.all_parameters["data"].data.values
+        data = scale(data) if self.parameters["scale"] else data
+
         self._model = GaussianMixture(n_components=self.parameters["n_components"], covariance_type=self.parameters["covariance_type"], n_init=10)
 
         try:

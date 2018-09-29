@@ -1,5 +1,7 @@
 from sklearn.cluster import DBSCAN as SKDBSCAN
 from sklearn.neighbors import NearestNeighbors
+
+from sklearn.preprocessing import scale
 from whales.modules.sklearn_models import SKLearnSaveLoadMixin
 from whales.modules.unsupervised.unsupervised import Unsupervised
 
@@ -15,7 +17,8 @@ class DBSCAN(SKLearnSaveLoadMixin, Unsupervised):
         self._model = SKDBSCAN()
 
         self.parameters = {
-            "min_samples": "auto"
+            "min_samples": "auto",
+            "scale": True
         }
 
         self.parameters_options = {}
@@ -24,6 +27,7 @@ class DBSCAN(SKLearnSaveLoadMixin, Unsupervised):
 
     def method_predict(self):
         data = self.all_parameters["data"].data.values
+        data = scale(data) if self.parameters["scale"] else data
         min_points = self.parameters["min_samples"]
         if min_points == "auto":
             min_points = max(1, data.shape[1] - 2)
