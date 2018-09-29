@@ -110,7 +110,9 @@ class AudioDataFile(TimeSeriesDataFile):
         for df in datafiles_list:
             series_list.append(df.data)
             new_df.label_name.update(df.label_name)
-        new_df.data = pd.concat(series_list)
+        data = pd.concat(series_list)
+        data = data[~data.index.duplicated(keep='first')]
+        new_df.data = data
         new_df.data.sort_index(inplace=True)
         new_df.metadata["starts_stops"] = [(i.index[0], i.index[-1]) for i in series_list]
         new_df.labeled_data_changed = True
