@@ -37,7 +37,7 @@ class FeatureDataFile(DataFile):
             curr_inds = (st <= inds) & (inds <= en)
             labels[curr_inds] = True
 
-        return pd.concat({"data": self.data.loc[inds], "labels": labels}, axis=1)
+        return pd.concat({"data": self.data, "labels": labels}, axis=1)
 
     @property
     def data(self):
