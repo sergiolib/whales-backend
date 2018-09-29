@@ -19,6 +19,7 @@ class FeatureDataFile(DataFile):
         return {b: a for a, b in self.label_name.items()}
 
     def concatenate(self, datafiles_list, axis=1):
+        self.logger.debug("Concatenating feature data files")
         new_df = self.__class__(self.metadata["feature_name"])
 
         data = [df.data for df in datafiles_list]
@@ -31,6 +32,7 @@ class FeatureDataFile(DataFile):
         return new_df
 
     def get_labeled_data(self):
+        self.logger.debug("Getting labeled data frame")
         inds = self.data.index
         labels = pd.Series([False for i in range(len(inds))], index=inds)
         for st, en , l in self.metadata["labels"]:
