@@ -17,14 +17,12 @@ class BayesianGMM(SKLearnSaveLoadMixin, Unsupervised):
 
         self.parameters = {
             "n_components": 2,
-            "covariance_type": "full",
             "max_iter": 500,
             "n_init": 3,
             "scale": True
         }
 
         self.parameters_options = {
-            "covariance_type": ["full", "tied", "diag", "spherical"]
         }
 
         self.private_parameters = {}
