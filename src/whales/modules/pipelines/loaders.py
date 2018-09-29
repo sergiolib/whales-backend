@@ -75,7 +75,7 @@ class SupervisedWhalesDetectorLoaders(Loader):
                     real_input_data += new_elems
                 else:
                     real_input_data.append(elem)
-                self.logger.debug(f"Added file {real_input_data[-1]['file_name']}")
+                self.logger.debug(f"Added file {basename(real_input_data[-1]['file_name'])}")
         self.pipeline.add_instruction(self.instructions_set.build_data_file, {
             "input_data": real_input_data,
         })

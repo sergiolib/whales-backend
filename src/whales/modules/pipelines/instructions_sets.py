@@ -1,6 +1,8 @@
 """Computing heavy instructions for generating step results throughout the pipeline"""
 
 import logging
+from os.path import basename
+
 import pandas as pd
 from os.path import join
 
@@ -28,7 +30,7 @@ class WhalesInstructionSet(InstructionSet):
         # Load every small input data file and concatenate all into the big data file
         dfs = []
         for elem in params["input_data"]:
-            self.logger.info(f"Loading and appending file {elem['file_name']}")
+            self.logger.info(f"Loading and appending file {basename(elem['file_name'])}")
             file_name = elem["file_name"]
             data_file_name = elem["data_file"]
             formatter_name = elem["formatter"]
@@ -47,7 +49,7 @@ class WhalesInstructionSet(InstructionSet):
         lf = getters.get_available_labels_formatters()
 
         for p in labels_params:
-            self.logger.info(f"Setting labels in file {p['labels_file']}")
+            self.logger.info(f"Setting labels in file {basename(p['labels_file'])}")
             file_name = p["labels_file"]
             labels_formatter = lf[p["labels_formatter"]](logger=self.logger)
             input_data.load_labels(file_name, labels_formatter, label="whale")
@@ -111,7 +113,7 @@ class WhalesInstructionSet(InstructionSet):
             location = params["models_directory"]
             for i, f in enumerate(feat):
                 cur_loc = join(location, f'feature_{i}.mdl')
-                self.logger.info(f"Saving features extractor {f.__class__.__name__} to {cur_loc}")
+                self.logger.info(f"Saving features extractor {f.__class__.__name__}")
                 f.save(cur_loc)
         return {}
 
@@ -120,7 +122,7 @@ class WhalesInstructionSet(InstructionSet):
         location = params["models_directory"]
         for i, f in enumerate(feat):
             cur_loc = join(location, f'feature_{i}.mdl')
-            self.logger.info(f"Loading features extractor {f.__class__.__name__} from {cur_loc}")
+            self.logger.info(f"Loading features extractor {f.__class__.__name__}")
             f.load(cur_loc)
         return {}
 
@@ -171,7 +173,7 @@ class WhalesInstructionSet(InstructionSet):
         ml_method = params["ml_method"]
         location = params["models_directory"]
         cur_loc = join(location, 'ml_model.mdl')
-        self.logger.info(f"Loading machine learning method {ml_method} from {cur_loc}")
+        self.logger.info(f"Loading machine learning method {ml_method}")
         ml_method.load(cur_loc)
         return {}
 
