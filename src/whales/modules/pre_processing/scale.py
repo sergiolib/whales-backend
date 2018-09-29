@@ -11,9 +11,9 @@ class Scale(PreProcessing):
     def method_transform(self):
         data_file = self.all_parameters["data_file"]
         if issubclass(data_file.__class__, AudioDataFile):
-            out = data_file.data
-            out -= out.mean()
-            out /= out.std()
+            for st, en in data_file.metadata["starts_stops"]:
+                data_file.data[st:en] -= data_file.data[st:en].mean()
+                data_file.data[st:en] /= data_file.data[st:en].std()
             return data_file
         else:
             raise NotImplementedError
