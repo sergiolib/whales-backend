@@ -50,7 +50,7 @@ class Pipeline(Module):
         if "logs_directory" in self.all_parameters:
             makedirs(self.all_parameters["logs_directory"], exist_ok=True)
             logger_path = join(self.all_parameters["logs_directory"], "messages.log")
-            hdlr = logging.FileHandler(logger_path, mode="a")
+            hdlr = logging.FileHandler(logger_path, mode="w")
             fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
             hdlr.setFormatter(fmt)
             self.logger = logging.Logger(name=str(self))
