@@ -23,13 +23,15 @@ class WhalesInstructionSet(InstructionSet):
         return params
 
     def build_data_file(self, params: dict):
-        """"""
         available_data_files = getters.get_available_data_files()
         available_formatters = getters.get_available_formatters()
 
         # Load every small input data file and concatenate all into the big data file
         dfs = []
-        for elem in params["input_data"]:
+        input_data = params.get("input_data")
+        if input_data is None:
+            return {}
+        for elem in input_data:
             self.logger.info(f"Loading and appending file {basename(elem['file_name'])}")
             file_name = elem["file_name"]
             data_file_name = elem["data_file"]
@@ -42,9 +44,13 @@ class WhalesInstructionSet(InstructionSet):
 
         return {"input_data": big_df}
 
-    def set_labels(self, params:  dict):
-        labels_params = params["input_labels"]
-        input_data = params["input_data"]
+    def set_labels(self, params: dict):
+        labels_params = params.get("input_labels")
+        if labels_params is None:
+            return {}
+        input_data = params.get("input_data")
+        if input_data is None:
+            return {}
 
         lf = getters.get_available_labels_formatters()
 
@@ -56,69 +62,87 @@ class WhalesInstructionSet(InstructionSet):
 
         return {}
 
-    def add_features_extractor(self, params:  dict):
+    def add_features_extractor(self, params: dict):
         added_features_extractors = params.get("features_extractors", [])
         added_features_extractors.append(params["features_extractor"])
         return {"features_extractors": added_features_extractors}
 
-    def add_performance_indicator(self, params:  dict):
-        added_performance_indicators = params.get("performance_indicators", [])
-        added_performance_indicators.append(params["performance_indicator"])
+    def add_performance_indicator(self, params: dict):
+        added_performance_indicators = params.get("performance_indicators")
+        added_performance_indicators.append(params.get("performance_indicator"))
         return {"performance_indicators": added_performance_indicators}
 
-    def add_pre_processing_method(self, params:  dict):
+    def add_pre_processing_method(self, params: dict):
         added_pp_method = params.get("pre_processing_methods", [])
-        added_pp_method.append(params["pp_method"])
+        added_pp_method.append(params.get("pp_method"))
         return {"pre_processing_methods": added_pp_method}
 
-    def set_machine_learning_method(self, params:  dict):
+    def set_machine_learning_method(self, params: dict):
         return {"ml_method": params["ml_method"]}
 
     def train_machine_learning_method(self, params: dict):
-        ml_method = params["ml_method"]
-        df = params["training_set"]
+        ml_method = params.get("ml_method")
+        if ml_method is None:
+            return {}
+        df = params.get("training_set")
+        if df is None:
+            return {}
         self.logger.info(f"Training method {params['ml_method'].__class__.__name__} with {len(df.data)} data points")
         ml_method.private_parameters["data"] = df
         ml_method.fit()
         return {}
 
     def save_trained_ml_method(self, params: dict):
-        ml_method = params["ml_method"]
-        dir = params["models_directory"]
+        ml_method = params.get("ml_method")
+        if ml_method is None:
+            return {}
+        dir = params.get("models_directory")
+        if dir is None:
+            return {}
         ml_method.save(join(dir, "ml_model.mdl"))
         return {}
 
     def train_performance_indicators(self, params: dict):
-        pi = params["performance_indicators"]
-        df = params["training_set"]
+        pi = params.get("performance_indicators", [])
+        df = params.get("training_set")
         for p in pi:
             self.logger.info(f"Training performance indicator {p.__class__.__name__} with {len(df.data)} data points")
             p.fit(df)
         return {}
 
     def train_features(self, params: dict):
-        if "features_extractors" in params:
-            feat = params["features_extractors"]
-            df = params["input_data"]
-            for f in feat:
-                f.private_parameters["data_file"] = df
-                self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
-                f.fit()
+        feat = params.get("features_extractors")
+        if feat is None:
+            return {}
+        df = params.get("input_data")
+        if df is None:
+            return {}
+        for f in feat:
+            f.private_parameters["data_file"] = df
+            self.logger.info(f"Training features extractor {f.__class__.__name__} with {len(df.data)} data points")
+            f.fit()
         return {}
 
     def save_trained_features_extractors(self, params: dict):
-        if "features_extractors" in params:
-            feat = params["features_extractors"]
-            location = params["models_directory"]
-            for i, f in enumerate(feat):
-                cur_loc = join(location, f'feature_{i}.mdl')
-                self.logger.info(f"Saving features extractor {f.__class__.__name__}")
-                f.save(cur_loc)
+        feat = params.get("features_extractors")
+        if "features_extractors" is None:
+            return {}
+        location = params.get("models_directory")
+        if "models_directory" is None:
+            return {}
+        for i, f in enumerate(feat):
+            cur_loc = join(location, f'feature_{i}.mdl')
+            self.logger.info(f"Saving features extractor {f.__class__.__name__}")
+            f.save(cur_loc)
         return {}
 
     def load_trained_features_extractors(self, params: dict):
-        feat = params["features_extractors"]
-        location = params["models_directory"]
+        feat = params.get("features_extractors")
+        if feat is None:
+            return {}
+        location = params.get("models_directory")
+        if location is None:
+            return {}
         for i, f in enumerate(feat):
             cur_loc = join(location, f'feature_{i}.mdl')
             self.logger.info(f"Loading features extractor {f.__class__.__name__}")
@@ -126,37 +150,41 @@ class WhalesInstructionSet(InstructionSet):
         return {}
 
     def transform_features(self, params: dict):
-        if "features_extractors" in params:
-            feat = params["features_extractors"]
-            transformed = []
-            df = params["input_data"]
-            for f in feat:
-                f.private_parameters["data_file"] = df
-                msg = f"Transforming features extractor {f.__class__.__name__} with {len(df.data)} data points "
-                self.logger.info(msg)
-                res = f.transform()
-                transformed.append(res)
+        feat = params.get("features_extractors")
+        if feat is None:
+            return {}
+        transformed = []
+        df = params.get("input_data")
+        if df is None:
+            return {}
+        for f in feat:
+            f.private_parameters["data_file"] = df
+            msg = f"Transforming features extractor {f.__class__.__name__} with {len(df.data)} data points "
+            self.logger.info(msg)
+            res = f.transform()
+            transformed.append(res)
 
-            transformed = FeatureDataFile("all_features", logger=self.logger).concatenate(transformed)
-            transformed.metadata["labels"] = df.metadata["labels"]
-            return {params["data_set_name"]: transformed}
-        return {}
+        transformed = FeatureDataFile("all_features", logger=self.logger).concatenate(transformed)
+        transformed.metadata["labels"] = df.metadata["labels"]
+        return {params["data_set_name"]: transformed}
 
     def transform_pre_processing(self, params: dict):
-        if "pre_processing_methods" in params:
-            pre_processing_methods = params["pre_processing_methods"]
-            input_data = params["input_data"]
-            data_file = input_data
-            for pp in pre_processing_methods:
-                pp.private_parameters["data_file"] = data_file
-                self.logger.info(f"Applying pre processing {pp.__class__.__name__} to {len(data_file.data)} data points")
-                data_file = pp.transform()
-            return {"input_data": data_file}
-        else:
-            return {"input_data": params["input_data"]}
+        pre_processing_methods = params.get("pre_processing_methods")
+        input_data = params.get("input_data")
+        if input_data is None or pre_processing_methods is None:
+            return {"input_data": params.get("input_data")}
+        data_file = input_data
+        for pp in pre_processing_methods:
+            pp.private_parameters["data_file"] = data_file
+            self.logger.info(
+                f"Applying pre processing {pp.__class__.__name__} to {len(data_file.data)} data points")
+            data_file = pp.transform()
+        return {"input_data": data_file}
 
     def predict_machine_learning_method(self, params: dict):
-        ml_method = params["ml_method"]
+        ml_method = params.get("ml_method")
+        if ml_method is None:
+            return {}
         results = {}
         available_sets = [i for i in params if i.endswith("_set")]
         for dset in available_sets:
@@ -169,15 +197,17 @@ class WhalesInstructionSet(InstructionSet):
         return results
 
     def load_trained_machine_learning_method(self, params: dict):
-        ml_method = params["ml_method"]
-        location = params["models_directory"]
+        ml_method = params.get("ml_method")
+        location = params.get("models_directory")
+        if location is None or ml_method is None:
+            return {}
         cur_loc = join(location, 'ml_model.mdl')
         self.logger.info(f"Loading machine learning method {ml_method}")
         ml_method.load(cur_loc)
         return {}
 
     def compute_performance_indicators(self, params: dict):
-        pi = params["performance_indicators"]
+        pi = params.get("performance_indicators", [])
         results = {}
         available_sets = [i for i in params if i.endswith("_set") and not i.startswith("prediction_")]
         for dset in available_sets:
@@ -198,21 +228,11 @@ class WhalesInstructionSet(InstructionSet):
                 self.save_performance_indicators_results(f"{i.__class__.__name__}_{dset}", i, params)
         return results
 
-    # def save_computed_performance_indicators(self, params: dict):
-    #     pi = params["performance_indicators"]
-    #
-    #     # Save methods and results
-    #     location = params["models_directory"]
-    #     for i, p in enumerate(pi):
-    #         cur_loc = join(location, f'{p}')
-    #         self.logger.info(f"Saving performance indicator {p}")
-    #         p.save(cur_loc)
-    #
-    #     return {}
-
     def save_performance_indicators_results(self, file_name, performance_indicator, params: dict):
         # Save methods and results
-        location = params["results_directory"]
+        location = params.get("results_directory")
+        if location is None:
+            return {}
         cur_loc = join(location, file_name)
         self.logger.info(f"Saving performance indicator {performance_indicator}")
         performance_indicator.save_results(cur_loc)
