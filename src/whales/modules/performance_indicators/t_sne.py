@@ -1,4 +1,7 @@
 from sklearn.manifold import TSNE as SKTSNE
+
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from whales.modules.performance_indicators.performance_indicator import PerformanceIndicator
 import numpy as np

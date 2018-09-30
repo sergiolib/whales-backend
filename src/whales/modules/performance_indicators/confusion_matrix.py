@@ -1,6 +1,8 @@
 import itertools
 import numpy as np
 from sklearn.metrics import confusion_matrix
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from whales.modules.performance_indicators.performance_indicator import PerformanceIndicator

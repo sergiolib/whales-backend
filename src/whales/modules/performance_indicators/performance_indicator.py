@@ -1,6 +1,8 @@
 from os.path import splitext
 
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib.pyplot import Figure
 from whales.modules.module import Module
 
