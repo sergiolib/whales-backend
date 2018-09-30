@@ -11,7 +11,7 @@ class PredictWhaleDetector(Pipeline):
         self.description = "Predictions pipeline"
 
         self.loaders = PredictSupervisedWhalesDetectorLoaders(pipeline=self,
-                                                              instructions_set=WhalesInstructionSet(),
+                                                              instructions_set=WhalesInstructionSet(logger=logger),
                                                               logger=logger)
         self.parser = PredictWhalesPipelineParser(logger=self.logger)
 
