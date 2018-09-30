@@ -11,7 +11,7 @@ class TrainWhaleDetector(Pipeline):
         self.description = "Training pipeline"
 
         self.loaders = TrainSupervisedWhalesDetectorLoaders(pipeline=self,
-                                                            instructions_set=WhalesInstructionSet(),
+                                                            instructions_set=WhalesInstructionSet(logger=logger),
                                                             logger=self.logger)
         self.parser = TrainWhalesPipelineParser(logger=self.logger)
 
