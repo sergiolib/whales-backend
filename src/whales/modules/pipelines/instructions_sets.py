@@ -20,9 +20,11 @@ class InstructionSet:
 
 class WhalesInstructionSet(InstructionSet):
     def set_params(self, params: dict):
+        self.logger.debug("Setting parameters")
         return params
 
     def build_data_file(self, params: dict):
+        self.logger.debug("Loading data files")
         available_data_files = getters.get_available_data_files()
         available_formatters = getters.get_available_formatters()
 
@@ -45,6 +47,7 @@ class WhalesInstructionSet(InstructionSet):
         return {"input_data": big_df}
 
     def set_labels(self, params: dict):
+        self.logger.debug("Setting labels")
         labels_params = params.get("input_labels")
         if labels_params is None:
             return {}
@@ -63,24 +66,29 @@ class WhalesInstructionSet(InstructionSet):
         return {}
 
     def add_features_extractor(self, params: dict):
+        self.logger.debug("Adding features extractor")
         added_features_extractors = params.get("features_extractors", [])
         added_features_extractors.append(params["features_extractor"])
         return {"features_extractors": added_features_extractors}
 
     def add_performance_indicator(self, params: dict):
-        added_performance_indicators = params.get("performance_indicators")
+        self.logger.debug("Adding performance indicator")
+        added_performance_indicators = params.get("performance_indicators", [])
         added_performance_indicators.append(params.get("performance_indicator"))
         return {"performance_indicators": added_performance_indicators}
 
     def add_pre_processing_method(self, params: dict):
+        self.logger.debug("Adding pre processing")
         added_pp_method = params.get("pre_processing_methods", [])
         added_pp_method.append(params.get("pp_method"))
         return {"pre_processing_methods": added_pp_method}
 
     def set_machine_learning_method(self, params: dict):
+        self.logger.debug("Setting machine learning method")
         return {"ml_method": params["ml_method"]}
 
     def train_machine_learning_method(self, params: dict):
+        self.logger.debug("Training machine learning method")
         ml_method = params.get("ml_method")
         if ml_method is None:
             return {}
@@ -93,16 +101,18 @@ class WhalesInstructionSet(InstructionSet):
         return {}
 
     def save_trained_ml_method(self, params: dict):
+        self.logger.debug("Saving trained machine learning method")
         ml_method = params.get("ml_method")
         if ml_method is None:
             return {}
-        dir = params.get("models_directory")
-        if dir is None:
+        dire = params.get("models_directory")
+        if dire is None:
             return {}
-        ml_method.save(join(dir, "ml_model.mdl"))
+        ml_method.save(join(dire, "ml_model.mdl"))
         return {}
 
     def train_performance_indicators(self, params: dict):
+        self.logger.debug("Training performance indicators")
         pi = params.get("performance_indicators", [])
         df = params.get("training_set")
         for p in pi:
@@ -111,6 +121,7 @@ class WhalesInstructionSet(InstructionSet):
         return {}
 
     def train_features(self, params: dict):
+        self.logger.debug("Training features extractors")
         feat = params.get("features_extractors")
         if feat is None:
             return {}
@@ -124,6 +135,7 @@ class WhalesInstructionSet(InstructionSet):
         return {}
 
     def save_trained_features_extractors(self, params: dict):
+        self.logger.debug("Saving trained features extractors")
         feat = params.get("features_extractors")
         if "features_extractors" is None:
             return {}
@@ -137,6 +149,7 @@ class WhalesInstructionSet(InstructionSet):
         return {}
 
     def load_trained_features_extractors(self, params: dict):
+        self.logger.debug("Loading previously saved trained features extractors")
         feat = params.get("features_extractors")
         if feat is None:
             return {}
@@ -150,6 +163,7 @@ class WhalesInstructionSet(InstructionSet):
         return {}
 
     def transform_features(self, params: dict):
+        self.logger.debug("Transforming features")
         feat = params.get("features_extractors")
         if feat is None:
             return {}
@@ -169,6 +183,7 @@ class WhalesInstructionSet(InstructionSet):
         return {params["data_set_name"]: transformed}
 
     def transform_pre_processing(self, params: dict):
+        self.logger.debug("Pre processing")
         pre_processing_methods = params.get("pre_processing_methods")
         input_data = params.get("input_data")
         if input_data is None or pre_processing_methods is None:
@@ -182,6 +197,7 @@ class WhalesInstructionSet(InstructionSet):
         return {"input_data": data_file}
 
     def predict_machine_learning_method(self, params: dict):
+        self.logger.debug("Predicting with machine learning model")
         ml_method = params.get("ml_method")
         if ml_method is None:
             return {}
@@ -197,6 +213,7 @@ class WhalesInstructionSet(InstructionSet):
         return results
 
     def load_trained_machine_learning_method(self, params: dict):
+        self.logger.debug("Loading previously saved machine learning model")
         ml_method = params.get("ml_method")
         location = params.get("models_directory")
         if location is None or ml_method is None:
@@ -207,6 +224,7 @@ class WhalesInstructionSet(InstructionSet):
         return {}
 
     def compute_performance_indicators(self, params: dict):
+        self.logger.debug("Computing the performance indicators")
         pi = params.get("performance_indicators", [])
         results = {}
         available_sets = [i for i in params if i.endswith("_set") and not i.startswith("prediction_")]
@@ -229,6 +247,7 @@ class WhalesInstructionSet(InstructionSet):
         return results
 
     def save_performance_indicators_results(self, file_name, performance_indicator, params: dict):
+        self.logger.debug("Saving the performance indicators results")
         # Save methods and results
         location = params.get("results_directory")
         if location is None:
