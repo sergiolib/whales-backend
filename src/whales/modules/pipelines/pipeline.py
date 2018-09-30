@@ -61,6 +61,7 @@ class Pipeline(Module):
                 self.logger.setLevel(logging.INFO)
 
             self.loaders.logger = self.logger
+            self.loaders.instruction_set.logger = self.logger
 
         self.logger.info("Parameters loaded correctly")
 
